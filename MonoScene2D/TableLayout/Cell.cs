@@ -599,6 +599,11 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
+        public Cell LayoutRow
+        {
+            get { return Layout.Row(); }
+        }
+
         public void Clear ()
         {
             MinWidthValue = null;
@@ -664,27 +669,21 @@ namespace MonoScene2D.TableLayout
     public class Cell<T> : Cell
         where T : class
     {
-        internal T _widget;
+        public new T Widget { get; internal set; }
 
-        //public Cell<T> LayoutRow
-        //{
-        //    get { return _layout.Row; }
-        //}
-
-        public new T Widget
+        public void SetWidget (T widget)
         {
-            get { return _widget; }
-            set { } // Layout.Toolkit.SetWidget(layout, this, widget)
+            Layout.Toolkit.SetWidget(Layout, this, Widget);
         }
 
         protected override object WidgetCore
         {
-            get { return _widget; }
+            get { return Widget; }
         }
 
         public bool HasWidget
         {
-            get { return _widget != null; }
+            get { return Widget != null; }
         }
 
         public void Free ()

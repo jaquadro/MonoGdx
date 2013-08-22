@@ -11,10 +11,23 @@ namespace MonoScene2D.TableLayout
         public object Table
         {
             get { return TableCore; }
-            //set { TableCore = value; }
         }
 
-        protected abstract object TableCore { get; /*set;*/ }
+        public Toolkit Toolkit
+        {
+            get { return ToolkitCore; }
+        }
+
+        protected abstract object TableCore { get; }
+
+        protected abstract Toolkit ToolkitCore { get; }
+
+        public Cell Row ()
+        {
+            return RowCore();
+        }
+
+        protected abstract Cell RowCore ();
     }
 
     public enum Debug
@@ -142,7 +155,7 @@ namespace MonoScene2D.TableLayout
             return cell;
         }
 
-        public Cell Row ()
+        public new Cell Row ()
         {
             if (_cells.Count > 0) {
                 EndRow();
@@ -156,6 +169,11 @@ namespace MonoScene2D.TableLayout
             _rowDefaults.Clear();
 
             return _rowDefaults;
+        }
+
+        protected override Cell RowCore ()
+        {
+            return Row();
         }
 
         private void EndRow ()
@@ -272,6 +290,16 @@ namespace MonoScene2D.TableLayout
         {
             get { return _table; }
             //set { _table = value; }
+        }
+
+        public new TToolkit Toolkit
+        {
+            get { return _toolkit; }
+        }
+
+        protected override Toolkit ToolkitCore
+        {
+            get { return _toolkit; }
         }
 
         public float MinWidth

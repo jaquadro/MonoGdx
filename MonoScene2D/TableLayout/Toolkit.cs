@@ -37,6 +37,13 @@ namespace MonoScene2D.TableLayout
         public abstract float Width (object widget);
 
         public abstract float Height (object widget);
+
+        public void SetWidget (object layout, Cell cell, object widget)
+        {
+            SetWidgetCore(layout, cell, widget);
+        }
+
+        protected abstract void SetWidgetCore (object layout, Cell cell, object widget);
     }
 
     public abstract class Toolkit<T, TTable, TLayout> : Toolkit
@@ -123,6 +130,11 @@ namespace MonoScene2D.TableLayout
 
             if (widget != null)
                 AddChild((TTable)layout.Table, widget);
+        }
+
+        protected override void SetWidgetCore (object layout, Cell cell, object widget)
+        {
+            SetWidget((TLayout)layout, (Cell<T>)cell, (T)widget);
         }
     }
 }
