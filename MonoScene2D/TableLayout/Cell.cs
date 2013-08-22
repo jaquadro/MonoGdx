@@ -8,6 +8,70 @@ namespace MonoScene2D.TableLayout
 {
     public abstract class Cell
     {
+        protected Cell ()
+        {
+            CellAboveIndex = -1;
+        }
+
+        public BaseTableLayout Layout { get; set; }
+
+        internal void Set (Cell defaults)
+        {
+            MinWidthValue = defaults.MinWidthValue;
+            MinHeightValue = defaults.MinHeightValue;
+            PrefWidthValue = defaults.PrefWidthValue;
+            PrefHeightValue = defaults.PrefHeightValue;
+            MaxWidthValue = defaults.MaxWidthValue;
+            MaxHeightValue = defaults.MaxHeightValue;
+            SpaceTopValue = defaults.SpaceTopValue;
+            SpaceLeftValue = defaults.SpaceLeftValue;
+            SpaceBottomValue = defaults.SpaceBottomValue;
+            SpaceRightValue = defaults.SpaceRightValue;
+            PadTopValue = defaults.PadTopValue;
+            PadLeftValue = defaults.PadLeftValue;
+            PadBottomValue = defaults.PadBottomValue;
+            PadRightValue = defaults.PadRightValue;
+            FillX = defaults.FillX;
+            FillY = defaults.FillY;
+            Align = defaults.Align;
+            ExpandX = defaults.ExpandX;
+            ExpandY = defaults.ExpandY;
+            Ignore = defaults.Ignore;
+            Colspan = defaults.Colspan;
+            UniformX = defaults.UniformX;
+            UniformY = defaults.UniformY;
+        }
+
+        internal void Merge (Cell cell)
+        {
+            if (cell == null)
+                return;
+
+            MinWidthValue = (cell.MinWidthValue != null) ? cell.MinWidthValue : MinWidthValue;
+            MinHeightValue = (cell.MinHeightValue != null) ? cell.MinHeightValue : MinHeightValue;
+            PrefWidthValue = (cell.PrefWidthValue != null) ? cell.PrefWidthValue : PrefWidthValue;
+            PrefHeightValue = (cell.PrefHeightValue != null) ? cell.PrefHeightValue : PrefHeightValue;
+            MaxWidthValue = (cell.MaxWidthValue != null) ? cell.MaxWidthValue : MaxWidthValue;
+            MaxHeightValue = (cell.MaxHeightValue != null) ? cell.MaxHeightValue : MaxHeightValue;
+            SpaceTopValue = (cell.SpaceTopValue != null) ? cell.SpaceTopValue : SpaceTopValue;
+            SpaceLeftValue = (cell.SpaceLeftValue != null) ? cell.SpaceLeftValue : SpaceLeftValue;
+            SpaceBottomValue = (cell.SpaceBottomValue != null) ? cell.SpaceBottomValue : SpaceBottomValue;
+            SpaceRightValue = (cell.SpaceRightValue != null) ? cell.SpaceRightValue : SpaceRightValue;
+            PadTopValue = (cell.PadTopValue != null) ? cell.PadTopValue : PadTopValue;
+            PadLeftValue = (cell.PadLeftValue != null) ? cell.PadLeftValue : PadLeftValue;
+            PadBottomValue = (cell.PadBottomValue != null) ? cell.PadBottomValue : PadBottomValue;
+            PadRightValue = (cell.PadRightValue != null) ? cell.PadRightValue : PadRightValue;
+            FillX = (cell.FillX != null) ? cell.FillX : FillX;
+            FillY = (cell.FillY != null) ? cell.FillY : FillY;
+            Align = (cell.Align != null) ? cell.Align : Align;
+            ExpandX = (cell.ExpandX != null) ? cell.ExpandX : ExpandX;
+            ExpandY = (cell.ExpandY != null) ? cell.ExpandY : ExpandY;
+            Ignore = (cell.Ignore != null) ? cell.Ignore : Ignore;
+            Colspan = (cell.Colspan != null) ? cell.Colspan : Colspan;
+            UniformX = (cell.UniformX != null) ? cell.UniformX : UniformX;
+            UniformY = (cell.UniformY != null) ? cell.UniformY : UniformY;
+        }
+
         public Value MinWidthValue { get; set; }
         public Value MinHeightValue { get; set; }
 
@@ -157,115 +221,7 @@ namespace MonoScene2D.TableLayout
 
         public Alignment? Align { get; set; }
 
-        public object Widget
-        {
-            get { return WidgetCore; }
-        }
-
-        protected virtual object WidgetCore { get; }
-    }
-
-    public class Cell<T> : Cell
-        where T : class
-    {
-        internal T _widget;
-        
-        private BaseTableLayout _layout;
-
-        public BaseTableLayout Layout
-        {
-            get { return _layout; }
-        }
-
-        //public Cell<T> LayoutRow
-        //{
-        //    get { return _layout.Row; }
-        //}
-
-        public void Cell ()
-        {
-            CellAboveIndex = -1;
-        }
-
-        public void SetLayout (BaseTableLayout layout)
-        {
-            _layout = layout;
-        }
-
-        internal void Set (Cell defaults)
-        {
-            MinWidthValue = defaults.MinWidthValue;
-            MinHeightValue = defaults.MinHeightValue;
-            PrefWidthValue = defaults.PrefWidthValue;
-            PrefHeightValue = defaults.PrefHeightValue;
-            MaxWidthValue = defaults.MaxWidthValue;
-            MaxHeightValue = defaults.MaxHeightValue;
-            SpaceTopValue = defaults.SpaceTopValue;
-            SpaceLeftValue = defaults.SpaceLeftValue;
-            SpaceBottomValue = defaults.SpaceBottomValue;
-            SpaceRightValue = defaults.SpaceRightValue;
-            PadTopValue = defaults.PadTopValue;
-            PadLeftValue = defaults.PadLeftValue;
-            PadBottomValue = defaults.PadBottomValue;
-            PadRightValue = defaults.PadRightValue;
-            FillX = defaults.FillX;
-            FillY = defaults.FillY;
-            Align = defaults.Align;
-            ExpandX = defaults.ExpandX;
-            ExpandY = defaults.ExpandY;
-            Ignore = defaults.Ignore;
-            Colspan = defaults.Colspan;
-            UniformX = defaults.UniformX;
-            UniformY = defaults.UniformY;
-        }
-
-        internal void Merge (Cell cell)
-        {
-            if (cell == null)
-                return;
-
-            MinWidthValue = (cell.MinWidthValue != null) ? cell.MinWidthValue : MinWidthValue;
-            MinHeightValue = (cell.MinHeightValue != null) ? cell.MinHeightValue : MinHeightValue;
-            PrefWidthValue = (cell.PrefWidthValue != null) ? cell.PrefWidthValue : PrefWidthValue;
-            PrefHeightValue = (cell.PrefHeightValue != null) ? cell.PrefHeightValue : PrefHeightValue;
-            MaxWidthValue = (cell.MaxWidthValue != null) ? cell.MaxWidthValue : MaxWidthValue;
-            MaxHeightValue = (cell.MaxHeightValue != null) ? cell.MaxHeightValue : MaxHeightValue;
-            SpaceTopValue = (cell.SpaceTopValue != null) ? cell.SpaceTopValue : SpaceTopValue;
-            SpaceLeftValue = (cell.SpaceLeftValue != null) ? cell.SpaceLeftValue : SpaceLeftValue;
-            SpaceBottomValue = (cell.SpaceBottomValue != null) ? cell.SpaceBottomValue : SpaceBottomValue;
-            SpaceRightValue = (cell.SpaceRightValue != null) ? cell.SpaceRightValue : SpaceRightValue;
-            PadTopValue = (cell.PadTopValue != null) ? cell.PadTopValue : PadTopValue;
-            PadLeftValue = (cell.PadLeftValue != null) ? cell.PadLeftValue : PadLeftValue;
-            PadBottomValue = (cell.PadBottomValue != null) ? cell.PadBottomValue : PadBottomValue;
-            PadRightValue = (cell.PadRightValue != null) ? cell.PadRightValue : PadRightValue;
-            FillX = (cell.FillX != null) ? cell.FillX : FillX;
-            FillY = (cell.FillY != null) ? cell.FillY : FillY;
-            Align = (cell.Align != null) ? cell.Align : Align;
-            ExpandX = (cell.ExpandX != null) ? cell.ExpandX : ExpandX;
-            ExpandY = (cell.ExpandY != null) ? cell.ExpandY : ExpandY;
-            Ignore = (cell.Ignore != null) ? cell.Ignore : Ignore;
-            Colspan = (cell.Colspan != null) ? cell.Colspan : Colspan;
-            UniformX = (cell.UniformX != null) ? cell.UniformX : UniformX;
-            UniformY = (cell.UniformY != null) ? cell.UniformY : UniformY;
-        }
-
-        public new T Widget
-        {
-            get { return _widget; }
-            set { }
-        }
-
-        protected override object WidgetCore
-        {
-            get { return _widget; }
-        }
-
-        public bool HasWidget
-        {
-            get { return _widget != null; }
-        }
-        
-        public Cell<T> Size (Value size)
+        public Cell Size (Value size)
         {
             MinWidthValue = size;
             MinHeightValue = size;
@@ -277,7 +233,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> Size (Value width, Value height)
+        public Cell Size (Value width, Value height)
         {
             MinWidthValue = width;
             MinHeightValue = height;
@@ -289,14 +245,14 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> Size (float size)
+        public Cell Size (float size)
         {
             Size(new FixedValue(size));
 
             return this;
         }
 
-        public Cell<T> Width (Value width)
+        public Cell Width (Value width)
         {
             MinWidthValue = width;
             PrefWidthValue = width;
@@ -305,14 +261,14 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> Width (float width)
+        public Cell Width (float width)
         {
             Width(new FixedValue(width));
 
             return this;
         }
 
-        public Cell<T> Height (Value height)
+        public Cell Height (Value height)
         {
             MinHeightValue = height;
             PrefHeightValue = height;
@@ -321,14 +277,14 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> Height (float height)
+        public Cell Height (float height)
         {
             Height(new FixedValue(height));
 
             return this;
         }
 
-        public Cell<T> MinSize (Value size)
+        public Cell MinSize (Value size)
         {
             MinWidthValue = size;
             MinHeightValue = size;
@@ -336,7 +292,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> MinSize (Value width, Value height)
+        public Cell MinSize (Value width, Value height)
         {
             MinWidthValue = width;
             MinHeightValue = height;
@@ -344,7 +300,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> MinSize (float size)
+        public Cell MinSize (float size)
         {
             MinWidthValue = new FixedValue(size);
             MinHeightValue = new FixedValue(size);
@@ -352,7 +308,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> MinSize (float width, float height)
+        public Cell MinSize (float width, float height)
         {
             MinWidthValue = new FixedValue(width);
             MinHeightValue = new FixedValue(height);
@@ -360,7 +316,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> PrefSize (Value size)
+        public Cell PrefSize (Value size)
         {
             PrefWidthValue = size;
             PrefHeightValue = size;
@@ -368,7 +324,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> PrefSize (Value width, Value height)
+        public Cell PrefSize (Value width, Value height)
         {
             PrefWidthValue = width;
             PrefHeightValue = height;
@@ -376,7 +332,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> PrefSize (float size)
+        public Cell PrefSize (float size)
         {
             PrefWidthValue = new FixedValue(size);
             PrefHeightValue = new FixedValue(size);
@@ -384,7 +340,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> PrefSize (float width, float height)
+        public Cell PrefSize (float width, float height)
         {
             PrefWidthValue = new FixedValue(width);
             PrefHeightValue = new FixedValue(height);
@@ -392,7 +348,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> MaxSize (Value size)
+        public Cell MaxSize (Value size)
         {
             MaxWidthValue = size;
             MaxHeightValue = size;
@@ -400,7 +356,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> MaxSize (Value width, Value height)
+        public Cell MaxSize (Value width, Value height)
         {
             MaxWidthValue = width;
             MaxHeightValue = height;
@@ -408,7 +364,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> MaxSize (float size)
+        public Cell MaxSize (float size)
         {
             MaxWidthValue = new FixedValue(size);
             MaxHeightValue = new FixedValue(size);
@@ -416,7 +372,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> MaxSize (float width, float height)
+        public Cell MaxSize (float width, float height)
         {
             MaxWidthValue = new FixedValue(width);
             MaxHeightValue = new FixedValue(height);
@@ -424,7 +380,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> Space (Value space)
+        public Cell Space (Value space)
         {
             SpaceTopValue = space;
             SpaceLeftValue = space;
@@ -434,7 +390,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> Space (Value top, Value left, Value bottom, Value right)
+        public Cell Space (Value top, Value left, Value bottom, Value right)
         {
             SpaceTopValue = top;
             SpaceLeftValue = left;
@@ -444,7 +400,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> Space (float space)
+        public Cell Space (float space)
         {
             if (space < 0)
                 throw new ArgumentException("space cannot be < 0.");
@@ -457,7 +413,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> Space (float top, float left, float bottom, float right)
+        public Cell Space (float top, float left, float bottom, float right)
         {
             if (top < 0)
                 throw new ArgumentException("top cannot be < 0.");
@@ -476,7 +432,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> Pad (Value pad)
+        public Cell Pad (Value pad)
         {
             PadTopValue = pad;
             PadLeftValue = pad;
@@ -486,7 +442,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> Pad (Value top, Value left, Value bottom, Value right)
+        public Cell Pad (Value top, Value left, Value bottom, Value right)
         {
             PadTopValue = top;
             PadLeftValue = left;
@@ -496,7 +452,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> Pad (float pad)
+        public Cell Pad (float pad)
         {
             PadTop = pad;
             PadLeft = pad;
@@ -506,7 +462,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> Pad (float top, float left, float bottom, float right)
+        public Cell Pad (float top, float left, float bottom, float right)
         {
             PadTop = top;
             PadLeft = left;
@@ -516,7 +472,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> Fill ()
+        public Cell Fill ()
         {
             FillX = 1;
             FillY = 1;
@@ -524,7 +480,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> Fill (float x, float y)
+        public Cell Fill (float x, float y)
         {
             FillX = x;
             FillY = y;
@@ -532,7 +488,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> Fill (bool fill)
+        public Cell Fill (bool fill)
         {
             FillX = fill ? 1 : 0;
             FillY = fill ? 1 : 0;
@@ -540,7 +496,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> Fill (bool x, bool y)
+        public Cell Fill (bool x, bool y)
         {
             FillX = x ? 1 : 0;
             FillY = y ? 1 : 0;
@@ -548,14 +504,14 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> Center ()
+        public Cell Center ()
         {
             Align = Alignment.Center;
 
             return this;
         }
 
-        public Cell<T> Top ()
+        public Cell Top ()
         {
             if (Align == null)
                 Align = Alignment.Top;
@@ -567,7 +523,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> Left ()
+        public Cell Left ()
         {
             if (Align == null)
                 Align = Alignment.Left;
@@ -579,7 +535,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> Bottom ()
+        public Cell Bottom ()
         {
             if (Align == null)
                 Align = Alignment.Bottom;
@@ -591,7 +547,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> Right ()
+        public Cell Right ()
         {
             if (Align == null)
                 Align = Alignment.Right;
@@ -603,7 +559,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> Expand ()
+        public Cell Expand ()
         {
             ExpandX = 1;
             ExpandY = 1;
@@ -611,7 +567,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> Expand (int? x, int? y)
+        public Cell Expand (int? x, int? y)
         {
             ExpandX = x;
             ExpandY = y;
@@ -619,7 +575,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> Expand (bool x, bool y)
+        public Cell Expand (bool x, bool y)
         {
             ExpandX = x ? 1 : 0;
             ExpandY = y ? 1 : 0;
@@ -627,7 +583,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> Uniform ()
+        public Cell Uniform ()
         {
             UniformX = true;
             UniformY = true;
@@ -635,7 +591,7 @@ namespace MonoScene2D.TableLayout
             return this;
         }
 
-        public Cell<T> Uniform (bool x, bool y)
+        public Cell Uniform (bool x, bool y)
         {
             UniformX = x;
             UniformY = y;
@@ -670,14 +626,6 @@ namespace MonoScene2D.TableLayout
             UniformY = null;
         }
 
-        public void Free ()
-        {
-            Widget = null;
-            _layout = null;
-            IsEndRow = false;
-            CellAboveIndex = -1;
-        }
-
         internal void Defaults ()
         {
             MinWidthValue = Value.MinWidth;
@@ -703,6 +651,48 @@ namespace MonoScene2D.TableLayout
             Colspan = 1;
             UniformX = null;
             UniformY = null;
+        }
+
+        public object Widget
+        {
+            get { return WidgetCore; }
+        }
+
+        protected abstract object WidgetCore { get; }
+    }
+
+    public class Cell<T> : Cell
+        where T : class
+    {
+        internal T _widget;
+
+        //public Cell<T> LayoutRow
+        //{
+        //    get { return _layout.Row; }
+        //}
+
+        public new T Widget
+        {
+            get { return _widget; }
+            set { } // Layout.Toolkit.SetWidget(layout, this, widget)
+        }
+
+        protected override object WidgetCore
+        {
+            get { return _widget; }
+        }
+
+        public bool HasWidget
+        {
+            get { return _widget != null; }
+        }
+
+        public void Free ()
+        {
+            Widget = null;
+            Layout = null;
+            IsEndRow = false;
+            CellAboveIndex = -1;
         }
     }
 }

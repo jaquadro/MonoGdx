@@ -8,6 +8,13 @@ namespace MonoScene2D.TableLayout
 {
     public abstract class BaseTableLayout
     {
+        public object Table
+        {
+            get { return TableCore; }
+            //set { TableCore = value; }
+        }
+
+        protected abstract object TableCore { get; /*set;*/ }
     }
 
     public enum Debug
@@ -42,10 +49,10 @@ namespace MonoScene2D.TableLayout
         private int _columns;
         private int _rows;
 
-        private readonly List<Cell<T>> _cells = new List<Cell<T>>(4);
-        private readonly Cell<T> _cellDefaults;
-        private readonly List<Cell<T>> _columnDefaults = new List<Cell<T>>(2);
-        private Cell<T> _rowDefaults;
+        private readonly List<Cell> _cells = new List<Cell>(4);
+        private readonly Cell _cellDefaults;
+        private readonly List<Cell> _columnDefaults = new List<Cell>(2);
+        private Cell _rowDefaults;
 
         private bool _sizeInvalid = true;
         private float[] _colMinWidth;
@@ -90,7 +97,7 @@ namespace MonoScene2D.TableLayout
             cell.Widget = widget;
 
             if (_cells.Count > 0) {
-                Cell<T> lastCell = _cells[_cells.Count - 1];
+                Cell lastCell = _cells[_cells.Count - 1];
                 if (!lastCell.IsEndRow) {
                     cell.Column = lastCell.Column + (lastCell.Colspan ?? 0);
                     cell.Row = lastCell.Row;
@@ -102,7 +109,7 @@ namespace MonoScene2D.TableLayout
 
                 if (cell.Row > 0) {
                     for (int i = _cells.Count - 1; i >= 0; i--) {
-                        Cell<T> other = _cells[i];
+                        Cell other = _cells[i];
                         for (int column = other.Column, nn = column + (other.Colspan ?? 0); column < nn; column++) {
                             if (column == cell.Column) {
                                 cell.CellAboveIndex = i;
@@ -122,7 +129,7 @@ namespace MonoScene2D.TableLayout
 
             cell.Set(_cellDefaults);
             if (cell.Column < _columnDefaults.Count) {
-                Cell<T> columnCell = _columnDefaults[cell.Column];
+                Cell columnCell = _columnDefaults[cell.Column];
                 if (columnCell != null)
                     cell.Merge(columnCell);
             }
@@ -135,7 +142,7 @@ namespace MonoScene2D.TableLayout
             return cell;
         }
 
-        public Cell<T> Row ()
+        public Cell Row ()
         {
             if (_cells.Count > 0) {
                 EndRow();
@@ -155,7 +162,7 @@ namespace MonoScene2D.TableLayout
         {
             int rowColumns = 0;
             for (int i = _cells.Count - 1; i >= 0; i--) {
-                Cell<T> cell = _cells[i];
+                Cell cell = _cells[i];
                 if (cell.IsEndRow)
                     break;
 
@@ -168,9 +175,9 @@ namespace MonoScene2D.TableLayout
             _cells[_cells.Count - 1].IsEndRow = true;
         }
 
-        public Cell<T> ColumnDefaults (int column)
+        public Cell ColumnDefaults (int column)
         {
-            Cell<T> cell = _columnDefaults.Count > column ? _columnDefaults[column] : null;
+            Cell cell = _columnDefaults.Count > column ? _columnDefaults[column] : null;
             if (cell == null) {
                 cell = _toolkit.ObtainCell(this);
                 cell.Clear();
@@ -204,7 +211,7 @@ namespace MonoScene2D.TableLayout
             _cellDefaults.Defaults();
 
             for (int i = 0, n = _columnDefaults.Count; i < n; i++) {
-                Cell<T> columnCell = _columnDefaults[i];
+                Cell columnCell = _columnDefaults[i];
                 if (columnCell != null)
                     _toolkit.FreeCell(columnCell);
             }
@@ -215,11 +222,11 @@ namespace MonoScene2D.TableLayout
         public void Clear ()
         {
             for (int i = _cells.Count - 1; i >= 0; i--) {
-                Cell<T> cell = _cells[i];
-                T widget = cell.Widget;
+                Cell cell = _cells[i];
+                object widget = cell.Widget;
 
                 if (widget != null)
-                    _toolkit.RemoveChild(_table, widget);
+                    _toolkit.RemoveChild(_table, (T)widget);
                 _toolkit.FreeCell(cell);
             }
 
@@ -234,10 +241,10 @@ namespace MonoScene2D.TableLayout
             Invalidate();
         }
 
-        public Cell<T> GetCell (T widget)
+        public Cell GetCell (T widget)
         {
             for (int i = 0, n = _cells.Count; i < n; i++) {
-                Cell<T> c = _cells[i];
+                Cell c = _cells[i];
                 if (c.Widget == widget)
                     return c;
             }
@@ -245,7 +252,7 @@ namespace MonoScene2D.TableLayout
             return null;
         }
 
-        public List<Cell<T>> Cells
+        public List<Cell> Cells
         {
             get { return _cells; }
         }
@@ -255,10 +262,16 @@ namespace MonoScene2D.TableLayout
             _toolkit = toolkit;
         }
 
-        public TTable Table
+        public new TTable Table
         {
             get { return _table; }
             set { _table = value; }
+        }
+
+        protected override object TableCore
+        {
+            get { return _table; }
+            //set { _table = value; }
         }
 
         public float MinWidth
@@ -301,7 +314,7 @@ namespace MonoScene2D.TableLayout
             }
         }
 
-        public Cell<T> Defaults
+        public Cell Defaults
         {
             get { return _cellDefaults; }
         }
@@ -384,14 +397,6 @@ namespace MonoScene2D.TableLayout
         {
             _align |= Alignment.Right;
             _align &= ~Alignment.Left;
-
-            return this as TLayout;
-        }
-
-        public TLayout Debug ()
-        {
-            _debug = TableLayout.Debug.All;
-            Invalidate();
 
             return this as TLayout;
         }
@@ -504,7 +509,7 @@ namespace MonoScene2D.TableLayout
 
             if (_cells[0].WidgetY < _cells[1].WidgetY) {
                 while (i < n) {
-                    Cell<T> c = _cells[i++];
+                    Cell c = _cells[i++];
                     if (c.Ignore == true)
                         continue;
                     if (c.WidgetY + c.ComputedPadTop > y)
@@ -517,7 +522,7 @@ namespace MonoScene2D.TableLayout
             }
 
             while (i < n) {
-                Cell<T> c = _cells[i++];
+                Cell c = _cells[i++];
                 if (c.Ignore == true)
                     continue;
                 if (c.WidgetY + c.ComputedPadTop < y)
@@ -550,12 +555,12 @@ namespace MonoScene2D.TableLayout
             return value == null ? 0 : value.Height(_table);
         }
 
-        private float W (Value value, Cell<T> cell)
+        private float W (Value value, Cell cell)
         {
             return value == null ? 0 : value.Width(cell);
         }
 
-        private float H (Value value, Cell<T> cell)
+        private float H (Value value, Cell cell)
         {
             return value == null ? 0 : value.Height(cell);
         }
@@ -578,7 +583,7 @@ namespace MonoScene2D.TableLayout
 
             float spaceRightLast = 0;
             for (int i = 0, n = _cells.Count; i < n; i++) {
-                Cell<T> c = _cells[i];
+                Cell c = _cells[i];
                 if (c.Ignore == true)
                     continue;
 
@@ -594,7 +599,7 @@ namespace MonoScene2D.TableLayout
                 c.ComputedPadTop = H(c.PadTopValue, c);
 
                 if (c.CellAboveIndex != -1) {
-                    Cell<T> above = _cells[c.CellAboveIndex];
+                    Cell above = _cells[c.CellAboveIndex];
                     c.ComputedPadTop += Math.Max(0, H(c.SpaceTopValue, c) - H(above.SpaceBottomValue, c));
                 }
 
@@ -636,7 +641,7 @@ namespace MonoScene2D.TableLayout
             for (int i = 0, n = _cells.Count; i < n; i++) {
                 CONT_OUTER:
 
-                Cell<T> c = _cells[i];
+                Cell c = _cells[i];
                 if (c.Ignore == true || c.ExpandX == 0)
                     continue;
 
@@ -651,7 +656,7 @@ namespace MonoScene2D.TableLayout
 
             // Distribute any additional min and pref width added by colspanned cells to the columns spanned.
             for (int i = 0, n = _cells.Count; i < n; i++) {
-                Cell<T> c = _cells[i];
+                Cell c = _cells[i];
                 if (c.Ignore == true || c.Colspan == 1)
                     continue;
 
@@ -693,7 +698,7 @@ namespace MonoScene2D.TableLayout
             float uniformPrefHeight = 0;
 
             for (int i = 0, n = _cells.Count; i < n; i++) {
-                Cell<T> c = _cells[i];
+                Cell c = _cells[i];
                 if (c.Ignore == true)
                     continue;
 
@@ -714,7 +719,7 @@ namespace MonoScene2D.TableLayout
             // Size unform cells to the same width/height.
             if (uniformPrefWidth > 0 || uniformPrefHeight > 0) {
                 for (int i = 0, n = _cells.Count; i < n; i++) {
-                    Cell<T> c = _cells[i];
+                    Cell c = _cells[i];
                     if (c.Ignore == true)
                         continue;
 
@@ -812,7 +817,7 @@ namespace MonoScene2D.TableLayout
 
             // Determine widget and cell sizes (before expand or fill)
             for (int i = 0, n = _cells.Count; i < n; i++) {
-                Cell<T> c = _cells[i];
+                Cell c = _cells[i];
                 if (c.Ignore == true)
                     continue;
 
@@ -915,7 +920,7 @@ namespace MonoScene2D.TableLayout
             float currentY = y;
 
             for (int i = 0, n = _cells.Count; i < n; i++) {
-                Cell<T> c = _cells[i];
+                Cell c = _cells[i];
                 if (c.Ignore == true)
                     continue;
 
@@ -979,7 +984,7 @@ namespace MonoScene2D.TableLayout
             }
 
             for (int i = 0, n = _cells.Count; i < n; i++) {
-                Cell<T> c = _cells[i];
+                Cell c = _cells[i];
                 if (c.Ignore == true)
                     continue;
 

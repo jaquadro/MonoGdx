@@ -20,6 +20,8 @@ namespace MonoScene2D.TableLayout
             return value;
         }
 
+        public abstract void FreeCell (Cell cell);
+
         public abstract float MinWidth (object widget);
 
         public abstract float MinHeight (object widget);
@@ -45,6 +47,11 @@ namespace MonoScene2D.TableLayout
         public abstract Cell<T> ObtainCell (TLayout layout);
 
         public abstract void FreeCell (Cell<T> cell);
+
+        public override void FreeCell (Cell cell)
+        {
+            FreeCell((Cell<T>)cell);
+        }
 
         public abstract void AddChild (T parent, T child);
 
