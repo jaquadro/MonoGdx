@@ -30,8 +30,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MonoGame.Framework, Version=3.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\MonoGame\MonoGame.Framework\bin\WindowsGL\Debug\MonoGame.Framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -39,13 +44,60 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="Attributes.cs" />
+    <Compile Include="Geometry\ColorExt.cs" />
+    <Compile Include="Geometry\Vector2Ext.cs" />
+    <Compile Include="Scene2D\Utils\BaseDrawable.cs" />
+    <Compile Include="Scene2D\Utils\NinePatchDrawable.cs" />
+    <Compile Include="Scene2D\Utils\SpriteDrawable.cs" />
+    <Compile Include="Scene2D\Utils\TextureRegionDrawable.cs" />
+    <Compile Include="Scene2D\Utils\TiledDrawable.cs" />
+    <Compile Include="XnaExt.cs" />
+    <Compile Include="Graphics\Camera.cs" />
+    <Compile Include="Graphics\G2D\GdxSpriteBatch.cs" />
+    <Compile Include="Graphics\G2D\NinePatch.cs" />
+    <Compile Include="Graphics\G2D\Sprite.cs" />
+    <Compile Include="Graphics\G2D\TextureAtlas.cs" />
+    <Compile Include="Graphics\G2D\TextureRegion.cs" />
+    <Compile Include="Graphics\OrthographicCamera.cs" />
+    <Compile Include="InputAdapter.cs" />
+    <Compile Include="InputProcessor.cs" />
+    <Compile Include="Geometry\RectangleF.cs" />
+    <Compile Include="Geometry\Vector3Ext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Scene2D\Actor.cs" />
+    <Compile Include="Scene2D\Event.cs" />
+    <Compile Include="Scene2D\EventListener.cs" />
+    <Compile Include="Scene2D\Group.cs" />
+    <Compile Include="Scene2D\InputEvent.cs" />
+    <Compile Include="Scene2D\InputListener.cs" />
+    <Compile Include="Scene2D\SceneAction.cs" />
+    <Compile Include="Scene2D\Stage.cs" />
+    <Compile Include="Scene2D\UI\Button.cs" />
+    <Compile Include="Scene2D\UI\Label.cs" />
+    <Compile Include="Scene2D\UI\Skin.cs" />
+    <Compile Include="Scene2D\UI\Table.cs" />
+    <Compile Include="Scene2D\UI\TableLayout.cs" />
+    <Compile Include="Scene2D\UI\TableToolkit.cs" />
+    <Compile Include="Scene2D\UI\Widget.cs" />
+    <Compile Include="Scene2D\UI\WidgetGroup.cs" />
+    <Compile Include="Scene2D\Utils\FocusEvent.cs" />
+    <Compile Include="Scene2D\Utils\FocusListener.cs" />
+    <Compile Include="Scene2D\Utils\ICullable.cs" />
+    <Compile Include="Scene2D\Utils\IDrawable.cs" />
+    <Compile Include="Scene2D\Utils\ILayout.cs" />
+    <Compile Include="Scene2D\Utils\SceneBatch.cs" />
+    <Compile Include="Scene2D\Utils\ScissorStack.cs" />
     <Compile Include="TableLayout\BaseTableLayout.cs" />
     <Compile Include="TableLayout\Cell.cs" />
     <Compile Include="TableLayout\Toolkit.cs" />
     <Compile Include="TableLayout\Value.cs" />
+    <Compile Include="Utils\DelayedRemovalList.cs" />
+    <Compile Include="Utils\Pool.cs" />
+    <Compile Include="Utils\Pools.cs" />
+    <Compile Include="Utils\SnapshotList.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

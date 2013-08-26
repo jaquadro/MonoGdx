@@ -76,6 +76,10 @@ namespace MonoScene2D.TableLayout
 
         public abstract float MaxHeight (T widget);
 
+        public abstract float Width (T widget);
+
+        public abstract float Height (T widget);
+
         public override float MinWidth (object widget)
         {
             return MinWidth((T)widget);
