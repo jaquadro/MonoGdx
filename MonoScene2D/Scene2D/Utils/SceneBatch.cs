@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace MonoScene2D.Scene2D.Utils
+namespace MonoGdx.Scene2D.Utils
 {
     public class SceneBatch
     {

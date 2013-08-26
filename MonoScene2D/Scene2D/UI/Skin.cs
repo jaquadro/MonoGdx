@@ -6,11 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
 //using Microsoft.Xna.Framework;
-using MonoScene2D.Graphics.G2D;
-using MonoScene2D.Scene2D.Utils;
+using MonoGdx.Graphics.G2D;
+using MonoGdx.Scene2D.Utils;
 using Xna = Microsoft.Xna.Framework;
 
-namespace MonoScene2D.Scene2D.UI
+namespace MonoGdx.Scene2D.UI
 {
     public class Skin : IDisposable
     {

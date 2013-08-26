@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MonoScene2D.Utils
+namespace MonoGdx.Utils
 {
     public static class Pools<T>
         where T : new()

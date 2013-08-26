@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MonoScene2D.Utils
+namespace MonoGdx.Utils
 {
     public class SnapshotList<T> : Collection<T>
     {

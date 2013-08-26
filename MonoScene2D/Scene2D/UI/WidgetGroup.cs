@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
-using MonoScene2D.Scene2D.Utils;
+using MonoGdx.Scene2D.Utils;
 
-namespace MonoScene2D.Scene2D.UI
+namespace MonoGdx.Scene2D.UI
 {
     public class WidgetGroup : Group, ILayout
     {

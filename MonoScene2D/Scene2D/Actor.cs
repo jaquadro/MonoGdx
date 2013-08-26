@@ -5,11 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoScene2D.Graphics.G2D;
-using MonoScene2D.Scene2D.Utils;
-using MonoScene2D.Utils;
+using MonoGdx.Graphics.G2D;
+using MonoGdx.Scene2D.Utils;
+using MonoGdx.Utils;
 
-namespace MonoScene2D.Scene2D
+namespace MonoGdx.Scene2D
 {
     public enum Touchable
     {

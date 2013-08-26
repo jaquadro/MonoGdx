@@ -5,11 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoScene2D.Scene2D.Utils;
-using MonoScene2D.TableLayout;
-using TLToolkit = MonoScene2D.TableLayout.Toolkit;
+using MonoGdx.Scene2D.Utils;
+using MonoGdx.TableLayout;
+using TLToolkit = MonoGdx.TableLayout.Toolkit;
 
-namespace MonoScene2D.Scene2D.UI
+namespace MonoGdx.Scene2D.UI
 {
     internal class TableLayout : BaseTableLayout<Actor, Table, TableLayout, TableToolkit>
     {

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MonoScene2D.Utils;
+using MonoGdx.Utils;
 
-namespace MonoScene2D.Scene2D
+namespace MonoGdx.Scene2D
 {
     [TODO]
     public class Event : IPoolable

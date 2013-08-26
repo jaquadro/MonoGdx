@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace MonoScene2D.Graphics.G2D
+namespace MonoGdx.Graphics.G2D
 {
     public class TextureAtlas : IDisposable
     {

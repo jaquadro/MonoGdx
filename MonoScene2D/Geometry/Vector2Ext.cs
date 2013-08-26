@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
-namespace MonoScene2D.Geometry
+namespace MonoGdx.Geometry
 {
     public static class Vector2Ext
     {

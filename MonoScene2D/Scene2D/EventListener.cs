@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MonoScene2D.Scene2D
+namespace MonoGdx.Scene2D
 {
     public interface EventListener
     {

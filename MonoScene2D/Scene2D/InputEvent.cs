@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
-namespace MonoScene2D.Scene2D
+namespace MonoGdx.Scene2D
 {
     public enum InputType
     {

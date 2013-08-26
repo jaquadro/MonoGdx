@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoScene2D.Geometry;
+using MonoGdx.Geometry;
 
-namespace MonoScene2D.Graphics.G2D
+namespace MonoGdx.Graphics.G2D
 {
     public class Sprite : TextureRegion
     {

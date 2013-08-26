@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoScene2D.TableLayout;
+using MonoGdx.TableLayout;
 
-namespace MonoScene2D.Scene2D.UI
+namespace MonoGdx.Scene2D.UI
 {
     public class Label : Widget
     {

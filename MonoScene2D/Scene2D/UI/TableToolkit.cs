@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MonoScene2D.Geometry;
-using MonoScene2D.Scene2D.Utils;
-using MonoScene2D.TableLayout;
-using MonoScene2D.Utils;
+using MonoGdx.Geometry;
+using MonoGdx.Scene2D.Utils;
+using MonoGdx.TableLayout;
+using MonoGdx.Utils;
 
-namespace MonoScene2D.Scene2D.UI
+namespace MonoGdx.Scene2D.UI
 {
     public class TableToolkit : Toolkit<Actor, Table, TableLayout>
     {

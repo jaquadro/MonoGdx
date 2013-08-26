@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace MonoScene2D
+namespace MonoGdx
 {
     public static class XnaExt
     {

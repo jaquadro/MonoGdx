@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Runtime.Serialization;
 using Microsoft.Xna.Framework;
 
-namespace MonoScene2D.Geometry
+namespace MonoGdx.Geometry
 {
     [DataContract]
     public struct RectangleF

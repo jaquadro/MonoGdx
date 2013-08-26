@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
-using MonoScene2D.Graphics.G2D;
+using MonoGdx.Graphics.G2D;
 
-namespace MonoScene2D.Scene2D.Utils
+namespace MonoGdx.Scene2D.Utils
 {
     public interface IDrawable
     {
