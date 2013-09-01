@@ -7,7 +7,7 @@ using MonoGdx.Utils;
 
 namespace MonoGdx.Scene2D
 {
-    public class SceneAction : IPoolable
+    public abstract class SceneAction : IPoolable
     {
         private Actor _actor;
 
@@ -23,7 +23,7 @@ namespace MonoGdx.Scene2D
             }
         }
 
-        public Pool<SceneAction> Pool { get; set; }
+        public Pool Pool { get; set; }
 
         public abstract bool Act (float delta);
 

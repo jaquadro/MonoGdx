@@ -11,7 +11,23 @@ namespace MonoGdx.Utils
         void Reset ();
     }
 
-    public class Pool<T>
+    public abstract class Pool
+    {
+        public abstract int MaxReserve { get; set; }
+        public abstract int Peak { get; set; }
+        public abstract int Count { get; }
+
+        public void Release (object obj)
+        {
+            ReleaseCore(obj);
+        }
+
+        protected abstract void ReleaseCore (object obj);
+
+        public abstract void Clear ();
+    }
+
+    public class Pool<T> : Pool
         where T : new()
     {
         private Stack<T> _free;
@@ -30,11 +46,11 @@ namespace MonoGdx.Utils
             _free = new Stack<T>(initialCapacity);
         }
 
-        public int MaxReserve { get; set; }
+        public override int MaxReserve { get; set; }
 
-        public int Peak { get; set; }
+        public override int Peak { get; set; }
 
-        public int Count
+        public override int Count
         {
             get { return _free.Count; }
         }
@@ -45,6 +61,12 @@ namespace MonoGdx.Utils
                 return new T();
 
             return _free.Pop();
+        }
+
+        protected override void ReleaseCore (object obj)
+        {
+            if (obj is T)
+                Release((T)obj);
         }
 
         public void Release (T obj)
@@ -80,7 +102,7 @@ namespace MonoGdx.Utils
             Peak = Math.Max(Peak, _free.Count);
         }
 
-        public void Clear ()
+        public override void Clear ()
         {
             _free.Clear();
             Peak = 0;

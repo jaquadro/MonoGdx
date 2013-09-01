@@ -664,6 +664,8 @@ namespace MonoGdx.TableLayout
         }
 
         protected abstract object WidgetCore { get; }
+
+        public abstract void ClearWidget ();
     }
 
     public class Cell<T> : Cell
@@ -679,6 +681,11 @@ namespace MonoGdx.TableLayout
         protected override object WidgetCore
         {
             get { return Widget; }
+        }
+
+        public override void ClearWidget ()
+        {
+            Widget = null;
         }
 
         public bool HasWidget

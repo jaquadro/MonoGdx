@@ -16,5 +16,7 @@ namespace MonoGdx.Geometry
 
             return new Color(v1.X * v2.X, v1.Y * v2.Y, v1.Z * v2.Z, v1.W * v2.W);
         }
+
+        
     }
 }

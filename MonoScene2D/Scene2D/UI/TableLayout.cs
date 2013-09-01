@@ -11,16 +11,16 @@ using TLToolkit = MonoGdx.TableLayout.Toolkit;
 
 namespace MonoGdx.Scene2D.UI
 {
-    internal class TableLayout : BaseTableLayout<Actor, Table, TableLayout, TableToolkit>
+    public class TableLayout : BaseTableLayout<Actor, Table, TableLayout, TableToolkit>
     {
-        bool _round;
-
         [TODO]
         public TableLayout ()
             : base(TLToolkit.Instance as TableToolkit)
         {
             DebugRects = new List<TableToolkit.DebugRect>();
         }
+
+        public bool IsRound { get; set; }
 
         internal List<TableToolkit.DebugRect> DebugRects { get; private set; }
 
@@ -31,7 +31,7 @@ namespace MonoGdx.Scene2D.UI
             float height = table.Height;
 
             List<Cell> cells = Cells;
-            if (_round) {
+            if (IsRound) {
                 foreach (Cell c in cells) {
                     if (c.Ignore == true)
                         continue;

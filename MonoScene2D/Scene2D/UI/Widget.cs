@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGdx.Graphics.G2D;
 using MonoGdx.Scene2D.Utils;
 
 namespace MonoGdx.Scene2D.UI
@@ -123,7 +124,7 @@ namespace MonoGdx.Scene2D.UI
             _fillParent = fillParent;
         }
 
-        public override void Draw (SpriteBatch spriteBatch, float parentAlpha)
+        public override void Draw (GdxSpriteBatch spriteBatch, float parentAlpha)
         {
             Validate();
         }

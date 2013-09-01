@@ -655,12 +655,12 @@ namespace MonoGdx.Graphics.G2D
                 get { return base.Height / Region.RotatedPackedHeight * Region.OriginalHeight; }
             }
 
-            public override float WidthRatio
+            public float WidthRatio
             {
                 get { return base.Width / Region.RotatedPackedWidth; }
             }
 
-            public override float HeightRatio
+            public float HeightRatio
             {
                 get { return base.Height / Region.RotatedPackedHeight; }
             }

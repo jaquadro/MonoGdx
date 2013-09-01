@@ -51,7 +51,14 @@
     <Compile Include="Attributes.cs" />
     <Compile Include="Geometry\ColorExt.cs" />
     <Compile Include="Geometry\Vector2Ext.cs" />
+    <Compile Include="Graphics\G2D\BitmapFont.cs" />
+    <Compile Include="Graphics\G2D\BitmapFontCache.cs" />
+    <Compile Include="Scene2D\UI\ButtonGroup.cs" />
+    <Compile Include="Scene2D\UI\Stack.cs" />
+    <Compile Include="Scene2D\UI\TextButton.cs" />
     <Compile Include="Scene2D\Utils\BaseDrawable.cs" />
+    <Compile Include="Scene2D\Utils\ChangeListener.cs" />
+    <Compile Include="Scene2D\Utils\ClickListener.cs" />
     <Compile Include="Scene2D\Utils\NinePatchDrawable.cs" />
     <Compile Include="Scene2D\Utils\SpriteDrawable.cs" />
     <Compile Include="Scene2D\Utils\TextureRegionDrawable.cs" />
@@ -101,7 +108,12 @@
     <Compile Include="Utils\Pools.cs" />
     <Compile Include="Utils\SnapshotList.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\arial-15.fnt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\arial-15.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

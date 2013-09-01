@@ -7,12 +7,12 @@ using MonoGdx.Graphics.G2D;
 
 namespace MonoGdx.Scene2D.Utils
 {
-    public class BaseDrawable : IDrawable
+    public class BaseDrawable : ISceneDrawable
     {
         public BaseDrawable ()
         { }
 
-        public BaseDrawable (IDrawable drawable)
+        public BaseDrawable (ISceneDrawable drawable)
         {
             LeftWidth = drawable.LeftWidth;
             RightWidth = drawable.RightWidth;

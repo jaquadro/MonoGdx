@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGdx.Graphics.G2D;
+using MonoGdx.Scene2D.Utils;
 using MonoGdx.TableLayout;
 
 namespace MonoGdx.Scene2D.UI
@@ -17,285 +19,373 @@ namespace MonoGdx.Scene2D.UI
                 Toolkit.Instance = new TableToolkit();
         }
 
-        /*public Table ()
+        
+        private readonly TableLayout _layout;
+        private bool _clip;
+
+        public Table ()
             : this(null)
         { }
 
         public Table (Skin skin)
         {
-            throw new NotImplementedException();
-        }*/
+            Skin = skin;
+            _layout = new TableLayout();
 
-        public override void Draw (SpriteBatch spriteBatch, float parentAlpha)
-        {
-            throw new NotImplementedException();
+            IsTransform = false;
+            Touchable = Touchable.ChildrenOnly;
         }
 
-        protected void DrawBackground (SpriteBatch spriteBatch, float parentAlpha)
+        public override void Draw (GdxSpriteBatch spriteBatch, float parentAlpha)
         {
-            throw new NotImplementedException();
+            Validate();
+            DrawBackground(spriteBatch, parentAlpha);
+
+            if (IsTransform) {
+                ApplyTransform(spriteBatch, ComputeTransform());
+                if (_clip) {
+                    bool draw = Background == null
+                        ? ClipBegin(0, 0, Width, Height)
+                        : ClipBegin(_layout.PadLeft, _layout.PadBottom, Width - _layout.PadLeft - _layout.PadRight, Height - _layout.PadBottom - _layout.PadTop);
+
+                    if (draw) {
+                        DrawChildren(spriteBatch, parentAlpha);
+                        ClipEnd();
+                    }
+                }
+                else
+                    DrawChildren(spriteBatch, parentAlpha);
+            }
+            else
+                base.Draw(spriteBatch, parentAlpha);
+        }
+
+        protected virtual void DrawBackground (GdxSpriteBatch spriteBatch, float parentAlpha)
+        {
+            if (Background != null) {
+                Color c = Color;
+                spriteBatch.Color = new Color(c.R, c.G, c.B, c.A * parentAlpha);
+                Background.Draw(spriteBatch, X, Y, Width, Height);
+            }
         }
 
         public override void Invalidate ()
         {
-            throw new NotImplementedException();
+            _layout.Invalidate();
             base.Invalidate();
         }
 
         public override float PrefWidth
         {
-            get { throw new NotImplementedException(); }
+            get { return (Background != null) ? Math.Min(_layout.PrefWidth, Background.MinWidth) : _layout.PrefWidth; }
         }
 
         public override float PrefHeight
         {
-            get { throw new NotImplementedException(); }
+            get { return (Background != null) ? Math.Min(_layout.PrefHeight, Background.MinHeight) : _layout.PrefHeight; }
         }
 
         public override float MinWidth
         {
-            get { throw new NotImplementedException(); }
+            get { return _layout.MinWidth; }
         }
 
         public override float MinHeight
         {
-            get { throw new NotImplementedException(); }
+            get { return _layout.MinHeight; }
         }
 
         public void SetBackground (string drawableName)
         {
-            throw new NotImplementedException();
+            SetBackground(Skin.GetDrawable(drawableName));
         }
 
-        public void SetBackground (IDrawable background)
+        public void SetBackground (ISceneDrawable background)
         {
-            throw new NotImplementedException();
+            if (Background == background)
+                return;
+
+            Background = background;
+            if (background == null)
+                Pad(null);
+            else {
+                PadBottom = background.BottomHeight;
+                PadTop = background.TopHeight;
+                PadLeft = background.LeftWidth;
+                PadRight = background.RightWidth;
+                Invalidate();
+            }
         }
 
-        public IDrawable Background { get; private set; }
+        public ISceneDrawable Background { get; private set; }
 
         public override Actor Hit (float x, float y, bool touchable)
         {
-            throw new NotImplementedException();
+            if (_clip) {
+                if (Touchable == Touchable.Disabled)
+                    return null;
+                if (x < 0 || x >= Width || y < 0 || y >= Height)
+                    return null;
+            }
+
+            return base.Hit(x, y, touchable);
         }
 
         public void SetClip (bool enabled)
         {
-            throw new NotImplementedException();
+            _clip = enabled;
+            IsTransform = enabled;
+            Invalidate();
         }
 
         public int GetRow (float y)
         {
-            throw new NotImplementedException();
+            return _layout.GetRow(y);
         }
 
         public override void ClearChildren ()
         {
             base.ClearChildren();
-            throw new NotImplementedException();
+            _layout.Clear();
+            Invalidate();
         }
 
         public Cell Add (string text)
         {
-            throw new NotImplementedException();
+            if (Skin == null)
+                throw new InvalidOperationException("Table must have a skin to use this method.");
+            return Add(new Label(text, Skin));
         }
 
         public Cell Add (string text, string labelStyleName)
         {
-            throw new NotImplementedException();
+            if (Skin == null)
+                throw new InvalidOperationException("Table must have a skin to use this method.");
+            return Add(new Label(text, Skin.Get<LabelStyle>(labelStyleName)));
         }
 
-        public Cell Add (string text, string frontName, Color color)
+        public Cell Add (string text, string fontName, Color color)
         {
-            throw new NotImplementedException();
+            if (Skin == null)
+                throw new InvalidOperationException("Table must have a skin to use this method.");
+            return Add(new Label(text, new LabelStyle(Skin.GetFont(fontName), color)));
         }
 
-        public Cell Add (string text, string frontName, string colorName)
+        public Cell Add (string text, string fontName, string colorName)
         {
-            throw new NotImplementedException();
+            if (Skin == null)
+                throw new InvalidOperationException("Table must have a skin to use this method.");
+            return Add(new Label(text, new LabelStyle(Skin.GetFont(fontName), Skin.GetColor(colorName))));
+
         }
 
         public Cell Add ()
         {
-            throw new NotImplementedException();
+            return _layout.Add(null);
         }
 
         public Cell Add (Actor actor)
         {
-            throw new NotImplementedException();
+            return _layout.Add(actor);
         }
 
         public override bool RemoveActor (Actor actor)
         {
-            throw new NotImplementedException();
+            if (!base.RemoveActor(actor))
+                return false;
+
+            Cell cell = GetCell(actor);
+            if (cell != null)
+                cell.ClearWidget();
+
+            return true;
         }
 
-        public Cell Stack (params Actor actors)
+        public Cell Stack (params Actor[] actors)
         {
-            throw new NotImplementedException();
+            Stack stack = new Stack();
+            if (actors != null) {
+                foreach (var actor in actors)
+                    stack.AddActor(actor);
+            }
+
+            return Add(stack);
         }
 
         public Cell Row ()
         {
-            throw new NotImplementedException();
+            return _layout.Row();
         }
 
         public Cell ColumnDefaults (int column)
         {
-            throw new NotImplementedException();
+            return _layout.ColumnDefaults(column);
         }
 
         public Cell Defaults ()
         {
-            throw new NotImplementedException();
+            return _layout.Defaults;
         }
 
         public override void Layout ()
         {
-            throw new NotImplementedException();
+            _layout.Layout();
         }
 
         public void Reset ()
         {
-            throw new NotImplementedException();
+            _layout.Reset();
         }
 
         public Cell GetCell (Actor actor)
         {
-            throw new NotImplementedException();
+            return _layout.GetCell(actor);
         }
 
         public List<Cell> GetCells ()
         {
-            throw new NotImplementedException();
+            return _layout.Cells;
         }
 
         public Table Pad (Value pad)
         {
-            throw new NotImplementedException();
+            _layout.Pad(pad);
+            return this;
         }
 
         public Table Pad (Value top, Value left, Value bottom, Value right)
         {
-            throw new NotImplementedException();
+            _layout.Pad(top, left, bottom, right);
+            return this;
         }
 
         public Value PadTopValue
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get { return _layout.PadTopValue; }
+            set { _layout.PadTopValue = value; }
         }
 
         public Value PadLeftValue
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get { return _layout.PadLeftValue; }
+            set { _layout.PadLeftValue = value; }
         }
 
         public Value PadBottomValue
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get { return _layout.PadBottomValue; }
+            set { _layout.PadBottomValue = value; }
         }
 
         public Value PadRightValue
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get { return _layout.PadRightValue; }
+            set { _layout.PadRightValue = value; }
         }
 
         public Table Pad (float pad)
         {
-            throw new NotImplementedException();
+            _layout.Pad(pad);
+            return this;
         }
 
         public Table Pad (float top, float left, float bottom, float right)
         {
-            throw new NotImplementedException();
+            _layout.Pad(top, left, bottom, right);
+            return this;
         }
 
         public float PadTop
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get { return _layout.PadTop; }
+            set { _layout.PadTop = value; }
         }
 
         public float PadLeft
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get { return _layout.PadLeft; }
+            set { _layout.PadLeft = value; }
         }
 
         public float PadBottom
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get { return _layout.PadBottom; }
+            set { _layout.PadBottom = value; }
         }
 
         public float PadRight
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get { return _layout.PadRight; }
+            set { _layout.PadRight = value; }
         }
 
         public Alignment Align
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get { return _layout.Align; }
+            set { _layout.Align = value; }
         }
 
-        public Table Center ()
+        /*public Table Center ()
         {
-            throw new NotImplementedException();
+            _layout.Center();
+            return this;
         }
 
         public Table Top ()
         {
-            throw new NotImplementedException();
+            _layout.Top();
+            return this;
         }
 
         public Table Left ()
         {
-            throw new NotImplementedException();
+            _layout.Left();
+            return this;
         }
 
         public Table Bottom ()
         {
-            throw new NotImplementedException();
+            _layout.Bottom();
+            return this;
         }
 
         public Table Right ()
         {
-            throw new NotImplementedException();
-        }
+            _layout.Right();
+            return this;
+        }*/
 
         public Debug Debug
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get { return _layout.Debug; }
+            set { _layout.Debug = value; }
         }
 
         public float PadX
         {
-            get { throw new NotImplementedException(); }
+            get { return _layout.PadLeft + _layout.PadRight; }
         }
 
         public float PadY
         {
-            get { throw new NotImplementedException(); }
+            get { return _layout.PadTop + _layout.PadBottom; }
         }
 
         public bool IsRound
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get { return _layout.IsRound; }
+            set { _layout.IsRound = value; }
         }
 
+        public Skin Skin { get; set; }
+
+        [TODO]
         static public void DrawDebug (Stage stage)
         {
             throw new NotImplementedException();
         }
 
+        [TODO]
         static private void DrawDebug (List<Actor> actors, SpriteBatch spriteBatch)
         {
             throw new NotImplementedException();

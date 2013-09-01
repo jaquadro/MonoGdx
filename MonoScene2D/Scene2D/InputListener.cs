@@ -9,7 +9,7 @@ namespace MonoGdx.Scene2D
 {
     public class InputListener : EventListener<InputEvent>
     {
-        public bool Handle (InputEvent e)
+        public override bool Handle (InputEvent e)
         {
             switch (e.Type) {
                 case InputType.KeyDown:

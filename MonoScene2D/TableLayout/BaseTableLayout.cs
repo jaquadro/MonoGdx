@@ -399,6 +399,13 @@ namespace MonoGdx.TableLayout
 
         public TLayout Center ()
         {
+            _align = Alignment.Center;
+
+            return this as TLayout;
+        }
+
+        public TLayout Top ()
+        {
             _align |= Alignment.Top;
             _align &= ~Alignment.Bottom;
 

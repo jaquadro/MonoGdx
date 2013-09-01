@@ -8,7 +8,7 @@ using MonoGdx.Graphics.G2D;
 
 namespace MonoGdx.Scene2D.Utils
 {
-    public interface IDrawable
+    public interface ISceneDrawable
     {
         void Draw (GdxSpriteBatch spriteBatch, float x, float y, float width, float height);
 
