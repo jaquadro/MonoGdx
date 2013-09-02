@@ -92,9 +92,11 @@ namespace MonoGdx.Graphics
 
         public override void Update (bool updateFrustum)
         {
-            Projection = Matrix.CreateOrthographic(Zoom * ViewportWidth, Zoom * ViewportHeight, Math.Abs(Near), Math.Abs(Far));
+            //Projection = Matrix.CreateOrthographic(Zoom * ViewportWidth, Zoom * ViewportHeight, Math.Abs(Near), Math.Abs(Far));
+            Projection = XnaExt.Matrix.CreateOrthographic(Zoom * -ViewportWidth / 2, Zoom * ViewportWidth / 2, 
+                Zoom * -ViewportHeight / 2, Zoom * ViewportHeight / 2, Math.Abs(Near), Math.Abs(Far));
             View = Matrix.CreateLookAt(Position, Position + Direction, Up);
-            Combined = Projection * View;
+            Combined = View * Projection;
 
             if (updateFrustum) {
                 InverseProjectionView = Matrix.Invert(Combined);

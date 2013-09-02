@@ -33,6 +33,20 @@ namespace MonoGdx.Graphics
         public Camera (GraphicsDevice graphicsDevice)
         {
             GraphicsDevice = graphicsDevice;
+
+            Position = Vector3.Zero;
+            Direction = Vector3.Forward;
+            Up = Vector3.Up;
+
+            Projection = Matrix.Identity;
+            View = Matrix.Identity;
+            Combined = Matrix.Identity;
+            InverseProjectionView = Matrix.Identity;
+
+            Near = 1;
+            Far = 100;
+
+            Frustum = new BoundingFrustum(Matrix.Identity);
         }
 
         public abstract void Update ();

@@ -9,8 +9,12 @@ namespace MonoGdxTests
 {
     public abstract class GdxTest
     {
+        protected GdxTestContext Context { get; private set; }
+
         public virtual void Create (GdxTestContext context) 
-        { }
+        {
+            Context = context;
+        }
 
         public virtual void Initialize ()
         { }

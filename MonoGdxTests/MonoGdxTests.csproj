@@ -63,10 +63,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BitmapFontTest.cs" />
-    <Compile Include="Class1.cs" />
+    <Compile Include="Tests\BitmapFontTest.cs" />
     <Compile Include="GdxTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tests\StageTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MonoScene2D\MonoGdx.csproj">
@@ -78,9 +78,24 @@
     <Content Include="arial-15.fnt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Data\arial-15_00.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\badlogic.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\badlogicsmall.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\ui.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="verdana39.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="Data\arial-15.fnt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <Content Include="verdana39.fnt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

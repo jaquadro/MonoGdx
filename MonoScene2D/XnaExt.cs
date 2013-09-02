@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XFramework = Microsoft.Xna.Framework;
+using XGraphics = Microsoft.Xna.Framework.Graphics;
 
 namespace MonoGdx
 {
@@ -81,6 +83,39 @@ namespace MonoGdx
                     0, 0, zOrth, 0,
                     tx, ty, tz, 1
                 );
+            }
+        }
+
+        public static class Texture2D
+        {
+            public static XGraphics.Texture2D FromFile (GraphicsDevice device, string file)
+            {
+                return FromFile(device, file, true);
+            }
+
+            public static XGraphics.Texture2D FromFile (GraphicsDevice device, string file, bool premultiplyAlpha)
+            {
+                XGraphics.Texture2D tex = null;
+
+                using (FileStream fs = File.OpenRead(file)) {
+                    tex = XGraphics.Texture2D.FromStream(device, fs);
+                }
+
+                if (premultiplyAlpha) {
+                    byte[] data = new byte[tex.Width * tex.Height * 4];
+                    tex.GetData(data);
+
+                    for (int i = 0; i < data.Length; i += 4) {
+                        int a = data[i + 3];
+                        data[i + 0] = (byte)(data[i + 0] * a / 255);
+                        data[i + 1] = (byte)(data[i + 1] * a / 255);
+                        data[i + 2] = (byte)(data[i + 2] * a / 255);
+                    }
+
+                    tex.SetData(data);
+                }
+
+                return tex;
             }
         }
     }

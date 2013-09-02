@@ -48,6 +48,7 @@ namespace MonoGdx.Scene2D
         {
             Width = width;
             Height = height;
+            SpriteBatch = spriteBatch;
 
             Root = new Group() {
                 Stage = this,
@@ -587,10 +588,7 @@ namespace MonoGdx.Scene2D
 
         public float GutterHeight { get; private set; }
 
-        public GdxSpriteBatch SpriteBatch
-        {
-            get { return SpriteBatch; }
-        }
+        public GdxSpriteBatch SpriteBatch { get; private set; }
 
         public Camera Camera { get; set; }
 

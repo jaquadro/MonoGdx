@@ -18,6 +18,12 @@ namespace MonoGdx.Scene2D
         private Matrix _worldTransform;
         private Matrix _oldBatchTransform;
 
+        public Group ()
+        {
+            Children = new SnapshotList<Actor>(4);
+            IsTransform = true;
+        }
+
         public override void Act (float delta)
         {
             base.Act(delta);
@@ -40,7 +46,7 @@ namespace MonoGdx.Scene2D
 
         protected void DrawChildren (GdxSpriteBatch spriteBatch, float parentAlpha)
         {
-            parentAlpha *= Color.A;
+            parentAlpha *= Color.A / 255f;
 
             IList<Actor> actors = Children.Begin();
             if (_cullingArea != null) {

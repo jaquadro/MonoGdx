@@ -24,6 +24,15 @@ namespace MonoGdx.Scene2D
         private readonly DelayedRemovalList<EventListener> _captureListeners = new DelayedRemovalList<EventListener>(0);
         private readonly List<SceneAction> _actions = new List<SceneAction>(0);
 
+        public Actor ()
+        {
+            Touchable = Touchable.Enabled;
+            ScaleX = 1;
+            ScaleY = 1;
+            IsVisible = true;
+            Color = Color.White;
+        }
+
         public virtual void Draw (GdxSpriteBatch spriteBatch, float parentAlpha)
         { }
 

@@ -135,8 +135,8 @@ namespace MonoGdx.Graphics.G2D
 
         private void Setup ()
         {
-            //_device.SamplerStates[0] = SamplerState.PointClamp;
-            _device.BlendState = BlendState.NonPremultiplied;
+            _device.SamplerStates[0] = SamplerState.PointClamp;
+            //_device.BlendState = BlendState.NonPremultiplied;
             //_device.RasterizerState = new RasterizerState() { CullMode = Microsoft.Xna.Framework.Graphics.CullMode.None };
             _matrixTransform.SetValue(_combinedMatrix);
             _spritePass.Apply();
@@ -253,6 +253,87 @@ namespace MonoGdx.Graphics.G2D
             _vertices[_vBufferIndex + 1] = new VertexPositionColorTexture(new Vector3(x, fy2, 0), Color, new Vector2(u, v2));
             _vertices[_vBufferIndex + 2] = new VertexPositionColorTexture(new Vector3(fx2, fy2, 0), Color, new Vector2(u2, v2));
             _vertices[_vBufferIndex + 3] = new VertexPositionColorTexture(new Vector3(fx2, y, 0), Color, new Vector2(u2, v));
+
+            _vBufferIndex += 4;
+        }
+
+        public void Draw (TextureRegion region, float x, float y, float originX, float originY, float width, float height, float scaleX, float scaleY, float rotation)
+        {
+            CheckValid(region.Texture);
+
+            if (region.Texture != _lastTexture)
+                SwitchTexture(region.Texture);
+
+            if (_vertices.Length - _vBufferIndex < 4)
+                Flush();
+
+            float worldOriginX = x + originX;
+            float worldOriginY = y + originY;
+            float fx = -originX;
+            float fy = -originY;
+            float fx2 = width - originX;
+            float fy2 = height - originY;
+
+            if (scaleX != 1 || scaleY != 1) {
+                fx *= scaleX;
+                fy *= scaleY;
+                fx2 *= scaleX;
+                fy2 *= scaleY;
+            }
+
+            float x1, y1;
+            float x2, y2;
+            float x3, y3;
+            float x4, y4;
+
+            if (rotation != 0) {
+                float cos = (float)Math.Cos(rotation);
+                float sin = (float)Math.Sin(rotation);
+
+                x1 = cos * fx - sin * fy;
+                y1 = sin * fx + cos * fy;
+
+                x2 = cos * fx - sin * fy2;
+                y2 = sin * fx + cos * fy2;
+
+                x3 = cos * fx2 - sin * fy2;
+                y3 = sin * fx2 + cos * fy2;
+
+                x4 = cos * fx2 - sin * fy;
+                y4 = sin * fx2 + cos * fy;
+            }
+            else {
+                x1 = fx;
+                y1 = fy;
+
+                x2 = fx;
+                y2 = fy2;
+
+                x3 = fx2;
+                y3 = fy2;
+
+                x4 = fx2;
+                y4 = fy;
+            }
+
+            x1 += worldOriginX;
+            y1 += worldOriginY;
+            x2 += worldOriginX;
+            y2 += worldOriginY;
+            x3 += worldOriginX;
+            y3 += worldOriginY;
+            x4 += worldOriginX;
+            y4 += worldOriginY;
+
+            float u = region.U;
+            float v = region.V2;
+            float u2 = region.U2;
+            float v2 = region.V;
+
+            _vertices[_vBufferIndex + 0] = new VertexPositionColorTexture(new Vector3(x1, y1, 0), Color, new Vector2(u, v));
+            _vertices[_vBufferIndex + 1] = new VertexPositionColorTexture(new Vector3(x2, y2, 0), Color, new Vector2(u, v2));
+            _vertices[_vBufferIndex + 2] = new VertexPositionColorTexture(new Vector3(x3, y3, 0), Color, new Vector2(u2, v2));
+            _vertices[_vBufferIndex + 3] = new VertexPositionColorTexture(new Vector3(x4, y4, 0), Color, new Vector2(u2, v));
 
             _vBufferIndex += 4;
         }

@@ -54,6 +54,7 @@
     <Compile Include="Graphics\G2D\BitmapFont.cs" />
     <Compile Include="Graphics\G2D\BitmapFontCache.cs" />
     <Compile Include="Scene2D\UI\ButtonGroup.cs" />
+    <Compile Include="Scene2D\UI\Image.cs" />
     <Compile Include="Scene2D\UI\Stack.cs" />
     <Compile Include="Scene2D\UI\TextButton.cs" />
     <Compile Include="Scene2D\Utils\BaseDrawable.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="Scene2D\Utils\SpriteDrawable.cs" />
     <Compile Include="Scene2D\Utils\TextureRegionDrawable.cs" />
     <Compile Include="Scene2D\Utils\TiledDrawable.cs" />
+    <Compile Include="Utils\Scaling.cs" />
     <Compile Include="XnaExt.cs" />
     <Compile Include="Graphics\Camera.cs" />
     <Compile Include="Graphics\G2D\GdxSpriteBatch.cs" />
