@@ -146,12 +146,12 @@ namespace MonoGdx.Scene2D
                 : Matrix.Identity;
 
             if (Rotation != 0)
-                localTransform *= Matrix.CreateRotationZ(Rotation);
+                localTransform = localTransform * Matrix.CreateRotationZ(Rotation);
             if (ScaleX != 1 || ScaleY != 1)
-                localTransform *= Matrix.CreateScale(ScaleX, ScaleY, 1);
+                localTransform = localTransform * Matrix.CreateScale(ScaleX, ScaleY, 1);
             if (OriginX != 0 || OriginY != 0)
-                localTransform *= Matrix.CreateTranslation(-OriginX, -OriginY, 0);
-            localTransform = Matrix.Transpose(localTransform);
+                localTransform = localTransform * Matrix.CreateTranslation(-OriginX, -OriginY, 0);
+            XnaExt.Matrix.Translate(ref localTransform, new Vector3(X, Y, 0));
 
             // Find the first parent that transforms
             Group parentGroup = Parent;

@@ -84,6 +84,13 @@ namespace MonoGdx
                     tx, ty, tz, 1
                 );
             }
+
+            public static void Translate (ref XFramework.Matrix matrix, Vector3 amount)
+            {
+                matrix.M41 += amount.X;
+                matrix.M42 += amount.Y;
+                matrix.M43 += amount.Z;
+            }
         }
 
         public static class Texture2D

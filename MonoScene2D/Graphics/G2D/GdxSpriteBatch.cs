@@ -144,7 +144,8 @@ namespace MonoGdx.Graphics.G2D
 
         private void SetupMatrix ()
         {
-            Matrix.Multiply(ref _projectionMatrix, ref _transformMatrix, out _combinedMatrix);
+            //Matrix.Multiply(ref _projectionMatrix, ref _transformMatrix, out _combinedMatrix);
+            Matrix.Multiply(ref _transformMatrix, ref _projectionMatrix, out _combinedMatrix);
         }
 
         public Matrix ProjectionMatrix
