@@ -3,6 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoGdx", "MonoScene2D\MonoGdx.csproj", "{863F1E67-7B82-4671-BC94-21AD0DF74DCF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoGdxTests", "MonoGdxTests\MonoGdxTests.csproj", "{8B7C7294-CB1F-42D8-8952-D56A43215EAD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{71DDCED9-CD26-4666-A646-E615688014E2}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\packages.config = .nuget\packages.config
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +20,10 @@ Global
 		{863F1E67-7B82-4671-BC94-21AD0DF74DCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{863F1E67-7B82-4671-BC94-21AD0DF74DCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{863F1E67-7B82-4671-BC94-21AD0DF74DCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B7C7294-CB1F-42D8-8952-D56A43215EAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B7C7294-CB1F-42D8-8952-D56A43215EAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B7C7294-CB1F-42D8-8952-D56A43215EAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B7C7294-CB1F-42D8-8952-D56A43215EAD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

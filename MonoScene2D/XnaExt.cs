@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using XFramework = Microsoft.Xna.Framework;
 
 namespace MonoGdx
 {
@@ -50,6 +51,37 @@ namespace MonoGdx
             Vector4 v2 = color2.ToVector4();
 
             return new Color(v1.X * v2.X, v1.Y * v2.Y, v1.Z * v2.Z, v1.W * v2.W);
+        }
+
+        public static class Matrix
+        {
+            public static XFramework.Matrix CreateOrthographic2D (float x, float y, float width, float height)
+            {
+                return CreateOrthographic(x, x + width, y, y + height, 0, 1);
+            }
+
+            public static XFramework.Matrix CreateOrthographic2D (float x, float y, float width, float height, float near, float far)
+            {
+                return CreateOrthographic(x, x + width, y, y + height, near, far);
+            }
+
+            public static XFramework.Matrix CreateOrthographic (float left, float right, float bottom, float top, float near, float far)
+            {
+                float xOrth = 2 / (right - left);
+                float yOrth = 2 / (top - bottom);
+                float zOrth = -2 / (far - near);
+
+                float tx = -(right + left) / (right - left);
+                float ty = -(top + bottom) / (top - bottom);
+                float tz = -(far + near) / (far - near);
+
+                return new XFramework.Matrix(
+                    xOrth, 0, 0, 0,
+                    0, yOrth, 0, 0,
+                    0, 0, zOrth, 0,
+                    tx, ty, tz, 1
+                );
+            }
         }
     }
 }

@@ -82,13 +82,13 @@ namespace MonoGdx.Graphics.G2D
                 }
             }
 
-            _flipped = data.IsFlipped;
-            _data = data;
-            UsesIntegerPostions = integer;
-
             _cache = new BitmapFontCache(this) {
                 UsesIntegerPositions = integer,
             };
+
+            _flipped = data.IsFlipped;
+            _data = data;
+            UsesIntegerPostions = integer;
 
             Load(_data);
             //OwnsTexture = (_region == null);
@@ -413,7 +413,7 @@ namespace MonoGdx.Graphics.G2D
                 }
             }
 
-            return index = start;
+            return index - start;
         }
 
         public Color Color
@@ -550,6 +550,17 @@ namespace MonoGdx.Graphics.G2D
 
         public bool OwnsTexture { get; set; }
 
+        internal static int IndexOf (string text, char ch, int start)
+        {
+            int n = text.Length;
+            for (; start < n; start++) {
+                if (text[start] == ch)
+                    return start;
+            }
+
+            return n;
+        }
+
         internal static bool IsWhitespace (char ch)
         {
             switch (ch) {
@@ -577,12 +588,12 @@ namespace MonoGdx.Graphics.G2D
         public int XOffset;
         public int YOffset;
         public int XAdvance;
-        public byte[][] Kerning;
+        public sbyte[][] Kerning;
 
         public int GetKerning (char ch)
         {
             if (Kerning != null) {
-                byte[] page = Kerning[ch >> BitmapFont.Log2PageSize];
+                sbyte[] page = Kerning[ch >> BitmapFont.Log2PageSize];
                 if (page != null)
                     return page[ch & BitmapFont.PageSize - 1];
             }
@@ -592,11 +603,11 @@ namespace MonoGdx.Graphics.G2D
         public void SetKerning (char ch, int value)
         {
             if (Kerning == null)
-                Kerning = new byte[BitmapFont.Pages][];
-            byte[] page = Kerning[ch >> BitmapFont.Log2PageSize];
+                Kerning = new sbyte[BitmapFont.Pages][];
+            sbyte[] page = Kerning[ch >> BitmapFont.Log2PageSize];
             if (page == null)
-                Kerning[ch >> BitmapFont.Log2PageSize] = page = new byte[BitmapFont.PageSize];
-            page[ch & BitmapFont.Log2PageSize - 1] = (byte)value;
+                Kerning[ch >> BitmapFont.Log2PageSize] = page = new sbyte[BitmapFont.PageSize];
+            page[ch & BitmapFont.Log2PageSize - 1] = (sbyte)value;
         }
     }
 
@@ -657,16 +668,16 @@ namespace MonoGdx.Graphics.G2D
                     throw new IOException("Invalid font file: " + fontFile);
 
                 string[] pageLine = line.Split(SpaceToken, 4);
-                if (pageLine.Length < 4)
+                if (pageLine.Length < 3)
                     throw new IOException("Invalid font file: " + fontFile);
 
                 if (!pageLine[2].StartsWith("file="))
                     throw new IOException("Invalid font file: " + fontFile);
                 string imageFilename = null;
                 if (pageLine[2].EndsWith("\""))
-                    imageFilename = pageLine[2].Substring(6, pageLine[2].Length - 1);
+                    imageFilename = pageLine[2].Substring(6, pageLine[2].Length - 6 - 1);
                 else
-                    imageFilename = pageLine[2].Substring(5, pageLine[2].Length);
+                    imageFilename = pageLine[2].Substring(5, pageLine[2].Length - 5);
 
                 ImagePath = Path.Combine(Path.GetDirectoryName(fontFile), imageFilename);
                 Descent = 0;
@@ -683,8 +694,11 @@ namespace MonoGdx.Graphics.G2D
                     Glyph glyph = new Glyph();
 
                     string[] tokens = line.Split(SpaceEqToken, StringSplitOptions.RemoveEmptyEntries);
-                    char ch = char.Parse(tokens[2]);
-                    this[ch] = glyph;
+                    int ch = int.Parse(tokens[2]);
+                    if (ch <= char.MaxValue)
+                        this[(char)ch] = glyph;
+                    else
+                        continue;
 
                     glyph.SrcX = int.Parse(tokens[4]);
                     glyph.SrcY = int.Parse(tokens[6]);
@@ -777,7 +791,7 @@ namespace MonoGdx.Graphics.G2D
             get
             {
                 Glyph[] page = Glyphs[ch / BitmapFont.PageSize];
-                if (page == null)
+                if (page != null)
                     return page[ch & BitmapFont.PageSize - 1];
                 return null;
             }

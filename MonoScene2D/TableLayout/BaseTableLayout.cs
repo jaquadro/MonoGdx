@@ -54,7 +54,7 @@ namespace MonoGdx.TableLayout
         where T : class
         where TTable : T
         where TLayout : BaseTableLayout<T, TTable, TLayout, TToolkit>
-        where TToolkit : Toolkit<T, TTable, BaseTableLayout<T, TTable, TLayout, TToolkit>>
+        where TToolkit : Toolkit<T, TTable, TLayout>
     {
         private TToolkit _toolkit;
         private TTable _table;
@@ -93,7 +93,7 @@ namespace MonoGdx.TableLayout
         public BaseTableLayout (TToolkit toolkit)
         {
             _toolkit = toolkit;
-            _cellDefaults = toolkit.ObtainCell(this);
+            _cellDefaults = toolkit.ObtainCell(this as TLayout);
             _cellDefaults.Defaults();
         }
 
@@ -106,7 +106,7 @@ namespace MonoGdx.TableLayout
 
         public Cell<T> Add (T widget)
         {
-            Cell<T> cell = _toolkit.ObtainCell(this);
+            Cell<T> cell = _toolkit.ObtainCell(this as TLayout);
             cell.Widget = widget;
 
             if (_cells.Count > 0) {
@@ -165,7 +165,7 @@ namespace MonoGdx.TableLayout
             if (_rowDefaults != null)
                 _toolkit.FreeCell(_rowDefaults);
 
-            _rowDefaults = _toolkit.ObtainCell(this);
+            _rowDefaults = _toolkit.ObtainCell(this as TLayout);
             _rowDefaults.Clear();
 
             return _rowDefaults;
@@ -197,7 +197,7 @@ namespace MonoGdx.TableLayout
         {
             Cell cell = _columnDefaults.Count > column ? _columnDefaults[column] : null;
             if (cell == null) {
-                cell = _toolkit.ObtainCell(this);
+                cell = _toolkit.ObtainCell(this as TLayout);
                 cell.Clear();
 
                 if (column >= _columnDefaults.Count) {
@@ -223,7 +223,7 @@ namespace MonoGdx.TableLayout
             _align = Alignment.Center;
 
             if (_debug != TableLayout.Debug.None)
-                _toolkit.ClearDebugRectangles(this);
+                _toolkit.ClearDebugRectangles(this as TLayout);
             _debug = TableLayout.Debug.None;
 
             _cellDefaults.Defaults();
@@ -443,7 +443,7 @@ namespace MonoGdx.TableLayout
             {
                 _debug = value;
                 if (_debug == TableLayout.Debug.None)
-                    _toolkit.ClearDebugRectangles(this);
+                    _toolkit.ClearDebugRectangles(this as TLayout);
                 else
                     Invalidate();
             }
@@ -1008,14 +1008,14 @@ namespace MonoGdx.TableLayout
             if (_debug == TableLayout.Debug.None)
                 return;
 
-            _toolkit.ClearDebugRectangles(this);
+            _toolkit.ClearDebugRectangles(this as TLayout);
 
             currentX = x;
             currentY = y;
 
             if (_debug == TableLayout.Debug.Table || _debug == TableLayout.Debug.All) {
-                _toolkit.AddDebugRectangle(this, TableLayout.Debug.Table, layoutX, layoutY, layoutWidth, layoutHeight);
-                _toolkit.AddDebugRectangle(this, TableLayout.Debug.Table, x, y, tableWidth - hpadding, tableHeight - vpadding);
+                _toolkit.AddDebugRectangle(this as TLayout, TableLayout.Debug.Table, layoutX, layoutY, layoutWidth, layoutHeight);
+                _toolkit.AddDebugRectangle(this as TLayout, TableLayout.Debug.Table, x, y, tableWidth - hpadding, tableHeight - vpadding);
             }
 
             for (int i = 0, n = _cells.Count; i < n; i++) {
@@ -1025,7 +1025,7 @@ namespace MonoGdx.TableLayout
 
                 // Widget bounds
                 if (_debug == TableLayout.Debug.Widget || _debug == TableLayout.Debug.All)
-                    _toolkit.AddDebugRectangle(this, TableLayout.Debug.Widget, c.WidgetX, c.WidgetY, c.WidgetWidth, c.WidgetHeight);
+                    _toolkit.AddDebugRectangle(this as TLayout, TableLayout.Debug.Widget, c.WidgetX, c.WidgetY, c.WidgetWidth, c.WidgetHeight);
 
                 // Cell bounds
                 float spannedCellWidth = 0;
@@ -1036,7 +1036,7 @@ namespace MonoGdx.TableLayout
                 currentX += c.ComputedPadLeft;
 
                 if (_debug == TableLayout.Debug.Cell || _debug == TableLayout.Debug.All)
-                    _toolkit.AddDebugRectangle(this, TableLayout.Debug.Cell, currentX, currentY + c.ComputedPadTop, 
+                    _toolkit.AddDebugRectangle(this as TLayout, TableLayout.Debug.Cell, currentX, currentY + c.ComputedPadTop, 
                         spannedCellWidth, _rowHeight[c.Row] - c.ComputedPadTop - c.ComputedPadBottom);
 
                 if (c.IsEndRow) {

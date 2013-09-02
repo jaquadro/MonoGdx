@@ -10,6 +10,22 @@ namespace MonoGdx.Graphics.G2D
 {
     public class GdxSpriteBatch : IDisposable
     {
+        private class LocalSpriteEffect : SpriteEffect
+        {
+            public LocalSpriteEffect (GraphicsDevice device)
+                : base(device)
+            { }
+
+            public LocalSpriteEffect (LocalSpriteEffect cloneSource)
+                : base(cloneSource)
+            { }
+
+            protected override bool OnApply ()
+            {
+                return false;
+            }
+        }
+
         private const int DefaultBatchSize = 256;
 
         private VertexPositionColorTexture[] _vertices = new VertexPositionColorTexture[DefaultBatchSize * 4];
@@ -38,12 +54,13 @@ namespace MonoGdx.Graphics.G2D
 
             _device = graphicsDevice;
 
-            _spriteEffect = new SpriteEffect(graphicsDevice);
+            _spriteEffect = new LocalSpriteEffect(graphicsDevice);
             _matrixTransform = _spriteEffect.Parameters["MatrixTransform"];
             _spritePass = _spriteEffect.CurrentTechnique.Passes[0];
 
             _transformMatrix = Matrix.Identity;
-            _projectionMatrix = Matrix.CreateOrthographicOffCenter(0, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, 0, 0, 1);
+            //_projectionMatrix = Matrix.CreateOrthographicOffCenter(0, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, 0, 0, 1);
+            _projectionMatrix = XnaExt.Matrix.CreateOrthographic2D(0, 0, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height);
 
             Color = Color.White;
 
@@ -83,7 +100,8 @@ namespace MonoGdx.Graphics.G2D
 
         private Matrix DefaultProjectionMatrix
         {
-            get { return Matrix.CreateOrthographicOffCenter(0, _device.Viewport.Width, _device.Viewport.Height, 0, 0, 1); }
+            //get { return Matrix.CreateOrthographicOffCenter(0, _device.Viewport.Width, _device.Viewport.Height, 0, 0, 1); }
+            get { return XnaExt.Matrix.CreateOrthographic2D(0, 0, _device.Viewport.Width, _device.Viewport.Height); }
         }
 
         public void Begin ()
@@ -117,6 +135,9 @@ namespace MonoGdx.Graphics.G2D
 
         private void Setup ()
         {
+            //_device.SamplerStates[0] = SamplerState.PointClamp;
+            _device.BlendState = BlendState.NonPremultiplied;
+            //_device.RasterizerState = new RasterizerState() { CullMode = Microsoft.Xna.Framework.Graphics.CullMode.None };
             _matrixTransform.SetValue(_combinedMatrix);
             _spritePass.Apply();
         }
@@ -170,8 +191,9 @@ namespace MonoGdx.Graphics.G2D
             if (texture != _lastTexture)
                 SwitchTexture(texture);
 
-            while (_vertices.Length - _vBufferIndex < count) {
-                Flush();
+            while (count > 0) {
+                if (_vertices.Length - _vBufferIndex < count)
+                    Flush();
 
                 int copyCount = Math.Min(_vertices.Length, count);
                 Array.Copy(vertices, offset, _vertices, _vBufferIndex, copyCount);
@@ -249,7 +271,7 @@ namespace MonoGdx.Graphics.G2D
 
             int primitiveCount = _vBufferIndex / 2;
 
-            _device.DrawUserPrimitives<VertexPositionColorTexture>(PrimitiveType.TriangleList, _vertices, 0, primitiveCount);
+            //_device.DrawUserPrimitives<VertexPositionColorTexture>(PrimitiveType.TriangleList, _vertices, 0, primitiveCount);
             _device.DrawUserIndexedPrimitives<VertexPositionColorTexture>(PrimitiveType.TriangleList, _vertices, 0, _vBufferIndex, _indexes, 0, primitiveCount);
 
             _vBufferIndex = 0;
@@ -263,10 +285,10 @@ namespace MonoGdx.Graphics.G2D
 
                 _indexes[iIndex + 0] = (short)(vIndex + 0);
                 _indexes[iIndex + 1] = (short)(vIndex + 1);
-                _indexes[iIndex + 2] = (short)(vIndex + 3);
-                _indexes[iIndex + 3] = (short)(vIndex + 1);
-                _indexes[iIndex + 4] = (short)(vIndex + 2);
-                _indexes[iIndex + 5] = (short)(vIndex + 3);
+                _indexes[iIndex + 2] = (short)(vIndex + 2);
+                _indexes[iIndex + 3] = (short)(vIndex + 2);
+                _indexes[iIndex + 4] = (short)(vIndex + 3);
+                _indexes[iIndex + 5] = (short)(vIndex + 0);
             }
         }
 

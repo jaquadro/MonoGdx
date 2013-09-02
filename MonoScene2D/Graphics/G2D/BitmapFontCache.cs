@@ -10,7 +10,7 @@ namespace MonoGdx.Graphics.G2D
 {
     public class BitmapFontCache
     {
-        private Color _color;
+        private Color _color = Color.White;
         private int _vertexCount;
 
         public BitmapFontCache (BitmapFont font)
@@ -268,7 +268,7 @@ namespace MonoGdx.Graphics.G2D
             int numLines = 0;
 
             while (start < length) {
-                int lineEnd = str.IndexOf('\n', start);
+                int lineEnd = BitmapFont.IndexOf(str, '\n', start);
                 float xOffset = 0;
                 float lineWidth = 0;
 
@@ -327,7 +327,7 @@ namespace MonoGdx.Graphics.G2D
             int numLines = 0;
 
             while (start < length) {
-                int newLine = str.IndexOf('\n', start);
+                int newLine = BitmapFont.IndexOf(str, '\n', start);
                 while (start < newLine) {
                     if (!BitmapFont.IsWhitespace(str[start]))
                         break;

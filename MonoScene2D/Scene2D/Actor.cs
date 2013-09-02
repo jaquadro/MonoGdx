@@ -404,7 +404,7 @@ namespace MonoGdx.Scene2D
         public bool ClipBegin (float x, float y, float width, float height)
         {
             Rectangle tableBounds = new Rectangle((int)x, (int)y, (int)width, (int)height);
-            Rectangle scissorBounds = ScissorStack.CalculateScissors(Stage.Camera, Stage.SceneBatch.Transform, tableBounds);
+            Rectangle scissorBounds = ScissorStack.CalculateScissors(Stage.Camera, Stage.SpriteBatch.TransformMatrix, tableBounds);
 
             return Stage.ScissorStack.PushScissors(scissorBounds);
         }
