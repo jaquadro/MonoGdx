@@ -33,6 +33,11 @@ namespace MonoGdx.Graphics.G2D
 
         private int _vBufferIndex = 0;
 
+        private BlendState _blendState;
+        private SamplerState _samplerState;
+        private DepthStencilState _depthStencilState;
+        private RasterizerState _rasterizerState;
+
         private Matrix _projectionMatrix;
         private Matrix _transformMatrix;
         private Matrix _combinedMatrix;
@@ -114,6 +119,12 @@ namespace MonoGdx.Graphics.G2D
             if (_inBegin)
                 throw new InvalidOperationException("End must be called before Begin can be called again.");
 
+            // Defaults
+            _blendState = BlendState.AlphaBlend;
+            _samplerState = SamplerState.LinearClamp;
+            _depthStencilState = DepthStencilState.None;
+            _rasterizerState = RasterizerState.CullCounterClockwise;
+
             _projectionMatrix = projectionMatrix;
             _transformMatrix = transformMatrix;
 
@@ -135,7 +146,13 @@ namespace MonoGdx.Graphics.G2D
 
         private void Setup ()
         {
-            _device.SamplerStates[0] = SamplerState.PointClamp;
+            var device = GraphicsDevice;
+            device.BlendState = _blendState;
+            device.DepthStencilState = _depthStencilState;
+            device.RasterizerState = _rasterizerState;
+            device.SamplerStates[0] = _samplerState;
+
+            //_device.SamplerStates[0] = SamplerState.PointClamp;
             //_device.BlendState = BlendState.NonPremultiplied;
             //_device.RasterizerState = new RasterizerState() { CullMode = Microsoft.Xna.Framework.Graphics.CullMode.None };
             _matrixTransform.SetValue(_combinedMatrix);
@@ -246,9 +263,9 @@ namespace MonoGdx.Graphics.G2D
             float fx2 = x + width;
             float fy2 = y + height;
             float u = region.U;
-            float v = region.V;
+            float v = region.V2;
             float u2 = region.U2;
-            float v2 = region.V2;
+            float v2 = region.V;
 
             _vertices[_vBufferIndex + 0] = new VertexPositionColorTexture(new Vector3(x, y, 0), Color, new Vector2(u, v));
             _vertices[_vBufferIndex + 1] = new VertexPositionColorTexture(new Vector3(x, fy2, 0), Color, new Vector2(u, v2));

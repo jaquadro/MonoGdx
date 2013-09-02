@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
+using MonoGdx;
 
 namespace MonoGdxTests
 {
-    public abstract class GdxTest
+    public abstract class GdxTest : InputAdapter
     {
         protected GdxTestContext Context { get; private set; }
 
@@ -30,6 +31,7 @@ namespace MonoGdxTests
     {
         GraphicsDeviceManager _graphics;
         GdxTest _test;
+        XnaInput _input;
 
         public GdxTestContext (GdxTest test)
         {
@@ -38,6 +40,8 @@ namespace MonoGdxTests
             _graphics = new GraphicsDeviceManager(this);
             _graphics.SynchronizeWithVerticalRetrace = true;
             Content.RootDirectory = "Content";
+
+            IsMouseVisible = true;
 
             this.IsFixedTimeStep = false;
             this.TargetElapsedTime = new TimeSpan(0, 0, 0, 0, 1000 / 60);
@@ -53,11 +57,18 @@ namespace MonoGdxTests
         protected override void Initialize ()
         {
             base.Initialize();
+
+            _input = new XnaInput();
+            _input.Processor = _test;
+
             _test.Initialize();
         }
 
         protected override void Update (GameTime gameTime)
         {
+            _input.Update();
+            _input.ProcessEvents();
+
             _test.Update(gameTime);
             base.Update(gameTime);
         }

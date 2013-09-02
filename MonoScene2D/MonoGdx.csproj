@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="Attributes.cs" />
     <Compile Include="Geometry\ColorExt.cs" />
+    <Compile Include="Geometry\Matrix3.cs" />
     <Compile Include="Geometry\Vector2Ext.cs" />
     <Compile Include="Graphics\G2D\BitmapFont.cs" />
     <Compile Include="Graphics\G2D\BitmapFontCache.cs" />
@@ -109,6 +110,7 @@
     <Compile Include="Utils\Pool.cs" />
     <Compile Include="Utils\Pools.cs" />
     <Compile Include="Utils\SnapshotList.cs" />
+    <Compile Include="XnaInput.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\arial-15.fnt" />

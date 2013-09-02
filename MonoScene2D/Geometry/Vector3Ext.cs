@@ -16,10 +16,10 @@ namespace MonoGdx.Geometry
 
         public static Vector3 Project (this Vector3 vec, Matrix matrix)
         {
-            float w = 1 / (vec.X * matrix.M41 + vec.Y * matrix.M42 + vec.Z * matrix.M43 + matrix.M44);
-            float x = w * (vec.X * matrix.M11 + vec.Y * matrix.M12 + vec.Z * matrix.M13 + matrix.M14);
-            float y = w * (vec.X * matrix.M21 + vec.Y * matrix.M22 + vec.Z * matrix.M23 + matrix.M24);
-            float z = w * (vec.X * matrix.M31 + vec.Y * matrix.M32 + vec.Z * matrix.M33 + matrix.M34);
+            float w = 1 / (vec.X * matrix.M14 + vec.Y * matrix.M24 + vec.Z * matrix.M34 + matrix.M44);
+            float x = w * (vec.X * matrix.M11 + vec.Y * matrix.M21 + vec.Z * matrix.M31 + matrix.M41);
+            float y = w * (vec.X * matrix.M12 + vec.Y * matrix.M22 + vec.Z * matrix.M32 + matrix.M42);
+            float z = w * (vec.X * matrix.M13 + vec.Y * matrix.M23 + vec.Z * matrix.M33 + matrix.M43);
 
             return new Vector3(x, y, z);
         }

@@ -15,7 +15,7 @@ namespace MonoGdx.Scene2D
     public class Group : Actor, ICullable
     {
         private RectangleF? _cullingArea;
-        private Matrix _worldTransform;
+        private Matrix3 _worldTransform;
         private Matrix _oldBatchTransform;
 
         public Group ()
@@ -141,17 +141,17 @@ namespace MonoGdx.Scene2D
 
         protected Matrix ComputeTransform ()
         {
-            Matrix localTransform = (OriginX != 0 || OriginY != 0) 
-                ? Matrix.CreateTranslation(OriginX, OriginY, 0) 
-                : Matrix.Identity;
+            Matrix3 localTransform = (OriginX != 0 || OriginY != 0) 
+                ? Matrix3.CreateTranslation(OriginX, OriginY) 
+                : Matrix3.Identity;
 
             if (Rotation != 0)
-                localTransform = localTransform * Matrix.CreateRotationZ(Rotation);
+                localTransform = Matrix3.CreateRotation(Rotation) * localTransform;
             if (ScaleX != 1 || ScaleY != 1)
-                localTransform = localTransform * Matrix.CreateScale(ScaleX, ScaleY, 1);
+                localTransform = Matrix3.CreateScale(ScaleX, ScaleY) * localTransform;
             if (OriginX != 0 || OriginY != 0)
-                localTransform = localTransform * Matrix.CreateTranslation(-OriginX, -OriginY, 0);
-            XnaExt.Matrix.Translate(ref localTransform, new Vector3(X, Y, 0));
+                localTransform = Matrix3.CreateTranslation(-OriginX, -OriginY) * localTransform;
+            localTransform.Translate(X, Y);
 
             // Find the first parent that transforms
             Group parentGroup = Parent;
@@ -161,9 +161,9 @@ namespace MonoGdx.Scene2D
                 parentGroup = parentGroup.Parent;
             }
 
-            _worldTransform = (parentGroup != null) ? parentGroup._worldTransform * localTransform : localTransform;
+            _worldTransform = (parentGroup != null) ? localTransform * parentGroup._worldTransform : localTransform;
 
-            return _worldTransform;
+            return _worldTransform.ToMatrix();
         }
 
         protected void ResetTransform (GdxSpriteBatch spriteBatch)

@@ -88,4 +88,45 @@ namespace MonoGdx.Scene2D
             return false;
         }
     }
+
+    /*public delegate bool TouchDownHandler (InputEvent e, float x, float y, int pointer, int button);
+    public delegate void TouchUpHandler (InputEvent e, float x, float y, int pointer, int button);
+    public delegate void TouchDraggedHandler (InputEvent e, float x, float y, int pointer);
+    public delegate bool MouseMovedHandler (InputEvent e, float x, float y);
+    public delegate void BoundaryHandler (InputEvent e, float x, float y, int pointer, Actor actor);
+    public delegate bool ScrollHandler (InputEvent e, float x, float y, int amount);
+    public delegate bool KeyHandler (InputEvent e, int keycode);
+    public delegate bool KeyTypedHandler (InputEvent e, char character);*/
+
+    public delegate bool TouchDownHandler (InputEvent e, float x, float y, int pointer, int button);
+    public delegate void TouchUpHandler (InputEvent e, float x, float y, int pointer, int button);
+    public delegate void TouchDraggedHandler (InputEvent e, float x, float y, int pointer);
+
+    public class TouchListener : InputListener
+    {
+        public TouchDownHandler Down { get; set; }
+        public TouchUpHandler Up { get; set; }
+        public TouchDraggedHandler Dragged { get; set; }
+
+        public override bool TouchDown (InputEvent e, float x, float y, int pointer, int button)
+        {
+            return (Down != null) ? Down(e, x, y, pointer, button) : base.TouchDown(e, x, y, pointer, button);
+        }
+
+        public override void TouchUp (InputEvent e, float x, float y, int pointer, int button)
+        {
+            if (Up != null)
+                Up(e, x, y, pointer, button);
+            else
+                base.TouchUp(e, x, y, pointer, button);
+        }
+
+        public override void TouchDragged (InputEvent e, float x, float y, int pointer)
+        {
+            if (Dragged != null)
+                Dragged(e, x, y, pointer);
+            else
+                base.TouchDragged(e, x, y, pointer);
+        }
+    }
 }

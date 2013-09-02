@@ -36,8 +36,8 @@ namespace MonoGdxTests.Tests
         Texture2D _uiTexture;
         BitmapFont _font;
 
-        bool _rotateSprites = false;
-        bool _scaleSprites = false;
+        bool _rotateSprites = true;
+        bool _scaleSprites = true;
         float _angle;
         List<Image> _images = new List<Image>();
         float _scale = 1;
@@ -59,11 +59,53 @@ namespace MonoGdxTests.Tests
                     Y = (float)(_rand.NextDouble() * (_stage.Height - NumSprites * (32 + Spacing))),
                     OriginX = loc,
                     OriginY = loc,
+                    //Rotation = MathHelper.ToRadians(30),
                 };
 
                 FillGroup(group, _texture);
                 _stage.AddActor(group);
             }
+
+            _uiTexture = XnaExt.Texture2D.FromFile(Context.GraphicsDevice, "Data/ui.png");
+            _ui = new Stage(480, 320, false, Context.GraphicsDevice);
+
+            Image blend = new Image(new TextureRegion(_uiTexture, 0, 0, 64, 32)) {
+                Align = Alignment.Center,
+                Scaling = Scaling.None,
+            };
+            
+            // Listener
+            blend.Y = _ui.Height - 64;
+
+            Image rotate = new Image(new TextureRegion(_uiTexture, 64, 0, 64, 32)) {
+                Align = Alignment.Center,
+                Scaling = Scaling.None,
+            };
+            rotate.AddListener(new TouchListener() {
+                Down = (e, x, y, pointer, button) => {
+                    _rotateSprites = !_rotateSprites;
+                    return true;
+                }
+            });
+            rotate.SetPosition(64, blend.Y);
+
+            Image scale = new Image(new TextureRegion(_uiTexture, 64, 32, 64, 32)) {
+                Align = Alignment.Center,
+                Scaling = Scaling.None,
+            };
+            scale.AddListener(new TouchListener() {
+                Down = (e, x, y, pointer, button) => {
+                    _scaleSprites = !_scaleSprites;
+                    return true;
+                }
+            });
+            scale.SetPosition(128, blend.Y);
+
+            _ui.AddActor(blend);
+            _ui.AddActor(rotate);
+            _ui.AddActor(scale);
+
+
         }
 
         private void FillGroup (Group group, Texture2D texture)
@@ -90,7 +132,7 @@ namespace MonoGdxTests.Tests
 
             if (_rotateSprites) {
                 foreach (Actor actor in _stage.Actors)
-                    actor.Rotate((float)gameTime.ElapsedGameTime.TotalSeconds * 10);
+                    actor.Rotate(MathHelper.ToRadians((float)gameTime.ElapsedGameTime.TotalSeconds * 10));
             }
 
             _scale += _vScale * (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -105,7 +147,7 @@ namespace MonoGdxTests.Tests
 
             foreach (Image img in _images) {
                 if (_rotateSprites)
-                    img.Rotate(-40 * (float)gameTime.ElapsedGameTime.TotalSeconds);
+                    img.Rotate(MathHelper.ToRadians(-40 * (float)gameTime.ElapsedGameTime.TotalSeconds));
                 else
                     img.Rotation = 0;
 
@@ -118,6 +160,13 @@ namespace MonoGdxTests.Tests
             }
 
             _stage.Draw();
+
+            _ui.Draw();
+        }
+
+        public override bool TouchDown (int screenX, int screenY, int pointer, int button)
+        {
+            return _ui.TouchDown(screenX, screenY, pointer, button);
         }
     }
 }
