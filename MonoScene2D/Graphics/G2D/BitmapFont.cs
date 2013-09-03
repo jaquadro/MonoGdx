@@ -280,7 +280,7 @@ namespace MonoGdx.Graphics.G2D
             int length = str.Length;
 
             while (start < length) {
-                int lineEnd = str.IndexOf('\n', start);
+                int lineEnd = IndexOf(str, '\n', start);
                 float lineWidth = GetBounds(str, start, lineEnd).Width;
                 maxWidth = Math.Max(maxWidth, lineWidth);
                 start = lineEnd + 1;
@@ -305,7 +305,7 @@ namespace MonoGdx.Graphics.G2D
             float maxWidth =0;
 
             while (start < length) {
-                int newLine = str.IndexOf('\n', start);
+                int newLine = IndexOf(str, '\n', start);
                 while (start < newLine) {
                     if (!IsWhitespace(str[start]))
                         break;

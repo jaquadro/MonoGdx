@@ -63,6 +63,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Debug\ADebug.cs" />
+    <Compile Include="Debug\GameDebugTools\DebugCommandUI.cs" />
+    <Compile Include="Debug\GameDebugTools\DebugManager.cs" />
+    <Compile Include="Debug\GameDebugTools\FpsCounter.cs" />
+    <Compile Include="Debug\GameDebugTools\IDebugCommandHost.cs" />
+    <Compile Include="Debug\GameDebugTools\KeyboardUtils.cs" />
+    <Compile Include="Debug\GameDebugTools\Layout.cs" />
+    <Compile Include="Debug\GameDebugTools\StringBuilderExtensions.cs" />
+    <Compile Include="Debug\GameDebugTools\TimeRuler.cs" />
+    <Compile Include="Debug\MemoryTracker.cs" />
+    <Compile Include="Debug\Performance.cs" />
+    <Compile Include="Debug\TimeHistory.cs" />
     <Compile Include="Tests\BitmapFontTest.cs" />
     <Compile Include="GdxTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -93,6 +105,9 @@
     <Content Include="verdana39.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="Content\Debug\DebugFont.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Data\arial-15.fnt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

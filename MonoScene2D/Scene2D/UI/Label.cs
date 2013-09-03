@@ -58,11 +58,11 @@ namespace MonoGdx.Scene2D.UI
             {
                 if (value == null)
                     throw new ArgumentNullException("value");
-                if (Style.Font == null)
+                if (value.Font == null)
                     throw new ArgumentException("Missing LabelStyle font");
 
                 _style = value;
-                _cache = new BitmapFontCache(Style.Font, Style.Font.UsesIntegerPostions);
+                _cache = new BitmapFontCache(_style.Font, _style.Font.UsesIntegerPostions);
                 InvalidateHierarchy();
             }
         }

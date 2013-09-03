@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Amphibian.Debug;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGdx;
@@ -26,7 +27,7 @@ namespace MonoGdxTests.Tests
             }
         }
 
-        private const int NumGroups = 5;
+        private const int NumGroups = 25;
         private static int NumSprites = (int)Math.Sqrt(400 / NumGroups);
         private const float Spacing = 5;
 
@@ -47,6 +48,9 @@ namespace MonoGdxTests.Tests
 
         public override void Initialize ()
         {
+            Performance.Initialize(Context);
+            ADebug.Initialize(Context);
+
             _texture = XnaExt.Texture2D.FromFile(Context.GraphicsDevice, "Data/badlogicsmall.jpg");
             _font = new BitmapFont(Context.GraphicsDevice, "Data/arial-15.fnt", "data/arial-15_00.png", false);
 
@@ -105,7 +109,10 @@ namespace MonoGdxTests.Tests
             _ui.AddActor(rotate);
             _ui.AddActor(scale);
 
-
+            /*_fps = new Label("fps: 0", new LabelStyle(_font, Color.White));
+            _fps.SetPosition(10, 30);
+            _fps.Color = new Color(0, 1f, 0, 1f);
+            _ui.AddActor(_fps);*/
         }
 
         private void FillGroup (Group group, Texture2D texture)
@@ -126,42 +133,51 @@ namespace MonoGdxTests.Tests
             }
         }
 
+        public override void Update (GameTime gameTime)
+        {
+            Performance.StartFrame();
+
+            using (new PerformanceRuler("Update", Color.Yellow)) {
+                if (_rotateSprites) {
+                    foreach (Actor actor in _stage.Actors)
+                        actor.Rotate(MathHelper.ToRadians((float)gameTime.ElapsedGameTime.TotalSeconds * 10));
+                }
+
+                _scale += _vScale * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                if (_scale > 1) {
+                    _scale = 1;
+                    _vScale = -_vScale;
+                }
+                if (_scale < .5f) {
+                    _scale = .5f;
+                    _vScale = -_vScale;
+                }
+
+                foreach (Image img in _images) {
+                    if (_rotateSprites)
+                        img.Rotate(MathHelper.ToRadians(-40 * (float)gameTime.ElapsedGameTime.TotalSeconds));
+                    else
+                        img.Rotation = 0;
+
+                    if (_scaleSprites)
+                        img.SetScale(_scale);
+                    else
+                        img.SetScale(1);
+
+                    img.Invalidate();
+                }
+            }
+        }
+
         public override void Draw (GameTime gameTime)
         {
-            Context.GraphicsDevice.Clear(Color.Black);
+            using (new PerformanceRuler("Draw", Color.Purple)) {
+                Context.GraphicsDevice.Clear(Color.Black);
 
-            if (_rotateSprites) {
-                foreach (Actor actor in _stage.Actors)
-                    actor.Rotate(MathHelper.ToRadians((float)gameTime.ElapsedGameTime.TotalSeconds * 10));
+                _stage.Draw();
+
+                _ui.Draw();
             }
-
-            _scale += _vScale * (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (_scale > 1) {
-                _scale = 1;
-                _vScale = -_vScale;
-            }
-            if (_scale < .5f) {
-                _scale = .5f;
-                _vScale = -_vScale;
-            }
-
-            foreach (Image img in _images) {
-                if (_rotateSprites)
-                    img.Rotate(MathHelper.ToRadians(-40 * (float)gameTime.ElapsedGameTime.TotalSeconds));
-                else
-                    img.Rotation = 0;
-
-                if (_scaleSprites)
-                    img.SetScale(_scale);
-                else
-                    img.SetScale(1);
-
-                img.Invalidate();
-            }
-
-            _stage.Draw();
-
-            _ui.Draw();
         }
 
         public override bool TouchDown (int screenX, int screenY, int pointer, int button)
