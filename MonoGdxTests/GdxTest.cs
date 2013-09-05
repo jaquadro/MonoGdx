@@ -92,6 +92,11 @@ namespace MonoGdxTests
             get { return _graphics; }
         }
 
+        public XnaInput Input
+        {
+            get { return _input; }
+        }
+
         protected override void Initialize ()
         {
             base.Initialize();

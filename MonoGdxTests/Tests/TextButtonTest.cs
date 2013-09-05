@@ -41,6 +41,8 @@ namespace MonoGdxTests.Tests
             });
             _stage = new Stage(Context.Window.ClientBounds.Width, Context.Window.ClientBounds.Height, false, Context.GraphicsDevice);
 
+            Context.Input.Processor = _stage;
+
             TextButton button = new TextButton("Button " + 0, skin) {
                 X = 200, Y = 200, Width = 150, Height = 100,
                 /*X = _rand.Next(0, Context.GraphicsDevice.Viewport.Width - 200),

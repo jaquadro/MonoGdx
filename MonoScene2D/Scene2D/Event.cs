@@ -20,6 +20,11 @@ namespace MonoGdx.Scene2D
         public bool IsStopped { get; private set; }
         public bool IsCapture { get; set; }
 
+        public Event ()
+        {
+            Bubbles = true;
+        }
+
         public void Handle ()
         {
             IsHandled = true;
@@ -43,7 +48,7 @@ namespace MonoGdx.Scene2D
             TargetActor = null;
             ListenerActor = null;
             IsCapture = false;
-            Bubbles = false;
+            Bubbles = true;
             IsHandled = false;
             IsStopped = false;
             IsCancelled = false;

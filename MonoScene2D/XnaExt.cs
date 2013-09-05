@@ -32,11 +32,11 @@ namespace MonoGdx
         public static bool IsButtonPressed (this MouseState state, int button)
         {
             switch (button) {
-                case 1: return state.LeftButton == ButtonState.Pressed;
+                case 0: return state.LeftButton == ButtonState.Pressed;
                 case 2: return state.MiddleButton == ButtonState.Pressed;
-                case 3: return state.RightButton == ButtonState.Pressed;
-                case 4: return state.XButton1 == ButtonState.Pressed;
-                case 5: return state.XButton2 == ButtonState.Pressed;
+                case 1: return state.RightButton == ButtonState.Pressed;
+                case 3: return state.XButton1 == ButtonState.Pressed;
+                case 4: return state.XButton2 == ButtonState.Pressed;
                 default: return false;
             }
         }
