@@ -126,11 +126,11 @@ namespace MonoGdx.TableLayout
                         for (int column = other.Column, nn = column + (other.Colspan ?? 0); column < nn; column++) {
                             if (column == cell.Column) {
                                 cell.CellAboveIndex = i;
-                                goto outer;
+                                goto BREAK_OUTER;
                             }
                         }
                     }
-                    outer: ;
+                    BREAK_OUTER:;
                 }
             }
             else {
@@ -674,8 +674,6 @@ namespace MonoGdx.TableLayout
 
             // Colspan with expand will expand all spanned columns if none of the spanned columns have expand.
             for (int i = 0, n = _cells.Count; i < n; i++) {
-                CONT_OUTER:
-
                 Cell c = _cells[i];
                 if (c.Ignore == true || c.ExpandX == 0)
                     continue;
@@ -687,6 +685,8 @@ namespace MonoGdx.TableLayout
 
                 for (int column = c.Column, nn = column + (c.Colspan ?? 0); column < nn; column++)
                     _expandWidth[column] = c.ExpandX ?? 0;
+
+                CONT_OUTER:;
             }
 
             // Distribute any additional min and pref width added by colspanned cells to the columns spanned.
@@ -858,7 +858,7 @@ namespace MonoGdx.TableLayout
 
                 float spannedWeightedWidth = 0;
                 for (int column = c.Column, nn = column + (c.Colspan ?? 0); column < nn; column++)
-                    spannedWeightedWidth += _colWeightedWidth[column];
+                    spannedWeightedWidth += columnWeightedWidth[column];
 
                 float weightedHeight = rowWeightedHeight[c.Row];
 
@@ -926,6 +926,26 @@ namespace MonoGdx.TableLayout
                 }
 
                 _rowHeight[lastIndex] += extra - used;
+            }
+
+            // Distribute any additional width added by colspanned cells to the columns spanned.
+            for (int i = 0, n = _cells.Count; i < n; i++) {
+                Cell c = _cells[i];
+                if (c.Ignore == true)
+                    continue;
+                if (c.Colspan == 1)
+                    continue;
+
+                float extraWidth = 0;
+                for (int column = c.Column, nn = column + (c.Colspan ?? 0); column < nn; column++)
+                    extraWidth += columnWeightedWidth[column] - _colWidth[column];
+                extraWidth -= Math.Max(0, c.ComputedPadLeft + c.ComputedPadRight);
+
+                extraWidth /= c.Colspan ?? 1;
+                if (extraWidth > 0) {
+                    for (int column = c.Column, nn = column + (c.Colspan ?? 0); column < nn; column++)
+                        _colWidth[column] += extraWidth;
+                }
             }
 
             // Determine table size.

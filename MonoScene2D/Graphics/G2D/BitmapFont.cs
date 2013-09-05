@@ -93,7 +93,7 @@ namespace MonoGdx.Graphics.G2D
                 else {
                     _region = new TextureRegion(CreateTexture(device, data.ImagePath));
                     // this.region = new TextureRegion(new Texture(Gdx.files.getFileHandle(data.imagePath, data.fontFile.type()), false));
-                    throw new NotImplementedException();
+                    //throw new NotImplementedException();
                 }
             }
 

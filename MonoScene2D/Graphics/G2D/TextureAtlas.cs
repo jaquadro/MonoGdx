@@ -61,6 +61,9 @@ namespace MonoGdx.Graphics.G2D
 
             public TextureAtlasData (string packFile, string imagesDir, bool flip)
             {
+                Pages = new List<Page>();
+                Regions = new List<Region>();
+
                 using (StreamReader reader = new StreamReader(packFile)) {
                     List<string> tupleData = new List<string>();
                     Page pageImage = null;
@@ -76,11 +79,17 @@ namespace MonoGdx.Graphics.G2D
                             string file = Path.Combine(imagesDir, line);
                             
 
-                            SurfaceFormat format = (SurfaceFormat)Enum.Parse(typeof(SurfaceFormat), ReadValue(reader), true);
+                            string formatString = ReadValue(reader);
+                            SurfaceFormat format;
+
+                            if (!Enum.TryParse<SurfaceFormat>(formatString, true, out format))
+                                format = TranslateSurfaceFormat(formatString);
 
                             ReadTuple(reader, tupleData);
-                            TextureFilter min = (TextureFilter)Enum.Parse(typeof(TextureFilter), tupleData[0], true);
-                            TextureFilter max = (TextureFilter)Enum.Parse(typeof(TextureFilter), tupleData[1], true);
+                            //TextureFilter min = (TextureFilter)Enum.Parse(typeof(TextureFilter), tupleData[0], true);
+                            //TextureFilter max = (TextureFilter)Enum.Parse(typeof(TextureFilter), tupleData[1], true);
+                            TextureFilter min = TranslateTextureFilter(tupleData[0], tupleData[1]);
+                            TextureFilter max = min;
 
                             string direction = ReadValue(reader);
                             TextureAddressMode repeatX = TextureAddressMode.Clamp;
@@ -158,7 +167,7 @@ namespace MonoGdx.Graphics.G2D
                 Regions.Sort(IndexComparator);
             }
 
-            /*private static SurfaceFormat TranslateSurfaceFormat (string format)
+            private static SurfaceFormat TranslateSurfaceFormat (string format)
             {
                 switch (format) {
                     case "Alpha": return SurfaceFormat.Alpha8;
@@ -167,11 +176,43 @@ namespace MonoGdx.Graphics.G2D
                     case "RGB565": return SurfaceFormat.Bgr565;
                     case "RGBA4444": return SurfaceFormat.Bgra4444;
                     case "RGB888": return SurfaceFormat.Bgr32;
-                    case "RGBA8888": return SurfaceFormat.Bgra32;
+                    case "RGBA8888": return SurfaceFormat.Color;
                     default:
                         throw new Exception("Unknown surface format");
                 }
-            }*/
+            }
+
+            private static TextureFilter TranslateTextureFilter (string minFilter, string magFilter)
+            {
+                switch (magFilter) {
+                    case "Nearest":
+                        switch (minFilter) {
+                            case "Nearest": return TextureFilter.Point;
+                            case "Linear": return TextureFilter.MinPointMagLinearMipLinear;
+                            case "MipMap": return TextureFilter.MinPointMagLinearMipLinear;
+                            case "MipMapNearestNearest": return TextureFilter.Point;
+                            case "MipMapLinearNearest": return TextureFilter.MinPointMagLinearMipPoint;
+                            case "MipMapNearestLinear": return TextureFilter.PointMipLinear;
+                            case "MipMapLinearLinear": return TextureFilter.MinPointMagLinearMipLinear;
+                            default:
+                                throw new Exception("Unknown filter format");
+                        }
+                    case "Linear":
+                        switch (minFilter) {
+                            case "Nearest": return TextureFilter.MinLinearMagPointMipLinear;
+                            case "Linear": return TextureFilter.Linear;
+                            case "MipMap": return TextureFilter.Linear;
+                            case "MipMapNearestNearest": return TextureFilter.MinLinearMagPointMipPoint;
+                            case "MipMapLinearNearest": return TextureFilter.LinearMipPoint;
+                            case "MipMapNearestLinear": return TextureFilter.MinLinearMagPointMipLinear;
+                            case "MipMapLinearLinear": return TextureFilter.Linear;
+                            default:
+                                throw new Exception("Unknown filter format");
+                        }
+                    default:
+                        throw new Exception("Unknown filter format");
+                }
+            }
         }
 
         public TextureAtlas (GraphicsDevice graphicsDevice)
@@ -195,6 +236,9 @@ namespace MonoGdx.Graphics.G2D
 
         public TextureAtlas (GraphicsDevice graphicsDevice, TextureAtlasData data)
         {
+            Textures = new HashSet<Texture2D>();
+            Regions = new List<AtlasRegion>();
+
             if (data != null)
                 Load(graphicsDevice, data);
         }
@@ -438,7 +482,7 @@ namespace MonoGdx.Graphics.G2D
                     break;
                 }
 
-                resultsList.Add(line.Substring(lastMatch, comma).Trim());
+                resultsList.Add(line.Substring(lastMatch, comma - lastMatch).Trim());
                 lastMatch = comma + 1;
             }
 

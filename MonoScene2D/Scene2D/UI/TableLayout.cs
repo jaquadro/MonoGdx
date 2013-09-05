@@ -30,6 +30,8 @@ namespace MonoGdx.Scene2D.UI
             float width = table.Width;
             float height = table.Height;
 
+            base.Layout(0, 0, width, height);
+
             List<Cell> cells = Cells;
             if (IsRound) {
                 foreach (Cell c in cells) {

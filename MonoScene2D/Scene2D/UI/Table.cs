@@ -31,6 +31,7 @@ namespace MonoGdx.Scene2D.UI
         {
             Skin = skin;
             _layout = new TableLayout();
+            _layout.Table = this;
 
             IsTransform = false;
             Touchable = Touchable.ChildrenOnly;

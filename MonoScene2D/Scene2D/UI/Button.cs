@@ -149,8 +149,8 @@ namespace MonoGdx.Scene2D.UI
             get { return _style; }
             set
             {
-                if (_style == null)
-                    throw new ArgumentNullException("value");
+                if (value == null)
+                    throw new ArgumentNullException("StyleCore");
                 _style = value;
 
                 ISceneDrawable background = _style.Up ?? _style.Down ?? _style.Checked;

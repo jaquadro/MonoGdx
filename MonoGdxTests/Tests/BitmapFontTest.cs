@@ -24,7 +24,7 @@ namespace MonoGdxTests.Tests
         private GdxSpriteBatch _batch;
         private BitmapFont _font;
 
-        public override void Initialize ()
+        protected override void InitializeCore ()
         {
             string fontFile = "verdana39.fnt";
             string imageFile = "verdana39.png";
@@ -33,7 +33,7 @@ namespace MonoGdxTests.Tests
             _font = new BitmapFont(Context.GraphicsDevice, fontFile, imageFile, false);
         }
 
-        public override void Draw (GameTime gameTime)
+        protected override void DrawCore (GameTime gameTime)
         {
             Context.GraphicsDevice.Clear(Color.Black);
 

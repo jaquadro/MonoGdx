@@ -39,11 +39,17 @@ namespace MonoGdx.Graphics.G2D
         private VertexPositionColorTexture[] _vertices = new VertexPositionColorTexture[9 * 4];
         private int _index;
 
+        private NinePatch ()
+        {
+            Color = Color.White;
+        }
+
         public NinePatch (Texture2D texture, int left, int right, int top, int bottom)
             : this(new TextureRegion(texture), left, right, top, bottom)
         { }
 
         public NinePatch (TextureRegion region, int left, int right, int top, int bottom)
+            : this()
         {
             if (region == null)
                 throw new ArgumentNullException("region");
@@ -117,6 +123,7 @@ namespace MonoGdx.Graphics.G2D
         }
 
         public NinePatch (params TextureRegion[] patches)
+            : this ()
         {
             if (patches.Length == 1) {
                 Load(new TextureRegion[] {
@@ -162,6 +169,7 @@ namespace MonoGdx.Graphics.G2D
         { }
 
         public NinePatch (NinePatch ninePatch, Color color)
+            : this()
         {
             Texture = ninePatch.Texture;
 

@@ -213,7 +213,7 @@ namespace MonoGdx.Graphics.G2D
                 if (_vertices.Length - _vBufferIndex < count)
                     Flush();
 
-                int copyCount = Math.Min(_vertices.Length, count);
+                int copyCount = Math.Min(vertices.Length, count);
                 Array.Copy(vertices, offset, _vertices, _vBufferIndex, copyCount);
 
                 _vBufferIndex += copyCount;

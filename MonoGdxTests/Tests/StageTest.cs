@@ -46,10 +46,9 @@ namespace MonoGdxTests.Tests
         Label _fps;
         private Random _rand = new Random();
 
-        public override void Initialize ()
+        protected override void InitializeCore ()
         {
-            Performance.Initialize(Context);
-            ADebug.Initialize(Context);
+            ShowDebug = true;
 
             _texture = XnaExt.Texture2D.FromFile(Context.GraphicsDevice, "Data/badlogicsmall.jpg");
             _font = new BitmapFont(Context.GraphicsDevice, "Data/arial-15.fnt", "data/arial-15_00.png", false);
@@ -133,51 +132,45 @@ namespace MonoGdxTests.Tests
             }
         }
 
-        public override void Update (GameTime gameTime)
+        protected override void UpdateCore (GameTime gameTime)
         {
-            Performance.StartFrame();
+            if (_rotateSprites) {
+                foreach (Actor actor in _stage.Actors)
+                    actor.Rotate(MathHelper.ToRadians((float)gameTime.ElapsedGameTime.TotalSeconds * 10));
+            }
 
-            using (new PerformanceRuler("Update", Color.Yellow)) {
-                if (_rotateSprites) {
-                    foreach (Actor actor in _stage.Actors)
-                        actor.Rotate(MathHelper.ToRadians((float)gameTime.ElapsedGameTime.TotalSeconds * 10));
-                }
+            _scale += _vScale * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (_scale > 1) {
+                _scale = 1;
+                _vScale = -_vScale;
+            }
+            if (_scale < .5f) {
+                _scale = .5f;
+                _vScale = -_vScale;
+            }
 
-                _scale += _vScale * (float)gameTime.ElapsedGameTime.TotalSeconds;
-                if (_scale > 1) {
-                    _scale = 1;
-                    _vScale = -_vScale;
-                }
-                if (_scale < .5f) {
-                    _scale = .5f;
-                    _vScale = -_vScale;
-                }
+            foreach (Image img in _images) {
+                if (_rotateSprites)
+                    img.Rotate(MathHelper.ToRadians(-40 * (float)gameTime.ElapsedGameTime.TotalSeconds));
+                else
+                    img.Rotation = 0;
 
-                foreach (Image img in _images) {
-                    if (_rotateSprites)
-                        img.Rotate(MathHelper.ToRadians(-40 * (float)gameTime.ElapsedGameTime.TotalSeconds));
-                    else
-                        img.Rotation = 0;
+                if (_scaleSprites)
+                    img.SetScale(_scale);
+                else
+                    img.SetScale(1);
 
-                    if (_scaleSprites)
-                        img.SetScale(_scale);
-                    else
-                        img.SetScale(1);
-
-                    img.Invalidate();
-                }
+                img.Invalidate();
             }
         }
 
-        public override void Draw (GameTime gameTime)
+        protected override void DrawCore (GameTime gameTime)
         {
-            using (new PerformanceRuler("Draw", Color.Purple)) {
-                Context.GraphicsDevice.Clear(Color.Black);
+            Context.GraphicsDevice.Clear(Color.Black);
 
-                _stage.Draw();
+            _stage.Draw();
 
-                _ui.Draw();
-            }
+            _ui.Draw();
         }
 
         public override bool TouchDown (int screenX, int screenY, int pointer, int button)
