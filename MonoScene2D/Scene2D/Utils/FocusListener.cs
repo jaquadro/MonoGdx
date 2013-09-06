@@ -29,4 +29,26 @@ namespace MonoGdx.Scene2D.Utils
         public virtual void ScrollFocusChanged (FocusEvent ev, Actor actor, bool focused)
         { }
     }
+
+    public class DispatchFocusListener : FocusListener
+    {
+        public Action<FocusEvent, Actor, bool> OnKeyboardFocusChanged { get; set; }
+        public Action<FocusEvent, Actor, bool> OnScrollFocusChanged { get; set; }
+
+        public override void KeyboardFocusChanged (FocusEvent ev, Actor actor, bool focused)
+        {
+            if (OnKeyboardFocusChanged != null)
+                OnKeyboardFocusChanged(ev, actor, focused);
+            else
+                base.KeyboardFocusChanged(ev, actor, focused);
+        }
+
+        public override void ScrollFocusChanged (FocusEvent ev, Actor actor, bool focused)
+        {
+            if (OnScrollFocusChanged != null)
+                OnScrollFocusChanged(ev, actor, focused);
+            else
+                base.ScrollFocusChanged(ev, actor, focused);
+        }
+    }
 }

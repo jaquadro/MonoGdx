@@ -101,6 +101,11 @@ namespace MonoGdx.Scene2D
     public delegate bool TouchDownHandler (InputEvent e, float x, float y, int pointer, int button);
     public delegate void TouchUpHandler (InputEvent e, float x, float y, int pointer, int button);
     public delegate void TouchDraggedHandler (InputEvent e, float x, float y, int pointer);
+    public delegate bool MouseMovedHandler (InputEvent e, float x, float y);
+    public delegate void BoundaryHandler (InputEvent e, float x, float y, int pointer, Actor actor);
+    public delegate bool ScrollHandler (InputEvent e, float x, float y, int amount);
+    public delegate bool KeyHandler (InputEvent e, int keycode);
+    public delegate bool KeyTypedHandler (InputEvent e, char character);
 
     public class TouchListener : InputListener
     {
@@ -127,6 +132,82 @@ namespace MonoGdx.Scene2D
                 Dragged(e, x, y, pointer);
             else
                 base.TouchDragged(e, x, y, pointer);
+        }
+    }
+
+    public class DispatchInputListener : InputListener
+    {
+        public TouchDownHandler OnTouchDown { get; set; }
+        public TouchUpHandler OnTouchUp { get; set; }
+        public TouchDraggedHandler OnTouchDragged { get; set; }
+        public MouseMovedHandler OnMouseMoved { get; set; }
+        public BoundaryHandler OnEnter { get; set; }
+        public BoundaryHandler OnExit { get; set; }
+        public ScrollHandler OnScrolled { get; set; }
+        public KeyHandler OnKeyDown { get; set; }
+        public KeyHandler OnKeyUp { get; set; }
+        public KeyTypedHandler OnKeyTyped { get; set; }
+
+        public override bool TouchDown (InputEvent e, float x, float y, int pointer, int button)
+        {
+            return (OnTouchDown != null) ? OnTouchDown(e, x, y, pointer, button) : base.TouchDown(e, x, y, pointer, button);
+        }
+
+        public override void TouchUp (InputEvent e, float x, float y, int pointer, int button)
+        {
+            if (OnTouchUp != null)
+                OnTouchUp(e, x, y, pointer, button);
+            else
+                base.TouchUp(e, x, y, pointer, button);
+        }
+
+        public override void TouchDragged (InputEvent e, float x, float y, int pointer)
+        {
+            if (OnTouchDragged != null)
+                OnTouchDragged(e, x, y, pointer);
+            else
+                base.TouchDragged(e, x, y, pointer);
+        }
+
+        public override bool MouseMoved (InputEvent e, float x, float y)
+        {
+            return (OnMouseMoved != null) ? OnMouseMoved(e, x, y) : base.MouseMoved(e, x, y);
+        }
+
+        public override void Enter (InputEvent e, float x, float y, int pointer, Actor fromActor)
+        {
+            if (OnEnter != null)
+                OnEnter(e, x, y, pointer, fromActor);
+            else
+                base.Enter(e, x, y, pointer, fromActor);
+        }
+
+        public override void Exit (InputEvent e, float x, float y, int pointer, Actor toActor)
+        {
+            if (OnExit != null)
+                OnExit(e, x, y, pointer, toActor);
+            else
+                base.Exit(e, x, y, pointer, toActor);
+        }
+
+        public override bool Scrolled (InputEvent e, float x, float y, int amount)
+        {
+            return (OnScrolled != null) ? OnScrolled(e, x, y, amount) : base.Scrolled(e, x, y, amount);
+        }
+
+        public override bool KeyDown (InputEvent e, int keycode)
+        {
+            return (OnKeyDown != null) ? OnKeyDown(e, keycode) : base.KeyDown(e, keycode);
+        }
+
+        public override bool KeyUp (InputEvent e, int keycode)
+        {
+            return (OnKeyUp != null) ? OnKeyUp(e, keycode) : base.KeyUp(e, keycode);
+        }
+
+        public override bool KeyTyped (InputEvent e, char character)
+        {
+            return (OnKeyTyped != null) ? OnKeyTyped(e, character) : base.KeyTyped(e, character);
         }
     }
 }

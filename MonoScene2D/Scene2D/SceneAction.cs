@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using MonoGdx.Utils;
 
 namespace MonoGdx.Scene2D
@@ -10,22 +9,28 @@ namespace MonoGdx.Scene2D
     public abstract class SceneAction : IPoolable
     {
         private Actor _actor;
+        private Pool _pool;
 
-        public Actor Actor
+        public abstract bool Act (float delta);
+
+        public virtual Actor Actor
         {
             get { return _actor; }
-            set {
-                _actor = Actor;
-                if (_actor == null && Pool != null) {
-                    Pool.Release(this);
-                    Pool = null;
+            set
+            {
+                _actor = value;
+                if (_actor == null && _pool != null) {
+                    _pool.Release(this);
+                    _pool = null;
                 }
             }
         }
 
-        public Pool Pool { get; set; }
-
-        public abstract bool Act (float delta);
+        public Pool Pool
+        {
+            get { return _pool; }
+            set { _pool = value; }
+        }
 
         public virtual void Restart ()
         { }

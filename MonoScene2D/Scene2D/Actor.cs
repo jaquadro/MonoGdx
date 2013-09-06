@@ -254,7 +254,7 @@ namespace MonoGdx.Scene2D
             get { return Parent != null; }
         }
 
-        public Group Parent { get; protected internal set; }
+        public virtual Group Parent { get; protected internal set; }
 
         public Touchable Touchable { get; set; }
 

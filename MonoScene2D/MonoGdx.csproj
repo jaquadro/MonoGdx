@@ -50,14 +50,28 @@
   <ItemGroup>
     <Compile Include="Attributes.cs" />
     <Compile Include="Geometry\ColorExt.cs" />
+    <Compile Include="Geometry\Interpolation.cs" />
     <Compile Include="Geometry\Matrix3.cs" />
     <Compile Include="Geometry\Vector2Ext.cs" />
     <Compile Include="Graphics\G2D\BitmapFont.cs" />
     <Compile Include="Graphics\G2D\BitmapFontCache.cs" />
+    <Compile Include="Scene2D\SceneAction.cs" />
+    <Compile Include="Scene2D\Actions\ActionRepo.cs" />
+    <Compile Include="Scene2D\Actions\AlphaAction.cs" />
+    <Compile Include="Scene2D\Actions\ParallelAction.cs" />
+    <Compile Include="Scene2D\Actions\RemoveActorAction.cs" />
+    <Compile Include="Scene2D\Actions\RemoveListenerAction.cs" />
+    <Compile Include="Scene2D\Actions\SequenceAction.cs" />
+    <Compile Include="Scene2D\Actions\TemporalAction.cs" />
     <Compile Include="Scene2D\UI\ButtonGroup.cs" />
+    <Compile Include="Scene2D\UI\CheckBox.cs" />
+    <Compile Include="Scene2D\UI\Dialog.cs" />
     <Compile Include="Scene2D\UI\Image.cs" />
+    <Compile Include="Scene2D\UI\ImageButton.cs" />
+    <Compile Include="Scene2D\UI\ImageTextButton.cs" />
     <Compile Include="Scene2D\UI\Stack.cs" />
     <Compile Include="Scene2D\UI\TextButton.cs" />
+    <Compile Include="Scene2D\UI\Window.cs" />
     <Compile Include="Scene2D\Utils\BaseDrawable.cs" />
     <Compile Include="Scene2D\Utils\ChangeListener.cs" />
     <Compile Include="Scene2D\Utils\ClickListener.cs" />
@@ -85,7 +99,6 @@
     <Compile Include="Scene2D\Group.cs" />
     <Compile Include="Scene2D\InputEvent.cs" />
     <Compile Include="Scene2D\InputListener.cs" />
-    <Compile Include="Scene2D\SceneAction.cs" />
     <Compile Include="Scene2D\Stage.cs" />
     <Compile Include="Scene2D\UI\Button.cs" />
     <Compile Include="Scene2D\UI\Label.cs" />
