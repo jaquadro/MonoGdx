@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 //using Microsoft.Xna.Framework;
 using MonoGdx.Graphics.G2D;
 using MonoGdx.Scene2D.Utils;
+using MonoGdx.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xna = Microsoft.Xna.Framework;
@@ -29,14 +33,14 @@ namespace MonoGdx.Scene2D.UI
                 AddRegions(Atlas);
             }
 
-            Load(skinFile);
+            Load(graphicsDevice, skinFile);
         }
 
-        public Skin (string skinFile, TextureAtlas atlas)
+        public Skin (GraphicsDevice graphicsDevice, string skinFile, TextureAtlas atlas)
         {
             Atlas = atlas;
             AddRegions(atlas);
-            Load(skinFile);
+            Load(graphicsDevice, skinFile);
         }
 
         public Skin (TextureAtlas atlas)
@@ -47,14 +51,18 @@ namespace MonoGdx.Scene2D.UI
 
         public TextureAtlas Atlas { get; internal set; }
 
-        [TODO]
-        public void Load (string skinFile)
+        public void Load (GraphicsDevice graphicsDevice, string skinFile)
         {
-            /*try {
-                getJsonLoader(skinFile).fromJson(Skin.class, skinFile);
-            } catch (SerializationException ex) {
-                throw new SerializationException("Error reading file: " + skinFile, ex);
-            }*/
+            string root = Path.GetDirectoryName(skinFile);
+
+            try {
+                using (TextReader reader = new StreamReader(skinFile)) {
+                    LoadFromJson(graphicsDevice, reader, root);
+                }
+            }
+            catch (Exception e) {
+                throw new IOException("Error reading file: " + skinFile, e);
+            }
         }
 
         public void AddRegions (TextureAtlas atlas)
@@ -96,28 +104,32 @@ namespace MonoGdx.Scene2D.UI
 
         public T Get<T> (string name)
         {
+            return (T)Get(name, typeof(T));
+        }
+
+        public object Get (string name, Type type)
+        {
             if (name == null)
                 throw new ArgumentNullException("name");
 
-            // GROSS!!!
-            if (typeof(T) == typeof(ISceneDrawable))
-                return (T)(object)GetDrawable(name);
-            if (typeof(T) == typeof(TextureRegion))
-                return (T)(object)GetRegion(name);
-            if (typeof(T) == typeof(NinePatch))
-                return (T)(object)GetPatch(name);
-            if (typeof(T) == typeof(Sprite))
-                return (T)(object)GetSprite(name);
+            if (type == typeof(ISceneDrawable))
+                return GetDrawable(name);
+            if (type == typeof(TextureRegion))
+                return GetRegion(name);
+            if (type == typeof(NinePatch))
+                return GetPatch(name);
+            if (type == typeof(Sprite))
+                return GetSprite(name);
 
             Dictionary<string, object> typeResources;
-            if (!_resources.TryGetValue(typeof(T), out typeResources))
-                throw new Exception("No " + typeof(T) + " registered with name: " + name);
+            if (!_resources.TryGetValue(type, out typeResources))
+                throw new Exception("No " + type + " registered with name: " + name);
 
             object resource;
             if (!typeResources.TryGetValue(name, out resource))
-                throw new Exception("No " + typeof(T) + " registered with name: " + name);
+                throw new Exception("No " + type + " registered with name: " + name);
 
-            return (T)resource;
+            return resource;
         }
 
         public T Optional<T> (string name)
@@ -136,8 +148,13 @@ namespace MonoGdx.Scene2D.UI
 
         public bool Has<T> (string name)
         {
+            return Has(name, typeof(T));
+        }
+
+        public bool Has (string name, Type type)
+        {
             Dictionary<string, object> typeResources;
-            if (!_resources.TryGetValue(typeof(T), out typeResources))
+            if (!_resources.TryGetValue(type, out typeResources))
                 return false;
 
             return typeResources.ContainsKey(name);
@@ -397,135 +414,190 @@ namespace MonoGdx.Scene2D.UI
             }
         }
 
-        //protected Json GetJsonLoader (string skinFile)
-        //{
-            /*Newtonsoft.Json.JsonSerializer s = new Newtonsoft.Json.JsonSerializer();
-            
-            using (TextReader reader = new StreamReader(skinFile)) {
-                JObject root = JObject.Parse(reader.ReadToEnd());
+        public static Dictionary<string, string> GdxTypeMap = new Dictionary<string, string> {
+            { "com.badlogic.gdx.graphics.Color", "MonoGdx.Scene2D.UI.GdxColor" },
+            { "Microsoft.Xna.Framework.Color", "MonoGdx.Scene2D.UI.GdxColor" },
+            { "com.badlogic.gdx.graphics.g2d.BitmapFont", "MonoGdx.Graphics.G2D.BitmapFont" },
+            { "com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable", "MonoGdx.Scene2D.UI.TintedDrawable" },
+            { "com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle", "MonoGdx.Scene2D.UI.ButtonStyle" },
+            { "com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle", "MonoGdx.Scene2D.UI.TextButtonStyle" },
+            //{ "com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle", "MonoGdx.Scene2D.UI.ScrollPaneStyle" },
+            //{ "com.badlogic.gdx.scenes.scene2d.ui.SelectBox$SelectBoxStyle", "MonoGdx.Scene2D.UI.SelectBoxStyle" },
+            //{ "com.badlogic.gdx.scenes.scene2d.ui.SplitPane$SplitPaneStyle", "MonoGdx.Scene2D.UI.SplitPaneStyle" },
+            { "com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle", "MonoGdx.Scene2D.UI.WindowStyle" },
+            //{ "com.badlogic.gdx.scenes.scene2d.ui.Slider$SliderStyle", "MonoGdx.Scene2D.UI.SliderStyle" },
+            { "com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle:", "MonoGdx.Scene2D.UI.LabelStyle" },
+            //{ "com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle", "MonoGdx.Scene2D.UI.TextFieldStyle" },
+            { "com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle", "MonoGdx.Scene2D.UI.CheckBoxStyle" },
+            //{ "com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle", "MonoGdx.Scene2D.UI.ListStyle" },
+            //{ "com.badlogic.gdx.scenes.scene2d.ui.Touchpad$TouchpadStyle", "MonoGdx.Scene2D.UI.TouchpadStyle" },
+            { "com.badlogic.gdx.scenes.scene2d.ui.Tree$TreeStyle", "MonoGdx.Scene2D.UI.TreeStyle" },
+        };
 
-                var colorProxy = { 
-
-                JObject colorNode = root["com.badlogic.gdx.graphics.Color"] as JObject;
-                foreach (JProperty p in colorNode.Properties()) {
-                    string hex = p["hex"].ToObject<string>();
-                    if (hex != null)
-                        Add(p.Name, Xna.Color.FromHex(hex));
-                    float 
-                }
-
-                root["com.badlogic.gdx.graphics.Color"].Select(t => {
-                    string name = (t as JProperty).Name;
-                    object value = ((t as JProperty).Value as JValue).Value;
-
-                    if (value is string)
-                        Add(name, Get<Xna.Color>(value as string));
-                    else {
-                        if (t.
-                    }
-                });
-            }*/
-
-            //throw new NotImplementedException();
-
-            /*final Skin skin = this;
-
-            final Json json = new Json() {
-                public <T> T readValue (Class<T> type, Class elementType, JsonValue jsonData) {
-                    // If the JSON is a string but the type is not, look up the actual value by name.
-                    if (jsonData.isString() && !ClassReflection.isAssignableFrom(CharSequence.class, type)) return get(jsonData.asString(), type);
-                    return super.readValue(type, elementType, jsonData);
-                }
-            };
-            json.setTypeName(null);
-            json.setUsePrototypes(false);
-
-            json.setSerializer(Skin.class, new ReadOnlySerializer<Skin>() {
-                public Skin read (Json json, JsonValue typeToValueMap, Class ignored) {
-                    for (JsonValue valueMap = typeToValueMap.child(); valueMap != null; valueMap = valueMap.next()) {
-                        try {
-                            readNamedObjects(json, ClassReflection.forName(valueMap.name()), valueMap);
-                        } catch (ReflectionException ex) {
-                            throw new SerializationException(ex);
-                        }
-                    }
-                    return skin;
-                }
-
-                private void readNamedObjects (Json json, Class type, JsonValue valueMap) {
-                    Class addType = type == TintedDrawable.class ? Drawable.class : type;
-                    for (JsonValue valueEntry = valueMap.child(); valueEntry != null; valueEntry = valueEntry.next()) {
-                        Object object = json.readValue(type, valueEntry);
-                        if (object == null) continue;
-                        try {
-                            add(valueEntry.name(), object, addType);
-                        } catch (Exception ex) {
-                            throw new SerializationException("Error reading " + ClassReflection.getSimpleName(type) + ": " + valueEntry.name(), ex);
-                        }
-                    }
-                }
-            });
-
-            json.setSerializer(BitmapFont.class, new ReadOnlySerializer<BitmapFont>() {
-                public BitmapFont read (Json json, JsonValue jsonData, Class type) {
-                    String path = json.readValue("file", String.class, jsonData);
-
-                    FileHandle fontFile = skinFile.parent().child(path);
-                    if (!fontFile.exists()) fontFile = Gdx.files.internal(path);
-                    if (!fontFile.exists()) throw new SerializationException("Font file not found: " + fontFile);
-
-                    // Use a region with the same name as the font, else use a PNG file in the same directory as the FNT file.
-                    String regionName = fontFile.nameWithoutExtension();
-                    try {
-                        TextureRegion region = skin.optional(regionName, TextureRegion.class);
-                        if (region != null)
-                            return new BitmapFont(fontFile, region, false);
-                        else {
-                            FileHandle imageFile = fontFile.parent().child(regionName + ".png");
-                            if (imageFile.exists())
-                                return new BitmapFont(fontFile, imageFile, false);
-                            else
-                                return new BitmapFont(fontFile, false);
-                        }
-                    } catch (RuntimeException ex) {
-                        throw new SerializationException("Error loading bitmap font: " + fontFile, ex);
-                    }
-                }
-            });
-
-            json.setSerializer(Color.class, new ReadOnlySerializer<Color>() {
-                public Color read (Json json, JsonValue jsonData, Class type) {
-                    if (jsonData.isString()) return get(jsonData.asString(), Color.class);
-                    String hex = json.readValue("hex", String.class, (String)null, jsonData);
-                    if (hex != null) return Color.valueOf(hex);
-                    float r = json.readValue("r", float.class, 0f, jsonData);
-                    float g = json.readValue("g", float.class, 0f, jsonData);
-                    float b = json.readValue("b", float.class, 0f, jsonData);
-                    float a = json.readValue("a", float.class, 1f, jsonData);
-                    return new Color(r, g, b, a);
-                }
-            });
-
-            json.setSerializer(TintedDrawable.class, new ReadOnlySerializer() {
-                public Object read (Json json, JsonValue jsonData, Class type) {
-                    String name = json.readValue("name", String.class, jsonData);
-                    Color color = json.readValue("color", Color.class, jsonData);
-                    return newDrawable(name, color);
-                }
-            });
-
-            return json;*/
-        //}
-
-        /*static private Method FindMethod (Type type, string name)
+        private void LoadFromJson (GraphicsDevice graphicsDevice, TextReader reader, string rootPath)
         {
-            throw new NotImplementedException();
-        }*/
+            Dictionary<string, object> data = Json.Deserialize(reader) as Dictionary<string, object>;
+            if (data == null)
+                return;
 
-        public struct TintedDrawable
+            foreach (var objectGroup in data) {
+                if (!(objectGroup.Value is Dictionary<string, object>))
+                    continue;
+
+                string typeName = GdxTypeMap.ContainsKey(objectGroup.Key) ? GdxTypeMap[objectGroup.Key] : objectGroup.Key;
+                Type type = Type.GetType(typeName);
+                if (type == null)
+                    continue;
+
+                foreach (var item in objectGroup.Value as Dictionary<string, object>) {
+                    if (type == typeof(GdxColor)) {
+                        Color? objVal = LoadColor(item.Value as Dictionary<string, object>);
+                        if (objVal != null) {
+                            Add<Color>(item.Key, objVal.Value);
+                            Add<Nullable<Color>>(item.Key, objVal);
+                        }
+                        continue;
+                    }
+                    else if (type == typeof(BitmapFont)) {
+                        BitmapFont objVal = LoadBitmapFont(graphicsDevice, item.Value as Dictionary<string, object>, rootPath);
+                        if (objVal != null)
+                            Add<BitmapFont>(item.Key, objVal);
+                        continue;
+                    }
+                    else if (type == typeof(TintedDrawable)) {
+                        ISceneDrawable objVal = LoadTintededDrawable(item.Value as Dictionary<string, object>);
+                        if (objVal != null)
+                            Add<ISceneDrawable>(item.Key, objVal);
+                    }
+
+                    object genObj = LoadObject(graphicsDevice, type, item.Value as Dictionary<string, object>, rootPath);
+                    if (genObj != null)
+                        Add(item.Key, genObj, type);
+                }
+            }
+        }
+
+        private Color? LoadColor (Dictionary<string, object> data)
         {
-            public string Name { get; set; }
-            public Xna.Color Color { get; set; }
+            try {
+                float a = (float)data["a"];
+                float r = (float)data["r"];
+                float g = (float)data["g"];
+                float b = (float)data["b"];
+                
+                return new Color(r, g, b, a);
+            }
+            catch {
+                return null;
+            }
+        }
+
+        private ISceneDrawable LoadTintededDrawable (Dictionary<string, object> data)
+        {
+            try {
+                string name = data["name"] as string;
+                Color? color = LoadColor(data["color"] as Dictionary<string, object>);
+                return (name != null && color != null) ? NewDrawable(name, color.Value) : null;
+            }
+            catch {
+                return null;
+            }
+        }
+
+        private BitmapFont LoadBitmapFont (GraphicsDevice device, Dictionary<string, object> data, string rootPath)
+        {
+            if (!data.ContainsKey("file"))
+                throw new IOException("No font file defined");
+
+            string path = Path.Combine(rootPath, data["file"] as string);
+            if (!File.Exists(path))
+                throw new IOException("Font file not found: " + path);
+
+            string regionName = Path.GetFileNameWithoutExtension(path);
+            try {
+                TextureRegion region = Optional<TextureRegion>(regionName);
+                if (region != null)
+                    return new BitmapFont(device, path, region, false);
+                else {
+                    string imagePath = Path.Combine(Path.GetDirectoryName(path), regionName + ".png");
+                    if (File.Exists(imagePath))
+                        return new BitmapFont(device, path, imagePath, false);
+                    else
+                        return new BitmapFont(device, path, false);
+                }
+
+            }
+            catch (Exception e) {
+                throw new IOException("Error loading bitmap font: " + path, e);
+            }
+        }
+
+        private object LoadObject (GraphicsDevice device, Type type, Dictionary<string, object> data, string rootPath)
+        {
+            ConstructorInfo constructInfo = type.GetConstructor(Type.EmptyTypes);
+            if (constructInfo == null)
+                return null;
+
+            object obj = constructInfo.Invoke(null);
+
+            foreach (var dataItem in data) {
+                PropertyInfo propInfo = type.GetProperty(dataItem.Key);
+                if (propInfo == null) {
+                    propInfo = type.GetProperty(dataItem.Key.Substring(0, 1).ToUpper() + dataItem.Key.Substring(1));
+                    if (propInfo == null)
+                        continue;
+                }
+
+                // Reference Type
+                if (dataItem.Value is string && propInfo.PropertyType != typeof(string)) {
+                    string refName = dataItem.Value as string;
+                    propInfo.SetValue(obj, Get(refName, propInfo.PropertyType), null);
+                    continue;
+                }
+
+                // Specialized Object Type
+                if (dataItem.Value is Dictionary<string, object>) {
+                    if (propInfo.PropertyType == typeof(Color)) {
+                        Color? objVal = LoadColor(dataItem.Value as Dictionary<string, object>);
+                        if (objVal != null)
+                            propInfo.SetValue(obj, objVal, null);
+                        continue;
+                    }
+                    if (propInfo.PropertyType == typeof(BitmapFont)) {
+                        BitmapFont objVal = LoadBitmapFont(device, dataItem.Value as Dictionary<string, object>, rootPath);
+                        if (objVal != null)
+                            propInfo.SetValue(obj, objVal, null);
+                        continue;
+                    }
+                }
+
+                // Unspecialized Object Type
+                if (dataItem.Value is Dictionary<string, object>) {
+                    object objVal = LoadObject(device, propInfo.PropertyType, dataItem.Value as Dictionary<string, object>, rootPath);
+                    if (objVal != null)
+                        propInfo.SetValue(obj, objVal, null);
+                    continue;
+                }
+
+                // Primitive Type
+                try {
+                    object objVal = Convert.ChangeType(dataItem.Value, propInfo.PropertyType);
+                    if (objVal != null)
+                        propInfo.SetValue(obj, objVal, null);
+                }
+                catch { }
+            }
+
+            return obj;
         }
     }
+
+    public struct TintedDrawable
+    {
+        public string Name { get; set; }
+        public Xna.Color Color { get; set; }
+    }
+
+    internal class GdxColor
+    { }
 }

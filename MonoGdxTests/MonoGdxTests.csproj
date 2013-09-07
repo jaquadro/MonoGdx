@@ -75,6 +75,7 @@
     <Compile Include="Debug\MemoryTracker.cs" />
     <Compile Include="Debug\Performance.cs" />
     <Compile Include="Debug\TimeHistory.cs" />
+    <Compile Include="Tests\TreeTest.cs" />
     <Compile Include="Tests\BitmapFontTest.cs" />
     <Compile Include="GdxTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
