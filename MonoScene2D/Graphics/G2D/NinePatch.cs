@@ -44,7 +44,7 @@ namespace MonoGdx.Graphics.G2D
             Color = Color.White;
         }
 
-        public NinePatch (Texture2D texture, int left, int right, int top, int bottom)
+        public NinePatch (TextureContext texture, int left, int right, int top, int bottom)
             : this(new TextureRegion(texture), left, right, top, bottom)
         { }
 
@@ -106,13 +106,13 @@ namespace MonoGdx.Graphics.G2D
             Load(patches);
         }
 
-        public NinePatch (Texture2D texture, Color color)
+        public NinePatch (TextureContext texture, Color color)
             : this(texture)
         {
             Color = color;
         }
 
-        public NinePatch (Texture2D texture)
+        public NinePatch (TextureContext texture)
             : this(new TextureRegion(texture))
         { }
 
@@ -336,7 +336,7 @@ namespace MonoGdx.Graphics.G2D
 
         public Color Color { get; set; }
 
-        public Texture2D Texture { get; private set; }
+        public TextureContext Texture { get; private set; }
 
         public float LeftWidth { get; set; }
         public float RightWidth { get; set; }

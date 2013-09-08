@@ -44,7 +44,7 @@ namespace MonoGdx.Scene2D.Utils
                 x += regionWidth;
             }
 
-            Texture2D texture = region.Texture;
+            TextureContext texture = region.Texture;
             float u = region.U;
             float v2 = region.V2;
 

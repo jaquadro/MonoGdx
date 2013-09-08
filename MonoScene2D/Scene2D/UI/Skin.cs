@@ -12,8 +12,6 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGdx.Graphics.G2D;
 using MonoGdx.Scene2D.Utils;
 using MonoGdx.Utils;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Xna = Microsoft.Xna.Framework;
 
 namespace MonoGdx.Scene2D.UI
@@ -184,7 +182,7 @@ namespace MonoGdx.Scene2D.UI
             if (region != null)
                 return region;
 
-            Texture2D texture = Optional<Texture2D>(name);
+            TextureContext texture = Optional<TextureContext>(name);
             if (texture == null)
                 throw new Exception("No TextureRegion or Texture registered with name: " + name);
 

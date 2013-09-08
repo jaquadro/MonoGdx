@@ -48,8 +48,9 @@ namespace MonoGdx.Utils
             // The backing array was copied, keep around the old array
             if (_snapshot != Items.InnerList && _snapshots == 0) {
                 _recycled = _snapshot;
-                for (int i = 0, n = _recycled.Count; i < n; i++)
-                    _recycled[i] = default(T);
+                _recycled.Clear();
+                //for (int i = 0, n = _recycled.Count; i < n; i++)
+                //    _recycled[i] = default(T);
             }
 
             _snapshot = null;
@@ -57,13 +58,13 @@ namespace MonoGdx.Utils
 
         private void Modified ()
         {
-            if (_snapshot == null || _snapshot != Items)
+            if (_snapshot == null || _snapshot != Items.InnerList)
                 return;
 
             // Snapshot is in use, copy backing array to recycled array or create new backing array
-            if (_recycled != null && _recycled.Count >= Count) {
+            if (_recycled != null) {
                 for (int i = 0; i < Count; i++)
-                    _recycled[i] = Items[i];
+                    _recycled.Add(Items[i]);
                 Items.InnerList = _recycled;
                 _recycled = null;
             }
@@ -75,8 +76,8 @@ namespace MonoGdx.Utils
         {
             IList<T> oldList = Items.InnerList;
             List<T> newList = new List<T>(newSize);
-            for (int i = 0, n = Math.Min(oldList.Count, newList.Count); i < n; i++)
-                newList[i] = oldList[i];
+            for (int i = 0, n = oldList.Count; i < n; i++)
+                newList.Add(oldList[i]);
 
             Items.InnerList = newList;
         }

@@ -47,7 +47,7 @@ namespace MonoGdx.Graphics.G2D
         private readonly EffectPass _spritePass;
 
         private GraphicsDevice _device;
-        private Texture2D _lastTexture;
+        private TextureContext _lastTexture;
 
         private bool _inBegin = false;
         private bool _disposed = false;
@@ -150,7 +150,7 @@ namespace MonoGdx.Graphics.G2D
             device.BlendState = _blendState;
             device.DepthStencilState = _depthStencilState;
             device.RasterizerState = _rasterizerState;
-            device.SamplerStates[0] = _samplerState;
+            device.SamplerStates[0] = _lastTexture.SamplerState;
 
             //_device.SamplerStates[0] = SamplerState.PointClamp;
             //_device.BlendState = BlendState.NonPremultiplied;
@@ -191,15 +191,15 @@ namespace MonoGdx.Graphics.G2D
 
         public Color Color { get; set; }
 
-        private void CheckValid (Texture2D texture)
+        private void CheckValid (TextureContext texture)
         {
-            if (texture == null)
+            if (texture == null || texture.Texture == null)
                 throw new ArgumentNullException("texture");
             if (!_inBegin)
                 throw new InvalidOperationException("Draw was called, but Begin has not yet been called.");
         }
 
-        public void Draw (Texture2D texture, VertexPositionColorTexture[] vertices, int offset, int count)
+        public void Draw (TextureContext texture, VertexPositionColorTexture[] vertices, int offset, int count)
         {
             CheckValid(texture);
 
@@ -224,7 +224,7 @@ namespace MonoGdx.Graphics.G2D
             }
         }
 
-        public void Draw (Texture2D texture, float x, float y, float width, float height, float u, float v, float u2, float v2)
+        public void Draw (TextureContext texture, float x, float y, float width, float height, float u, float v, float u2, float v2)
         {
             CheckValid(texture);
 
@@ -366,7 +366,7 @@ namespace MonoGdx.Graphics.G2D
 
             Setup();
 
-            _device.Textures[0] = _lastTexture;
+            _device.Textures[0] = _lastTexture.Texture;
 
             int primitiveCount = _vBufferIndex / 2;
 
@@ -391,7 +391,7 @@ namespace MonoGdx.Graphics.G2D
             }
         }
 
-        private void SwitchTexture (Texture2D texture)
+        private void SwitchTexture (TextureContext texture)
         {
             Flush();
 

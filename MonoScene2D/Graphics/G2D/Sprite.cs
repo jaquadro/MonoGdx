@@ -30,15 +30,15 @@ namespace MonoGdx.Graphics.G2D
             Color = new Color(1f, 1f, 1f, 1f);
         }
 
-        public Sprite (Texture2D texture)
+        public Sprite (TextureContext texture)
             : this(texture, 0, 0, texture.Width, texture.Height)
         { }
 
-        public Sprite (Texture2D texture, int srcWidth, int srcHeight)
+        public Sprite (TextureContext texture, int srcWidth, int srcHeight)
             : this(texture, 0, 0, srcWidth, srcHeight)
         { }
 
-        public Sprite (Texture2D texture, int srcX, int srcY, int srcWidth, int srcHeight)
+        public Sprite (TextureContext texture, int srcX, int srcY, int srcWidth, int srcHeight)
         {
             if (texture == null)
                 throw new ArgumentNullException("texture");

@@ -35,9 +35,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\MonoGame\MonoGame.Framework\bin\WindowsGL\Debug\MonoGame.Framework.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\Libs\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
@@ -55,6 +52,7 @@
     <Compile Include="Geometry\Vector2Ext.cs" />
     <Compile Include="Graphics\G2D\BitmapFont.cs" />
     <Compile Include="Graphics\G2D\BitmapFontCache.cs" />
+    <Compile Include="Graphics\G2D\TextureContext.cs" />
     <Compile Include="Scene2D\SceneAction.cs" />
     <Compile Include="Scene2D\Actions\ActionRepo.cs" />
     <Compile Include="Scene2D\Actions\AlphaAction.cs" />

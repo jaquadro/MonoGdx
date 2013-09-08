@@ -159,4 +159,15 @@ namespace MonoGdx.Scene2D.Utils
 
         public int Button { get; set; }
     }
+
+    public class DispatchClickListener : ClickListener
+    {
+        public Action<InputEvent, float, float> OnClicked { get; set; }
+
+        public override void Clicked (InputEvent ev, float x, float y)
+        {
+            if (OnClicked != null)
+                OnClicked(ev, x, y);
+        }
+    }
 }

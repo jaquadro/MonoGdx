@@ -27,7 +27,7 @@ namespace MonoGdx.Scene2D.UI
             : this(new TextureRegionDrawable(region), Scaling.Stretch, Alignment.Center)
         { }
 
-        public Image (Texture2D texture)
+        public Image (TextureContext texture)
             : this(new TextureRegionDrawable(new TextureRegion(texture)))
         { }
 

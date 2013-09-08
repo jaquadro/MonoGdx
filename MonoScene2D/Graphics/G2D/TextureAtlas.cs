@@ -16,22 +16,24 @@ namespace MonoGdx.Graphics.G2D
             public class Page
             {
                 public string TextureFile { get; private set; }
-                public Texture2D Texture { get; set; }
+                public TextureContext Texture { get; set; }
                 public bool UseMipMaps { get; private set; }
                 public SurfaceFormat Format { get; private set; }
-                public TextureFilter MinFilter { get; private set; }
-                public TextureFilter MagFilter { get; private set; }
+                //public TextureFilter MinFilter { get; private set; }
+                //public TextureFilter MagFilter { get; private set; }
+                public TextureFilter Filter { get; private set; }
                 public TextureAddressMode UWrap { get; private set; }
                 public TextureAddressMode VWrap { get; private set; }
 
-                public Page (string file, bool useMipMaps, SurfaceFormat format, TextureFilter minFilter, TextureFilter magFilter,
+                public Page (string file, bool useMipMaps, SurfaceFormat format, TextureFilter filter,
                     TextureAddressMode uWrap, TextureAddressMode vWrap)
                 {
                     TextureFile = file;
                     UseMipMaps = useMipMaps;
                     Format = format;
-                    MinFilter = minFilter;
-                    MagFilter = magFilter;
+                    //MinFilter = minFilter;
+                    //MagFilter = magFilter;
+                    Filter = filter;
                     UWrap = uWrap;
                     VWrap = vWrap;
                 }
@@ -88,8 +90,7 @@ namespace MonoGdx.Graphics.G2D
                             ReadTuple(reader, tupleData);
                             //TextureFilter min = (TextureFilter)Enum.Parse(typeof(TextureFilter), tupleData[0], true);
                             //TextureFilter max = (TextureFilter)Enum.Parse(typeof(TextureFilter), tupleData[1], true);
-                            TextureFilter min = TranslateTextureFilter(tupleData[0], tupleData[1]);
-                            TextureFilter max = min;
+                            TextureFilter filter = TranslateTextureFilter(tupleData[0], tupleData[1]);
 
                             string direction = ReadValue(reader);
                             TextureAddressMode repeatX = TextureAddressMode.Clamp;
@@ -107,7 +108,7 @@ namespace MonoGdx.Graphics.G2D
                                     break;
                             }
 
-                            pageImage = new Page(file, min.IsMapMap(), format, min, max, repeatX, repeatY);
+                            pageImage = new Page(file, filter.IsMapMap(), format, filter, repeatX, repeatY);
                             Pages.Add(pageImage);
                         }
                         else {
@@ -236,7 +237,7 @@ namespace MonoGdx.Graphics.G2D
 
         public TextureAtlas (GraphicsDevice graphicsDevice, TextureAtlasData data)
         {
-            Textures = new HashSet<Texture2D>();
+            Textures = new HashSet<TextureContext>();
             Regions = new List<AtlasRegion>();
 
             if (data != null)
@@ -246,28 +247,14 @@ namespace MonoGdx.Graphics.G2D
         [TODO]
         private void Load (GraphicsDevice graphicsDevice, TextureAtlasData data)
         {
-            Dictionary<TextureAtlasData.Page, Texture2D> pageToTexture = new Dictionary<TextureAtlasData.Page, Texture2D>();
+            Dictionary<TextureAtlasData.Page, TextureContext> pageToTexture = new Dictionary<TextureAtlasData.Page, TextureContext>();
 
             foreach (var page in data.Pages) {
-                Texture2D texture = null;
-                if (page.Texture == null) {
-                    using (FileStream fs = File.Open(page.TextureFile, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-                        texture = Texture2D.FromStream(graphicsDevice, fs);
-                        if (texture.Format != page.Format) {
-                            byte[] buffer = new byte[texture.Width * texture.Height * 4];
-                            texture.GetData<byte>(buffer);
+                TextureContext texture = page.Texture ?? new TextureContext(graphicsDevice, page.TextureFile, true);
 
-                            texture = new Texture2D(graphicsDevice, texture.Width, texture.Height, page.UseMipMaps, page.Format);
-                            texture.SetData<byte>(buffer);
-                        }
-                    }
-                }
-                else {
-                    texture = page.Texture;
-                }
-
-                //texture.SetFilter(page.MinFilter, page.MagFilter);
-                //texture.SetWrap(page.UWrap, page.VWrap);
+                texture.Filter = page.Filter;
+                texture.WrapU = page.UWrap;
+                texture.WrapV = page.VWrap;
 
                 Textures.Add(texture);
                 pageToTexture[page] = texture;
@@ -297,7 +284,7 @@ namespace MonoGdx.Graphics.G2D
             }
         }
 
-        public AtlasRegion AddRegion (string name, Texture2D texture, int x, int y, int width, int height)
+        public AtlasRegion AddRegion (string name, TextureContext texture, int x, int y, int width, int height)
         {
             Textures.Add(texture);
 
@@ -430,11 +417,11 @@ namespace MonoGdx.Graphics.G2D
             return null;
         }
 
-        public HashSet<Texture2D> Textures { get; private set; }
+        public HashSet<TextureContext> Textures { get; private set; }
 
         public void Dispose ()
         {
-            foreach (Texture2D texture in Textures)
+            foreach (TextureContext texture in Textures)
                 texture.Dispose();
 
             Textures.Clear();
@@ -504,7 +491,7 @@ namespace MonoGdx.Graphics.G2D
             public int[] Splits { get; set; }
             public int[] Pads { get; set; }
 
-            public AtlasRegion (Texture2D texture, int x, int y, int width, int height)
+            public AtlasRegion (TextureContext texture, int x, int y, int width, int height)
                 : base(texture, x, y, width, height)
             {
                 OriginalWidth = width;

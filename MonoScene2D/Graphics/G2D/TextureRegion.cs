@@ -19,7 +19,7 @@ namespace MonoGdx.Graphics.G2D
         public TextureRegion ()
         { }
 
-        public TextureRegion (Texture2D texture)
+        public TextureRegion (TextureContext texture)
         {
             if (texture == null)
                 throw new ArgumentNullException("texture");
@@ -28,19 +28,19 @@ namespace MonoGdx.Graphics.G2D
             SetRegion(0, 0, texture.Width, texture.Height);
         }
 
-        public TextureRegion (Texture2D texture, int width, int height)
+        public TextureRegion (TextureContext texture, int width, int height)
         {
             Texture = texture;
             SetRegion(0, 0, width, height);
         }
 
-        public TextureRegion (Texture2D texture, int x, int y, int width, int height)
+        public TextureRegion (TextureContext texture, int x, int y, int width, int height)
         {
             Texture = texture;
             SetRegion(x, y, width, height);
         }
 
-        public TextureRegion (Texture2D texture, float u, float v, float u2, float v2)
+        public TextureRegion (TextureContext texture, float u, float v, float u2, float v2)
         {
             Texture = texture;
             SetRegion(u, v, u2, v2);
@@ -56,7 +56,7 @@ namespace MonoGdx.Graphics.G2D
             SetRegion(region, x, y, width, height);
         }
 
-        public void SetRegion (Texture2D texture)
+        public void SetRegion (TextureContext texture)
         {
             Texture = texture;
             SetRegion(0, 0, texture.Width, texture.Height);
@@ -96,7 +96,7 @@ namespace MonoGdx.Graphics.G2D
             SetRegion(region.RegionX + x, region.RegionY + y, width, height);
         }
 
-        public Texture2D Texture { get; set; }
+        public TextureContext Texture { get; set; }
 
         public virtual float U
         {
@@ -224,7 +224,7 @@ namespace MonoGdx.Graphics.G2D
             return tiles;
         }
 
-        public static TextureRegion[,] Split (Texture2D texture, int tileWidth, int tileHeight)
+        public static TextureRegion[,] Split (TextureContext texture, int tileWidth, int tileHeight)
         {
             TextureRegion region = new TextureRegion(texture);
             return region.Split(tileWidth, tileHeight);

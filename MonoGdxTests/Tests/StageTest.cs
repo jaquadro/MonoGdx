@@ -33,8 +33,8 @@ namespace MonoGdxTests.Tests
 
         Stage _stage;
         Stage _ui;
-        Texture2D _texture;
-        Texture2D _uiTexture;
+        TextureContext _texture;
+        TextureContext _uiTexture;
         BitmapFont _font;
 
         bool _rotateSprites = true;
@@ -50,7 +50,7 @@ namespace MonoGdxTests.Tests
         {
             ShowDebug = true;
 
-            _texture = XnaExt.Texture2D.FromFile(Context.GraphicsDevice, "Data/badlogicsmall.jpg");
+            _texture = new TextureContext(Context.GraphicsDevice, "Data/badlogicsmall.jpg", true);
             _font = new BitmapFont(Context.GraphicsDevice, "Data/arial-15.fnt", "data/arial-15_00.png", false);
 
             _stage = new Stage(480, 320, true, Context.GraphicsDevice);
@@ -69,7 +69,7 @@ namespace MonoGdxTests.Tests
                 _stage.AddActor(group);
             }
 
-            _uiTexture = XnaExt.Texture2D.FromFile(Context.GraphicsDevice, "Data/ui.png");
+            _uiTexture = new TextureContext(Context.GraphicsDevice, "Data/ui.png", true);
             _ui = new Stage(480, 320, false, Context.GraphicsDevice);
 
             Image blend = new Image(new TextureRegion(_uiTexture, 0, 0, 64, 32)) {
@@ -114,7 +114,7 @@ namespace MonoGdxTests.Tests
             _ui.AddActor(_fps);*/
         }
 
-        private void FillGroup (Group group, Texture2D texture)
+        private void FillGroup (Group group, TextureContext texture)
         {
             float advance = 32 + Spacing;
             for (int y = 0; y < NumSprites * advance; y += (int)advance) {

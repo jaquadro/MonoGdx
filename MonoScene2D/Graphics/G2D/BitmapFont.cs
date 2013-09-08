@@ -52,31 +52,9 @@ namespace MonoGdx.Graphics.G2D
         { }
 
         public BitmapFont (GraphicsDevice device, string fontFile, string imageFile, bool flip, bool integer)
-            : this(device, new BitmapFontData(fontFile, flip), new TextureRegion(CreateTexture(device, imageFile)), integer)
+            : this(device, new BitmapFontData(fontFile, flip), new TextureRegion(new TextureContext(device, imageFile, true)), integer)
         {
             OwnsTexture = true;
-        }
-
-        private static Texture2D CreateTexture (GraphicsDevice device, string file)
-        {
-            Texture2D temp = null;
-
-            using (FileStream fs = File.OpenRead(file)) {
-                temp = Texture2D.FromStream(device, fs);
-            }
-
-            byte[] data = new byte[temp.Width * temp.Height * 4];
-            temp.GetData(data);
-
-            for (int i = 0; i < data.Length; i += 4) {
-                int a = data[i + 3];
-                data[i + 0] = (byte)(data[i + 0] * a / 255);
-                data[i + 1] = (byte)(data[i + 1] * a / 255);
-                data[i + 2] = (byte)(data[i + 2] * a / 255);
-            }
-
-            temp.SetData(data);
-            return temp;
         }
 
         [TODO("FileHandle")]
@@ -86,12 +64,12 @@ namespace MonoGdx.Graphics.G2D
                 _region = region;
             else {
                 if (data.FontFile == null) {
-                    _region = new TextureRegion(CreateTexture(device, data.ImagePath));
+                    _region = new TextureRegion(new TextureContext(device, data.ImagePath, true));
                     // this.region = new TextureRegion(new Texture(Gdx.files.internal(data.imagePath), false));
                     throw new NotImplementedException();
                 }
                 else {
-                    _region = new TextureRegion(CreateTexture(device, data.ImagePath));
+                    _region = new TextureRegion(new TextureContext(device, data.ImagePath, true));
                     // this.region = new TextureRegion(new Texture(Gdx.files.getFileHandle(data.imagePath, data.fontFile.type()), false));
                     //throw new NotImplementedException();
                 }
