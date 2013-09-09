@@ -181,6 +181,17 @@ namespace MonoGdx.Scene2D.UI
             });
 
             // Flick Scroll Listener
+
+            AddListener(new DispatchInputListener() {
+                OnScrolled = (ev, x, y, amount) => {
+                    ResetFade();
+                    if (IsScrollY)
+                        SetScrollY(ScrollY + Math.Max(_areaHeight * .9f, MaxY * .1f) / 4 * amount);
+                    if (IsScrollX)
+                        SetScrollX(ScrollX + Math.Max(_areaWidth * .9f, MaxX * .1f) / 4 * amount);
+                    return true;
+                },
+            });
         }
 
         void ResetFade ()

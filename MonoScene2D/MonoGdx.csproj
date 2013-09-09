@@ -69,6 +69,7 @@
     <Compile Include="Scene2D\UI\ImageButton.cs" />
     <Compile Include="Scene2D\UI\ImageTextButton.cs" />
     <Compile Include="Scene2D\UI\ScrollPane.cs" />
+    <Compile Include="Scene2D\UI\Slider.cs" />
     <Compile Include="Scene2D\UI\Stack.cs" />
     <Compile Include="Scene2D\UI\TextButton.cs" />
     <Compile Include="Scene2D\UI\Tree.cs" />

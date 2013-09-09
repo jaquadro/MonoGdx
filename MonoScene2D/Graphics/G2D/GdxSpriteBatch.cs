@@ -37,6 +37,7 @@ namespace MonoGdx.Graphics.G2D
         private SamplerState _samplerState;
         private DepthStencilState _depthStencilState;
         private RasterizerState _rasterizerState;
+        private RasterizerState _rasterizerScissorState;
 
         private Matrix _projectionMatrix;
         private Matrix _transformMatrix;
@@ -125,6 +126,11 @@ namespace MonoGdx.Graphics.G2D
             _depthStencilState = DepthStencilState.None;
             _rasterizerState = RasterizerState.CullCounterClockwise;
 
+            _rasterizerScissorState = new RasterizerState() {
+                CullMode = CullMode.CullCounterClockwiseFace,
+                ScissorTestEnable = true,
+            };
+
             _projectionMatrix = projectionMatrix;
             _transformMatrix = transformMatrix;
 
@@ -149,7 +155,7 @@ namespace MonoGdx.Graphics.G2D
             var device = GraphicsDevice;
             device.BlendState = _blendState;
             device.DepthStencilState = _depthStencilState;
-            device.RasterizerState = _rasterizerState;
+            device.RasterizerState = device.ScissorRectangle.IsEmpty ? _rasterizerState : _rasterizerScissorState;
             device.SamplerStates[0] = _lastTexture.SamplerState;
 
             //_device.SamplerStates[0] = SamplerState.PointClamp;
@@ -237,10 +243,12 @@ namespace MonoGdx.Graphics.G2D
             float fx2 = x + width;
             float fy2 = y + height;
 
-            _vertices[_vBufferIndex + 0] = new VertexPositionColorTexture(new Vector3(x, y, 0), Color, new Vector2(u, v));
-            _vertices[_vBufferIndex + 1] = new VertexPositionColorTexture(new Vector3(x, fy2, 0), Color, new Vector2(u, v2));
-            _vertices[_vBufferIndex + 2] = new VertexPositionColorTexture(new Vector3(fx2, fy2, 0), Color, new Vector2(u2, v2));
-            _vertices[_vBufferIndex + 3] = new VertexPositionColorTexture(new Vector3(fx2, y, 0), Color, new Vector2(u2, v));
+            Color color = Color.FromNonPremultiplied(Color.R, Color.G, Color.B, Color.A);
+
+            _vertices[_vBufferIndex + 0] = new VertexPositionColorTexture(new Vector3(x, y, 0), color, new Vector2(u, v));
+            _vertices[_vBufferIndex + 1] = new VertexPositionColorTexture(new Vector3(x, fy2, 0), color, new Vector2(u, v2));
+            _vertices[_vBufferIndex + 2] = new VertexPositionColorTexture(new Vector3(fx2, fy2, 0), color, new Vector2(u2, v2));
+            _vertices[_vBufferIndex + 3] = new VertexPositionColorTexture(new Vector3(fx2, y, 0), color, new Vector2(u2, v));
 
             _vBufferIndex += 4;
         }
@@ -267,10 +275,12 @@ namespace MonoGdx.Graphics.G2D
             float u2 = region.U2;
             float v2 = region.V;
 
-            _vertices[_vBufferIndex + 0] = new VertexPositionColorTexture(new Vector3(x, y, 0), Color, new Vector2(u, v));
-            _vertices[_vBufferIndex + 1] = new VertexPositionColorTexture(new Vector3(x, fy2, 0), Color, new Vector2(u, v2));
-            _vertices[_vBufferIndex + 2] = new VertexPositionColorTexture(new Vector3(fx2, fy2, 0), Color, new Vector2(u2, v2));
-            _vertices[_vBufferIndex + 3] = new VertexPositionColorTexture(new Vector3(fx2, y, 0), Color, new Vector2(u2, v));
+            Color color = Color.FromNonPremultiplied(Color.R, Color.G, Color.B, Color.A);
+
+            _vertices[_vBufferIndex + 0] = new VertexPositionColorTexture(new Vector3(x, y, 0), color, new Vector2(u, v));
+            _vertices[_vBufferIndex + 1] = new VertexPositionColorTexture(new Vector3(x, fy2, 0), color, new Vector2(u, v2));
+            _vertices[_vBufferIndex + 2] = new VertexPositionColorTexture(new Vector3(fx2, fy2, 0), color, new Vector2(u2, v2));
+            _vertices[_vBufferIndex + 3] = new VertexPositionColorTexture(new Vector3(fx2, y, 0), color, new Vector2(u2, v));
 
             _vBufferIndex += 4;
         }
@@ -348,10 +358,12 @@ namespace MonoGdx.Graphics.G2D
             float u2 = region.U2;
             float v2 = region.V;
 
-            _vertices[_vBufferIndex + 0] = new VertexPositionColorTexture(new Vector3(x1, y1, 0), Color, new Vector2(u, v));
-            _vertices[_vBufferIndex + 1] = new VertexPositionColorTexture(new Vector3(x2, y2, 0), Color, new Vector2(u, v2));
-            _vertices[_vBufferIndex + 2] = new VertexPositionColorTexture(new Vector3(x3, y3, 0), Color, new Vector2(u2, v2));
-            _vertices[_vBufferIndex + 3] = new VertexPositionColorTexture(new Vector3(x4, y4, 0), Color, new Vector2(u2, v));
+            Color color = Color.FromNonPremultiplied(Color.R, Color.G, Color.B, Color.A);
+
+            _vertices[_vBufferIndex + 0] = new VertexPositionColorTexture(new Vector3(x1, y1, 0), color, new Vector2(u, v));
+            _vertices[_vBufferIndex + 1] = new VertexPositionColorTexture(new Vector3(x2, y2, 0), color, new Vector2(u, v2));
+            _vertices[_vBufferIndex + 2] = new VertexPositionColorTexture(new Vector3(x3, y3, 0), color, new Vector2(u2, v2));
+            _vertices[_vBufferIndex + 3] = new VertexPositionColorTexture(new Vector3(x4, y4, 0), color, new Vector2(u2, v));
 
             _vBufferIndex += 4;
         }

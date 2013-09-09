@@ -369,7 +369,7 @@ namespace MonoGdx.Graphics.G2D
         public void Draw (GdxSpriteBatch spriteBatch, float alphaModulation)
         {
             Color oldColor = Color;
-            Color = new Color(oldColor, (oldColor.A / 255f) * alphaModulation);
+            Color = oldColor.MultiplyAlpha(alphaModulation);
 
             spriteBatch.Draw(Texture, Vertices, 0, 4);
 
@@ -413,10 +413,11 @@ namespace MonoGdx.Graphics.G2D
             {
                 _color = value;
 
-                _computed[0].Color = value;
-                _computed[1].Color = value;
-                _computed[2].Color = value;
-                _computed[3].Color = value;
+                Color pColor = Color.FromNonPremultiplied(value.R, value.G, value.B, value.A);
+                _computed[0].Color = pColor;
+                _computed[1].Color = pColor;
+                _computed[2].Color = pColor;
+                _computed[3].Color = pColor;
             }
         }
 

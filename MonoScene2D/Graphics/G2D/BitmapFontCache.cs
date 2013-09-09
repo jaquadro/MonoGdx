@@ -58,17 +58,21 @@ namespace MonoGdx.Graphics.G2D
                     return;
                 _color = value;
 
+                Color pColor = Color.FromNonPremultiplied(value.R, value.G, value.B, value.A);
+
                 VertexPositionColorTexture[] vertices = Vertices;
                 for (int i = 0, n = _vertexCount; i < n; i++)
-                    vertices[i].Color = value;
+                    vertices[i].Color = pColor;
             }
         }
 
         public void SetColor (Color tint, int start, int end)
         {
+            Color pColor = Color.FromNonPremultiplied(tint.R, tint.G, tint.B, tint.A);
+
             VertexPositionColorTexture[] vertices = Vertices;
             for (int i = start * 4, n = end * 4; i < n; i++)
-                vertices[i].Color = tint;
+                vertices[i].Color = pColor;
         }
 
         public void Draw (GdxSpriteBatch spriteBatch)
@@ -89,10 +93,10 @@ namespace MonoGdx.Graphics.G2D
             }
 
             Color color = _color;
-            _color = _color.MultiplyAlpha(alphaModulation);
+            Color = _color.MultiplyAlpha(alphaModulation);
 
             Draw(spriteBatch);
-            _color = color;
+            Color = color;
         }
 
         public void Clear ()
@@ -190,20 +194,22 @@ namespace MonoGdx.Graphics.G2D
             int idx = _vertexCount;
             _vertexCount += 4;
 
+            Color pColor = Color.FromNonPremultiplied(Color.R, Color.G, Color.B, Color.A);
+
             vertices[idx + 0].Position = new Vector3(x, y, 0);
-            vertices[idx + 0].Color = Color;
+            vertices[idx + 0].Color = pColor;
             vertices[idx + 0].TextureCoordinate = new Vector2(u, v);
 
             vertices[idx + 1].Position = new Vector3(x, y2, 0);
-            vertices[idx + 1].Color = Color;
+            vertices[idx + 1].Color = pColor;
             vertices[idx + 1].TextureCoordinate = new Vector2(u, v2);
 
             vertices[idx + 2].Position = new Vector3(x2, y2, 0);
-            vertices[idx + 2].Color = Color;
+            vertices[idx + 2].Color = pColor;
             vertices[idx + 2].TextureCoordinate = new Vector2(u2, v2);
 
             vertices[idx + 3].Position = new Vector3(x2, y, 0);
-            vertices[idx + 3].Color = Color;
+            vertices[idx + 3].Color = pColor;
             vertices[idx + 3].TextureCoordinate = new Vector2(u2, v);
         }
 

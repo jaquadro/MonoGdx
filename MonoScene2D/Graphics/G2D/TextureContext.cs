@@ -60,10 +60,11 @@ namespace MonoGdx.Graphics.G2D
             tex.GetData(data);
 
             for (int i = 0; i < data.Length; i += 4) {
-                int a = data[i + 3];
-                data[i + 0] = (byte)(data[i + 0] * a / 255);
-                data[i + 1] = (byte)(data[i + 1] * a / 255);
-                data[i + 2] = (byte)(data[i + 2] * a / 255);
+                float a = data[i + 3] / 255f;
+                data[i + 0] = (byte)(data[i + 0] * a);
+                data[i + 1] = (byte)(data[i + 1] * a);
+                data[i + 2] = (byte)(data[i + 2] * a);
+                //data[i + 3] = (byte)(data[i + 3] * a);
             }
 
             tex.SetData(data);

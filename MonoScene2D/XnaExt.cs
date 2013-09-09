@@ -43,8 +43,7 @@ namespace MonoGdx
 
         public static Color MultiplyAlpha (this Color color, float alphaFactor)
         {
-            Vector4 v = color.ToVector4();
-            return new Color(v.X, v.Y, v.Z, v.W * alphaFactor);
+            return new Color(color.R, color.G, color.B, (byte)(color.A * alphaFactor));
         }
 
         public static Color Multiply (this Color color1, Color color2)

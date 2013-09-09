@@ -26,7 +26,7 @@ namespace MonoGdx.Scene2D.Utils
             if (_scissors.Count == 0) {
                 if (scissor.Width < 1 || scissor.Height < 1)
                     return false;
-                _device.RasterizerState.ScissorTestEnable = true;
+                //_device.RasterizerState.ScissorTestEnable = true;
             }
             else {
                 Rectangle parent = _scissors.Peek();
@@ -44,7 +44,7 @@ namespace MonoGdx.Scene2D.Utils
             }
 
             _scissors.Push(scissor);
-            _device.ScissorRectangle = scissor;
+            _device.ScissorRectangle = new Rectangle(scissor.X, _device.Viewport.Height - scissor.Height - scissor.Y, scissor.Width, scissor.Height);
 
             return true;
         }
@@ -53,7 +53,8 @@ namespace MonoGdx.Scene2D.Utils
         {
             Rectangle old = _scissors.Pop();
             if (_scissors.Count == 0)
-                _device.RasterizerState.ScissorTestEnable = false;
+                _device.ScissorRectangle = Rectangle.Empty;
+            //                _device.RasterizerState.ScissorTestEnable = false;
             else
                 _device.ScissorRectangle = _scissors.Peek();
 

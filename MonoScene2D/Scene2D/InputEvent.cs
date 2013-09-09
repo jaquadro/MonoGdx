@@ -37,6 +37,7 @@ namespace MonoGdx.Scene2D
 
         public override void Reset ()
         {
+            base.Reset();
             RelatedActor = null;
             Button = -1;
         }

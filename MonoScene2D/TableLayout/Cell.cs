@@ -119,10 +119,10 @@ namespace MonoGdx.TableLayout
 
         public float? FillX { get; set; }
         public float? FillY { get; set; }
-        public int? ExpandX { get; internal set; }
-        public int? ExpandY { get; internal set; }
+        public int? ExpandX { get; set; }
+        public int? ExpandY { get; set; }
         internal bool? Ignore { get; set; }
-        public int? Colspan { get; internal set; }
+        public int? Colspan { get; set; }
         public bool? UniformX { get; internal set; }
         public bool? UniformY { get; internal set; }
 

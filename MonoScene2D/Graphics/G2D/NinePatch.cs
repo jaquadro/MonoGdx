@@ -311,6 +311,7 @@ namespace MonoGdx.Graphics.G2D
             float topRowY = y + height - TopHeight;
 
             Color color = ColorExt.Multiply(Color, spriteBatch.Color);
+            color = Color.FromNonPremultiplied(color.R, color.G, color.B, color.A);
 
             if (_bottomLeft != -1)
                 Set(_bottomLeft, x, y, centerColX - x, middleRowY - y, color);
