@@ -224,5 +224,16 @@ namespace MonoGdx.Geometry
 			result.Width = Math.Max (value1.Right, value2.Right) - result.X;
 			result.Height = Math.Max (value1.Bottom, value2.Bottom) - result.Y;
 		}
+
+        public static explicit operator Rectangle (RectangleF rect)
+        {
+            return new Rectangle((int)Math.Round(rect.X), (int)Math.Round(rect.Y), 
+                (int)Math.Round(rect.Width), (int)Math.Round(rect.Height));
+        }
+
+        public static implicit operator RectangleF (Rectangle rect)
+        {
+            return new RectangleF(rect.X, rect.Y, rect.Width, rect.Height);
+        }
     }
 }

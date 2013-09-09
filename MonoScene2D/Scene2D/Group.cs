@@ -198,7 +198,7 @@ namespace MonoGdx.Scene2D
         protected virtual void ChildrenChanged ()
         { }
 
-        public void AddActor (Actor actor)
+        public virtual void AddActor (Actor actor)
         {
             actor.Remove();
             Children.Add(actor);
@@ -207,7 +207,7 @@ namespace MonoGdx.Scene2D
             ChildrenChanged();
         }
 
-        public void AddActorAt (int index, Actor actor)
+        public virtual void AddActorAt (int index, Actor actor)
         {
             actor.Remove();
             if (index >= Children.Count)
@@ -220,7 +220,7 @@ namespace MonoGdx.Scene2D
             ChildrenChanged();
         }
 
-        public void AddActorBefore (Actor actorBefore, Actor actor)
+        public virtual void AddActorBefore (Actor actorBefore, Actor actor)
         {
             actor.Remove();
             int index = Children.IndexOf(actorBefore);
@@ -230,7 +230,7 @@ namespace MonoGdx.Scene2D
             ChildrenChanged();
         }
 
-        public void AddActorAfter (Actor actorAfter, Actor actor)
+        public virtual void AddActorAfter (Actor actorAfter, Actor actor)
         {
             actor.Remove();
             int index = Children.IndexOf(actorAfter);
