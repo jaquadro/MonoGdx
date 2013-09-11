@@ -46,7 +46,6 @@ namespace MonoGdx.Scene2D.UI
 
         public ScrollPane ()
         {
-            SmoothScrolling = true;
             FadeAlphaSeconds = 1;
             FadeDelaySeconds = 1;
             CancelTouchFocus = true;
@@ -57,6 +56,10 @@ namespace MonoGdx.Scene2D.UI
             OverscrollSpeedMin = 30;
             OverscrollSpeedMax = 200;
             IsClamped = true;
+
+            SmoothScrolling = false;
+            ScrollBarsOnTop = false;
+            FadeScrollBars = false;
         }
 
         public ScrollPane (Actor widget)

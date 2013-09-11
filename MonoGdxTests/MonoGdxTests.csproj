@@ -82,6 +82,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests\StageTest.cs" />
     <Compile Include="Tests\TextButtonTest.cs" />
+    <Compile Include="Tests\UITest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MonoScene2D\MonoGdx.csproj">

@@ -97,6 +97,10 @@ namespace MonoGdx.Scene2D.UI
             : this(new ButtonStyle(up, down, chkd))
         { }
 
+        public Button (Actor child, Skin skin)
+            : this(child, skin.Get<ButtonStyle>())
+        { }
+
         internal ButtonGroup ButtonGroup { get; set; }
 
         public bool IsChecked

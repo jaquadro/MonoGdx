@@ -19,7 +19,7 @@ namespace MonoGdx.Scene2D.UI
         private float _animateFromValue;
         private float _sliderPos;
         private bool _vertical;
-        private int _draggingPointer;
+        private int _draggingPointer = -1;
         private float _animateDuration;
         private float _animateTime;
         private Interpolation _animateInterpolation = Interpolation.Linear;

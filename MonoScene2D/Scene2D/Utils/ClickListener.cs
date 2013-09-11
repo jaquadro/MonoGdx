@@ -163,11 +163,17 @@ namespace MonoGdx.Scene2D.Utils
     public class DispatchClickListener : ClickListener
     {
         public Action<InputEvent, float, float> OnClicked { get; set; }
+        public Func<InputEvent, float, float, int, int, bool> OnTouchDown { get; set; }
 
         public override void Clicked (InputEvent ev, float x, float y)
         {
             if (OnClicked != null)
                 OnClicked(ev, x, y);
+        }
+
+        public override bool TouchDown (InputEvent e, float x, float y, int pointer, int button)
+        {
+            return OnClicked != null ? OnTouchDown(e, x, y, pointer, button) : base.TouchDown(e, x, y, pointer, button);
         }
     }
 }
