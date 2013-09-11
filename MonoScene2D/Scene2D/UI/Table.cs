@@ -78,12 +78,12 @@ namespace MonoGdx.Scene2D.UI
 
         public override float PrefWidth
         {
-            get { return (Background != null) ? Math.Min(_layout.PrefWidth, Background.MinWidth) : _layout.PrefWidth; }
+            get { return (Background != null) ? Math.Max(_layout.PrefWidth, Background.MinWidth) : _layout.PrefWidth; }
         }
 
         public override float PrefHeight
         {
-            get { return (Background != null) ? Math.Min(_layout.PrefHeight, Background.MinHeight) : _layout.PrefHeight; }
+            get { return (Background != null) ? Math.Max(_layout.PrefHeight, Background.MinHeight) : _layout.PrefHeight; }
         }
 
         public override float MinWidth

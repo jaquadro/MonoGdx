@@ -421,7 +421,7 @@ namespace MonoGdx.Scene2D.UI
             { "com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle", "MonoGdx.Scene2D.UI.TextButtonStyle" },
             { "com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle", "MonoGdx.Scene2D.UI.ScrollPaneStyle" },
             { "com.badlogic.gdx.scenes.scene2d.ui.SelectBox$SelectBoxStyle", "MonoGdx.Scene2D.UI.SelectBoxStyle" },
-            //{ "com.badlogic.gdx.scenes.scene2d.ui.SplitPane$SplitPaneStyle", "MonoGdx.Scene2D.UI.SplitPaneStyle" },
+            { "com.badlogic.gdx.scenes.scene2d.ui.SplitPane$SplitPaneStyle", "MonoGdx.Scene2D.UI.SplitPaneStyle" },
             { "com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle", "MonoGdx.Scene2D.UI.WindowStyle" },
             { "com.badlogic.gdx.scenes.scene2d.ui.Slider$SliderStyle", "MonoGdx.Scene2D.UI.SliderStyle" },
             { "com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle", "MonoGdx.Scene2D.UI.LabelStyle" },

@@ -87,7 +87,7 @@ namespace MonoGdxTests.Tests
             MonoGdx.Scene2D.UI.List list = new MonoGdx.Scene2D.UI.List(listEntries, _skin);
             ScrollPane scrollPane2 = new ScrollPane(list, _skin);
             //scrollPane2.FlickScroll = false;
-            // SplitPane
+            SplitPane splitPane = new SplitPane(scrollPane, scrollPane2, false, _skin, "default-horizontal");
             _fpsLabel = new Label("fps:", _skin);
 
             Label passwordLabel = new Label("Textfield in password mode: ", _skin);
@@ -113,9 +113,13 @@ namespace MonoGdxTests.Tests
             cell.FillX = 1;
             cell.Colspan = 4;
             window.Row();
+            cell = window.Add(splitPane);
+            cell.Fill();
+            cell.Expand();
+            cell.Colspan = 4;
+            cell.MaxHeight = 200;
 
-
-            //window.Pack();
+            window.Pack();
 
 
             _stage.AddActor(window);

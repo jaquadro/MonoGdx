@@ -16,7 +16,7 @@ namespace MonoGdx.Scene2D.UI
         private BitmapFontCache _titleCache;
         private Vector2 _dragOffset;
         private bool _dragging;
-        private Alignment _titleAlignment;
+        private Alignment _titleAlignment = Alignment.Center;
 
         public Window (string title, Skin skin)
             : this(title, skin.Get<WindowStyle>())
@@ -35,6 +35,9 @@ namespace MonoGdx.Scene2D.UI
             if (title == null)
                 throw new ArgumentNullException("title");
             _title = title;
+
+            IsMovable = true;
+            KeepWithinStage = true;
 
             Touchable = Touchable.Enabled;
             SetClip(true);
