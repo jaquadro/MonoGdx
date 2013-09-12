@@ -173,7 +173,7 @@ namespace MonoGdx.Scene2D.Utils
 
         public override bool TouchDown (InputEvent e, float x, float y, int pointer, int button)
         {
-            return OnClicked != null ? OnTouchDown(e, x, y, pointer, button) : base.TouchDown(e, x, y, pointer, button);
+            return OnTouchDown != null ? OnTouchDown(e, x, y, pointer, button) : base.TouchDown(e, x, y, pointer, button);
         }
     }
 }

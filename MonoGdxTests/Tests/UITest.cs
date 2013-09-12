@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -45,6 +46,8 @@ namespace MonoGdxTests.Tests
         protected override void InitializeCore ()
         {
             ShowDebug = true;
+
+            Debugger.Launch();
 
             _spriteBatch = new GdxSpriteBatch(Context.GraphicsDevice);
             _skin = new Skin(Context.GraphicsDevice, "Data/uiskin.json");

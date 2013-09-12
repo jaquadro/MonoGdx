@@ -71,6 +71,19 @@ namespace MonoGdx.Scene2D.Actions
             Time = Duration;
         }
 
+        public override void Restart ()
+        {
+            Time = 0;
+            _complete = false;
+        }
+
+        public override void Reset ()
+        {
+            base.Reset();
+            IsReverse = false;
+            Interpolation = null;
+        }
+
         public float Time { get; set; }
         public float Duration { get; set; }
         public Interpolation Interpolation { get; set; }

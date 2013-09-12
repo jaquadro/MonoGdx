@@ -205,7 +205,7 @@ namespace MonoGdx.Scene2D.UI
                     },
                 });
 
-                _list.AddListener(new TouchListener() {
+                AddListener(new TouchListener() {
                     Down = (ev, x, y, pointer, button) => {
                         if (ev.TargetActor == _list)
                             return true;

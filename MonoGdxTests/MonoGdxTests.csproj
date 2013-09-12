@@ -76,6 +76,7 @@
     <Compile Include="Debug\Performance.cs" />
     <Compile Include="Debug\TimeHistory.cs" />
     <Compile Include="Tests\ScrollPaneTest.cs" />
+    <Compile Include="Tests\SelectBoxTest.cs" />
     <Compile Include="Tests\TreeTest.cs" />
     <Compile Include="Tests\BitmapFontTest.cs" />
     <Compile Include="GdxTest.cs" />

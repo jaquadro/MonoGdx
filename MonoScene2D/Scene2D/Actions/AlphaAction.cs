@@ -25,6 +25,8 @@ namespace MonoGdx.Scene2D.Actions
 
             Color c = _color.Value;
             _color = new Color(c.R, c.G, c.B, a);
+
+            Actor.Color = _color.Value;
         }
 
         public override void Reset ()
