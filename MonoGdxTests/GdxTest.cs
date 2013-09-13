@@ -76,7 +76,7 @@ namespace MonoGdxTests
             _test = test;
 
             _graphics = new GraphicsDeviceManager(this);
-            _graphics.SynchronizeWithVerticalRetrace = true;
+            _graphics.SynchronizeWithVerticalRetrace = false;
             Content.RootDirectory = "Content";
 
             IsMouseVisible = true;

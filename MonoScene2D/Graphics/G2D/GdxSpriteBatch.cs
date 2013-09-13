@@ -49,6 +49,7 @@ namespace MonoGdx.Graphics.G2D
 
         private GraphicsDevice _device;
         private TextureContext _lastTexture;
+        private Rectangle _lastScissors;
 
         private bool _inBegin = false;
         private bool _disposed = false;
@@ -205,6 +206,22 @@ namespace MonoGdx.Graphics.G2D
                 throw new InvalidOperationException("Draw was called, but Begin has not yet been called.");
         }
 
+        private void CheckState (TextureContext texture)
+        {
+            if (texture != _lastTexture)
+                SwitchTexture(texture);
+
+            if (_lastScissors != _device.ScissorRectangle) {
+                Rectangle newScissors = _device.ScissorRectangle;
+                _device.ScissorRectangle = _lastScissors;
+
+                Flush();
+
+                _device.ScissorRectangle = newScissors;
+                _lastScissors = newScissors;
+            }
+        }
+
         public void Draw (TextureContext texture, VertexPositionColorTexture[] vertices, int offset, int count)
         {
             CheckValid(texture);
@@ -212,8 +229,7 @@ namespace MonoGdx.Graphics.G2D
             if (count % 4 != 0)
                 throw new ArgumentException("Vertices must be provided in multiples of 4");
 
-            if (texture != _lastTexture)
-                SwitchTexture(texture);
+            CheckState(texture);
 
             while (count > 0) {
                 if (_vertices.Length - _vBufferIndex < count)
@@ -233,9 +249,7 @@ namespace MonoGdx.Graphics.G2D
         public void Draw (TextureContext texture, float x, float y, float width, float height, float u, float v, float u2, float v2)
         {
             CheckValid(texture);
-
-            if (texture != _lastTexture)
-                SwitchTexture(texture);
+            CheckState(texture);
 
             if (_vertices.Length - _vBufferIndex < 4)
                 Flush();
@@ -261,9 +275,7 @@ namespace MonoGdx.Graphics.G2D
         public void Draw (TextureRegion region, float x, float y, float width, float height)
         {
             CheckValid(region.Texture);
-
-            if (region.Texture != _lastTexture)
-                SwitchTexture(region.Texture);
+            CheckState(region.Texture);
 
             if (_vertices.Length - _vBufferIndex < 4)
                 Flush();
@@ -288,9 +300,7 @@ namespace MonoGdx.Graphics.G2D
         public void Draw (TextureRegion region, float x, float y, float originX, float originY, float width, float height, float scaleX, float scaleY, float rotation)
         {
             CheckValid(region.Texture);
-
-            if (region.Texture != _lastTexture)
-                SwitchTexture(region.Texture);
+            CheckState(region.Texture);
 
             if (_vertices.Length - _vBufferIndex < 4)
                 Flush();

@@ -56,6 +56,7 @@ namespace MonoGdx.Scene2D.UI
                 }
                 else
                     DrawChildren(spriteBatch, parentAlpha);
+                ResetTransform(spriteBatch);
             }
             else
                 base.Draw(spriteBatch, parentAlpha);

@@ -33,6 +33,8 @@ namespace TimeRulerLibrary
         /// </summary>
         public float Fps { get; private set; }
 
+        public float Ups { get; private set; }
+
         /// <summary>
         /// Gets/Sets FPS sample duration.
         /// </summary>
@@ -49,6 +51,7 @@ namespace TimeRulerLibrary
         private Stopwatch stopwatch;
 
         private int sampleFrames;
+        private int updateFrames;
 
         // stringBuilder for FPS counter draw.
         private StringBuilder stringBuilder = new StringBuilder( 16 );
@@ -121,19 +124,25 @@ namespace TimeRulerLibrary
 
         public override void Update( GameTime gameTime )
         {
+            updateFrames++;
+
             if ( stopwatch.Elapsed > SampleSpan )
             {
                 // Update FPS value and start next sampling period.
                 Fps = (float)sampleFrames / (float)stopwatch.Elapsed.TotalSeconds;
+                Ups = (float)updateFrames / (float)stopwatch.Elapsed.TotalSeconds;
 
                 stopwatch.Reset();
                 stopwatch.Start();
                 sampleFrames = 0;
+                updateFrames = 0;
 
                 // Update draw string.
                 stringBuilder.Length = 0;
                 stringBuilder.Append( "FPS: " );
                 stringBuilder.AppendNumber( Fps );
+                stringBuilder.Append("\nUPS: ");
+                stringBuilder.AppendNumber(Ups);
             }
         }
 
@@ -147,7 +156,7 @@ namespace TimeRulerLibrary
             // Compute size of borader area.
             Vector2 size = font.MeasureString( "X" );
             Rectangle rc =
-                new Rectangle( 0, 0, (int)( size.X * 14f ), (int)( size.Y * 1.3f ) );
+                new Rectangle( 0, 0, (int)( size.X * 14f ), (int)( size.Y + size.Y * 1.3f ) );
 
             Layout layout = new Layout( spriteBatch.GraphicsDevice.Viewport );
             rc = layout.Place( rc, 0.01f, 0.01f, Alignment.TopLeft );

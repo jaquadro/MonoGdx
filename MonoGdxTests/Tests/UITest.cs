@@ -47,7 +47,7 @@ namespace MonoGdxTests.Tests
         {
             ShowDebug = true;
 
-            Debugger.Launch();
+            //Debugger.Launch();
 
             _spriteBatch = new GdxSpriteBatch(Context.GraphicsDevice);
             _skin = new Skin(Context.GraphicsDevice, "Data/uiskin.json");
@@ -127,7 +127,18 @@ namespace MonoGdxTests.Tests
 
             _stage.AddActor(window);
 
+            MonoGdx.Scene2D.UI.List list2 = new MonoGdx.Scene2D.UI.List(listEntries, _skin);
+            ScrollPane scrollPane22 = new ScrollPane(list2, _skin);
+            Window window2 = new Window("ScrollPane", _skin);
+            window2.SetPosition(300, 200);
+            window2.Defaults().SpaceBottom = 10;
+            window2.Row().Fill().ExpandX = 1;
+            cell = window2.Add(scrollPane22);
+            cell.MaxHeight = 250;
+            cell.MaxWidth = 150;
+            window2.Pack();
 
+            _stage.AddActor(window2);
         }
 
         protected override void UpdateCore (Microsoft.Xna.Framework.GameTime gameTime)

@@ -332,7 +332,7 @@ namespace MonoGdx.Graphics.G2D
             if (_topRight != -1)
                 Set(_topRight, rightColX, topRowY, x + width - rightColX, y + height - topRowY, color);
 
-            spriteBatch.Draw(Texture, _vertices, 0, _index * 4);
+            spriteBatch.Draw(Texture, _vertices, 0, _index);
         }
 
         public Color Color { get; set; }
