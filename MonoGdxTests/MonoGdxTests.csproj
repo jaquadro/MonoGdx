@@ -86,7 +86,7 @@
     <Compile Include="Tests\UITest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MonoScene2D\MonoGdx.csproj">
+    <ProjectReference Include="..\MonoGdx\MonoGdx.csproj">
       <Project>{863f1e67-7b82-4671-bc94-21ad0df74dcf}</Project>
       <Name>MonoGdx</Name>
     </ProjectReference>

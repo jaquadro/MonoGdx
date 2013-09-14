@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoGdx", "MonoScene2D\MonoGdx.csproj", "{863F1E67-7B82-4671-BC94-21AD0DF74DCF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoGdx", "MonoGdx\MonoGdx.csproj", "{863F1E67-7B82-4671-BC94-21AD0DF74DCF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoGdxTests", "MonoGdxTests\MonoGdxTests.csproj", "{8B7C7294-CB1F-42D8-8952-D56A43215EAD}"
 EndProject
@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{71DDCE
 	ProjectSection(SolutionItems) = preProject
 		.nuget\packages.config = .nuget\packages.config
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EA978207-E14B-4E4E-94A9-FECA1C80ABA7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
