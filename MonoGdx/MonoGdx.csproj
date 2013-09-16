@@ -76,6 +76,7 @@
     <Compile Include="Scene2D\UI\Stack.cs" />
     <Compile Include="Scene2D\UI\TextButton.cs" />
     <Compile Include="Scene2D\UI\Tree.cs" />
+    <Compile Include="Scene2D\UI\VerticalGroup.cs" />
     <Compile Include="Scene2D\UI\Window.cs" />
     <Compile Include="Scene2D\Utils\ActorGestureListener.cs" />
     <Compile Include="Scene2D\Utils\BaseDrawable.cs" />
