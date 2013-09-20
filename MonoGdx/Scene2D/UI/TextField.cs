@@ -375,13 +375,22 @@ namespace MonoGdx.Scene2D.UI
                         }
                     }
 
-                    if (_self.TextFieldListener != null)
-                        _self.TextFieldListener.KeyTyped(_self, character);
+                    _self.OnKeyTyped(character);
+
                     return true;
                 }
                 else
                     return false;
             }
+        }
+
+        public event Action<TextField, char> KeyTyped;
+
+        protected virtual void OnKeyTyped (char character)
+        {
+            var ev = KeyTyped;
+            if (ev != null)
+                ev(this, character);
         }
 
         public int MaxLength { get; set; }
@@ -695,7 +704,7 @@ namespace MonoGdx.Scene2D.UI
             return best;
         }
 
-        public TextFieldListener TextFieldListener { get; set; }
+        //public TextFieldListener TextFieldListener { get; set; }
         public TextFieldFilter TextFieldFilter { get; set; }
 
         public bool FocusTraversal { get; set; }
@@ -713,7 +722,7 @@ namespace MonoGdx.Scene2D.UI
                 BitmapFont font = _style.Font;
 
                 StringBuilder buffer = new StringBuilder();
-                for (int i = 0; i < _text.Length; i++) {
+                for (int i = 0; i < value.Length; i++) {
                     if (MaxLength > 0 && buffer.Length + 1 > MaxLength)
                         break;
 
@@ -828,10 +837,10 @@ namespace MonoGdx.Scene2D.UI
 
     }
 
-    public interface TextFieldListener
+    /*public interface TextFieldListener
     {
         void KeyTyped (TextField textField, char key);
-    }
+    }*/
 
     public interface TextFieldFilter
     {

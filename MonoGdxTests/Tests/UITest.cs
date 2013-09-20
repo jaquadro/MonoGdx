@@ -83,7 +83,9 @@ namespace MonoGdxTests.Tests
 
             CheckBox checkbox = new CheckBox("Check me", _skin);
             Slider slider = new Slider(0, 10, 1, false, _skin);
-            // TextField
+            TextField textField = new TextField("", _skin) {
+                MessageText = "Click here!",
+            };
             SelectBox dropdown = new SelectBox(selectEntries, _skin);
             Image imageActor = new Image(image2);
             ScrollPane scrollPane = new ScrollPane(imageActor);
@@ -108,12 +110,17 @@ namespace MonoGdxTests.Tests
             window.Add(checkbox);
             window.Add(slider).Configure.MinWidth(100).FillX().Colspan(3);
             window.Row();
-            window.Add(dropdown).Configure.MinWidth(100).FillX().Colspan(4);
+            window.Add(dropdown).Configure.MinWidth(100).FillX();
+            window.Add(textField).Configure.MinWidth(100).ExpandX().FillX().Colspan(3);
             window.Row();
             window.Add(splitPane).Configure.Fill().Expand().Colspan(4).MaxHeight(200);
 
             window.Pack();
 
+            textField.KeyTyped += (field, c) => {
+                if (c == '\n')
+                    field.OnscreenKeyboard.Show(false);
+            };
 
             _stage.AddActor(window);
 

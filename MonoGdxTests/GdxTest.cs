@@ -109,7 +109,7 @@ namespace MonoGdxTests
 
         protected override void Update (GameTime gameTime)
         {
-            _input.Update();
+            _input.Update(gameTime);
             _input.ProcessEvents();
 
             _test.Update(gameTime);

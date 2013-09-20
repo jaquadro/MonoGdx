@@ -441,7 +441,7 @@ namespace MonoGdx.Scene2D.UI
             { "com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle", "MonoGdx.Scene2D.UI.WindowStyle" },
             { "com.badlogic.gdx.scenes.scene2d.ui.Slider$SliderStyle", "MonoGdx.Scene2D.UI.SliderStyle" },
             { "com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle", "MonoGdx.Scene2D.UI.LabelStyle" },
-            //{ "com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle", "MonoGdx.Scene2D.UI.TextFieldStyle" },
+            { "com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle", "MonoGdx.Scene2D.UI.TextFieldStyle" },
             { "com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle", "MonoGdx.Scene2D.UI.CheckBoxStyle" },
             { "com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle", "MonoGdx.Scene2D.UI.ListStyle" },
             //{ "com.badlogic.gdx.scenes.scene2d.ui.Touchpad$TouchpadStyle", "MonoGdx.Scene2D.UI.TouchpadStyle" },

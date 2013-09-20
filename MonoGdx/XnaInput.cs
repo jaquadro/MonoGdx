@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using MonoGdx.Utils;
 
@@ -26,12 +27,23 @@ namespace MonoGdx
 {
     public class XnaInput
     {
+        public const float KeyRepeatInitialTime = .4f;
+        public const float KeyRepeatTime = .1f;
+
         private List<TouchEvent> _touchEvents = new List<TouchEvent>(10);
         private List<KeyEvent> _keyEvents = new List<KeyEvent>(10);
         private MouseState _oldMouseState;
+        private KeyboardState _oldKeyboardState;
 
         private Pool<TouchEvent> _usedTouchEvents = new Pool<TouchEvent>(16, 512);
         private Pool<KeyEvent> _usedKeyEvents = new Pool<KeyEvent>(16, 512);
+
+        private char _lastKeyCharPressed;
+        private float _keyRepeatTimer;
+        private long _currentEventTimeStamp;
+
+        private Keys[] _oldKeysPressed = new Keys[0];
+        private bool[] _keysHeld = new bool[256];
 
         public InputProcessor Processor { get; set; }
 
@@ -86,9 +98,10 @@ namespace MonoGdx
             _touchEvents.Clear();
         }
 
-        public void Update ()
+        public void Update (GameTime gameTime)
         {
             UpdateMouse();
+            UpdateKeyboard((float)gameTime.ElapsedGameTime.TotalSeconds);
         }
 
         private void UpdateMouse ()
@@ -121,6 +134,85 @@ namespace MonoGdx
             }
 
             _oldMouseState = state;
+        }
+
+        private void UpdateKeyboard (float elapsedTime)
+        {
+            if (_lastKeyCharPressed != 0) {
+                _keyRepeatTimer -= elapsedTime;
+                if (_keyRepeatTimer < 0) {
+                    _keyRepeatTimer = KeyRepeatTime;
+
+                    KeyEvent ev = _usedKeyEvents.Obtain();
+                    ev.KeyCode = 0;
+                    ev.KeyChar = _lastKeyCharPressed;
+                    ev.Type = KeyEventType.Typed;
+                    ev.Timestamp = DateTime.Now.Ticks * 100;
+                    _keyEvents.Add(ev);
+                    // Request Rendering? (Dirty flag)
+                }
+            }
+
+            KeyboardState keyboard = Keyboard.GetState();
+            Keys[] keysPressed = keyboard.GetPressedKeys();
+
+            foreach (Keys key in keysPressed) {
+                if (!_keysHeld[(int)key]) {
+                    char keyChar = (char)0;
+                    if (!KeyboardUtils.KeyToChar(key, keyboard.IsKeyDown(Keys.LeftShift) || keyboard.IsKeyDown(Keys.RightShift), out keyChar))
+                        keyChar = (char)0;
+
+                    switch (key) {
+                        case Keys.Back:
+                            keyChar = (char)8;
+                            break;
+                        case Keys.Delete:
+                            keyChar = (char)127;
+                            break;
+                    }
+
+                    long timestamp = DateTime.Now.Ticks * 100;
+
+                    KeyEvent ev = _usedKeyEvents.Obtain();
+                    ev.KeyCode = (int)key;
+                    ev.KeyChar = (char)0;
+                    ev.Type = KeyEventType.Down;
+                    ev.Timestamp = timestamp;
+                    _keyEvents.Add(ev);
+
+                    if (keyChar != (char)0) {
+                        ev = _usedKeyEvents.Obtain();
+                        ev.KeyCode = 0;
+                        ev.KeyChar = keyChar;
+                        ev.Type = KeyEventType.Typed;
+                        ev.Timestamp = timestamp;
+                        _keyEvents.Add(ev);
+                    }
+
+                    _lastKeyCharPressed = keyChar;
+                    _keyRepeatTimer = KeyRepeatInitialTime;
+
+                    _keysHeld[(int)key] = true;
+                }
+            }
+
+            foreach (Keys key in _oldKeysPressed) {
+                if (!keysPressed.Contains(key)) {
+                    KeyEvent ev = _usedKeyEvents.Obtain();
+                    ev.KeyCode = (int)key;
+                    ev.KeyChar = (char)0;
+                    ev.Type = KeyEventType.Up;
+                    ev.Timestamp = DateTime.Now.Ticks * 100;
+                    _keyEvents.Add(ev);
+
+                    _lastKeyCharPressed = (char)0;
+                    _keysHeld[(int)key] = false;
+                }
+            }
+
+            _oldKeysPressed = keysPressed;
+
+            // Request rendering
         }
 
         private TouchEvent ObtainTouchEvent (ref MouseState state)
@@ -184,6 +276,109 @@ namespace MonoGdx
             public int ScrollAmount;
             public int Button;
             public int Pointer;
+        }
+    }
+
+    static class KeyboardUtils
+    {
+        class CharPair
+        {
+            public CharPair (char normalChar, char? shiftChar)
+            {
+                this.NormalChar = normalChar;
+                this.ShiftChar = shiftChar;
+            }
+
+            public char NormalChar;
+            public char? ShiftChar;
+        }
+
+        static private Dictionary<Keys, CharPair> keyMap = new Dictionary<Keys, CharPair>();
+
+        public static bool KeyToChar (Keys key, bool shitKeyPressed, out char character)
+        {
+            bool result = false;
+            character = ' ';
+            CharPair charPair;
+
+            if ((Keys.A <= key && key <= Keys.Z) || key == Keys.Space) {
+                character = (shitKeyPressed) ? (char)key : Char.ToLower((char)key);
+                result = true;
+            }
+            else if (keyMap.TryGetValue(key, out charPair)) {
+                if (!shitKeyPressed) {
+                    character = charPair.NormalChar;
+                    result = true;
+                }
+                else if (charPair.ShiftChar.HasValue) {
+                    character = charPair.ShiftChar.Value;
+                    result = true;
+                }
+            }
+
+            return result;
+        }
+
+        static KeyboardUtils ()
+        {
+            InitializeKeyMap();
+        }
+
+        static void InitializeKeyMap ()
+        {
+            // First row of US keyboard.
+            AddKeyMap(Keys.OemTilde, "`~");
+            AddKeyMap(Keys.D1, "1!");
+            AddKeyMap(Keys.D2, "2@");
+            AddKeyMap(Keys.D3, "3#");
+            AddKeyMap(Keys.D4, "4$");
+            AddKeyMap(Keys.D5, "5%");
+            AddKeyMap(Keys.D6, "6^");
+            AddKeyMap(Keys.D7, "7&");
+            AddKeyMap(Keys.D8, "8*");
+            AddKeyMap(Keys.D9, "9(");
+            AddKeyMap(Keys.D0, "0)");
+            AddKeyMap(Keys.OemMinus, "-_");
+            AddKeyMap(Keys.OemPlus, "=+");
+
+            // Second row of US keyboard.
+            AddKeyMap(Keys.OemOpenBrackets, "[{");
+            AddKeyMap(Keys.OemCloseBrackets, "]}");
+            AddKeyMap(Keys.OemPipe, "\\|");
+
+            // Third row of US keyboard.
+            AddKeyMap(Keys.OemSemicolon, ";:");
+            AddKeyMap(Keys.OemQuotes, "'\"");
+            AddKeyMap(Keys.OemComma, ",<");
+            AddKeyMap(Keys.OemPeriod, ".>");
+            AddKeyMap(Keys.OemQuestion, "/?");
+
+            // Keypad keys of US keyboard.
+            AddKeyMap(Keys.NumPad1, "1");
+            AddKeyMap(Keys.NumPad2, "2");
+            AddKeyMap(Keys.NumPad3, "3");
+            AddKeyMap(Keys.NumPad4, "4");
+            AddKeyMap(Keys.NumPad5, "5");
+            AddKeyMap(Keys.NumPad6, "6");
+            AddKeyMap(Keys.NumPad7, "7");
+            AddKeyMap(Keys.NumPad8, "8");
+            AddKeyMap(Keys.NumPad9, "9");
+            AddKeyMap(Keys.NumPad0, "0");
+            AddKeyMap(Keys.Add, "+");
+            AddKeyMap(Keys.Divide, "/");
+            AddKeyMap(Keys.Multiply, "*");
+            AddKeyMap(Keys.Subtract, "-");
+            AddKeyMap(Keys.Decimal, ".");
+        }
+
+        static void AddKeyMap (Keys key, string charPair)
+        {
+            char char1 = charPair[0];
+            Nullable<char> char2 = null;
+            if (charPair.Length > 1)
+                char2 = charPair[1];
+
+            keyMap.Add(key, new CharPair(char1, char2));
         }
     }
 }
