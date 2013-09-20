@@ -96,8 +96,12 @@ namespace MonoGdxTests.Tests
             _fpsLabel = new Label("fps:", _skin);
 
             Label passwordLabel = new Label("Textfield in password mode: ", _skin);
-            // TextField
-
+            TextField passwordField = new TextField("", _skin) {
+                MessageText = "password",
+                PasswordCharacter = '*',
+                IsPasswordMode = true,
+            };
+ 
             Window window = new Window("Dialog", _skin);
             window.SetPosition(0, 0);
             window.Defaults().SpaceBottom = 10;
@@ -114,6 +118,9 @@ namespace MonoGdxTests.Tests
             window.Add(textField).Configure.MinWidth(100).ExpandX().FillX().Colspan(3);
             window.Row();
             window.Add(splitPane).Configure.Fill().Expand().Colspan(4).MaxHeight(200);
+            window.Row();
+            window.Add(passwordLabel).Configure.Colspan(2);
+            window.Add(passwordField).Configure.MinWidth(100).ExpandX().FillX().Colspan(2);
 
             window.Pack();
 
@@ -127,7 +134,7 @@ namespace MonoGdxTests.Tests
             MonoGdx.Scene2D.UI.List list2 = new MonoGdx.Scene2D.UI.List(listEntries, _skin);
             ScrollPane scrollPane22 = new ScrollPane(list2, _skin);
             Window window2 = new Window("ScrollPane", _skin);
-            window2.SetPosition(300, 200);
+            window2.SetPosition(300, 300);
             window2.Defaults().SpaceBottom = 10;
             window2.Row().Configure.Fill().ExpandX();
             window2.Add(scrollPane22).Configure.MaxHeight(250).MaxWidth(150);
