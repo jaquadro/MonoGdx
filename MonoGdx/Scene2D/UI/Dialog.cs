@@ -68,13 +68,13 @@ namespace MonoGdx.Scene2D.UI
         {
             IsModal = true;
 
-            Defaults().Space(6);
-            Add(_contentTable = new Table(_skin)).Expand().Fill();
+            Defaults().Configure.Space(6);
+            Add(_contentTable = new Table(_skin)).Configure.Expand().Fill();
             Row();
             Add(_buttonTable = new Table(_skin));
 
-            _contentTable.Defaults().Space(6);
-            _buttonTable.Defaults().Space(6);
+            _contentTable.Defaults().Configure.Space(6);
+            _buttonTable.Defaults().Configure.Space(6);
 
             _buttonTable.AddListener(new DispatchChangeListener() {
                 OnChanged = (ev, actor) => {

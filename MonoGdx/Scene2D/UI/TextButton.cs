@@ -49,7 +49,7 @@ namespace MonoGdx.Scene2D.UI
             _label = new Label(text, new LabelStyle(style.Font, style.FontColor));
             _label.SetAlignment(Alignment.Center);
 
-            Add(_label).Expand().Fill();
+            Add(_label).Configure.Expand().Fill();
             Width = PrefWidth;
             Height = PrefHeight;
         }

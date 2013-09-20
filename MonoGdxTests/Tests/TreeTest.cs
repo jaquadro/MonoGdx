@@ -56,7 +56,7 @@ namespace MonoGdxTests.Tests
                 OnClicked = (ev, x, y) => { tree.Remove(node4); }
             });
 
-            table.Add(tree).Fill().Expand();
+            table.Add(tree).Configure.Fill().Expand();
 
             //Debugger.Launch();
         }

@@ -99,28 +99,18 @@ namespace MonoGdxTests.Tests
             Window window = new Window("Dialog", _skin);
             window.SetPosition(0, 0);
             window.Defaults().SpaceBottom = 10;
-            window.Row().Fill().ExpandX = 1;
+            window.Row().Configure.Fill().ExpandX();
             window.Add(iconButton);
             window.Add(buttonMulti);
             window.Add(imgButton);
             window.Add(imgToggleButton);
             window.Row();
             window.Add(checkbox);
-            Cell cell = window.Add(slider);
-            cell.MinWidth = 100;
-            cell.FillX = 1;
-            cell.Colspan = 3;
+            window.Add(slider).Configure.MinWidth(100).FillX().Colspan(3);
             window.Row();
-            cell = window.Add(dropdown);
-            cell.MinWidth = 100;
-            cell.FillX = 1;
-            cell.Colspan = 4;
+            window.Add(dropdown).Configure.MinWidth(100).FillX().Colspan(4);
             window.Row();
-            cell = window.Add(splitPane);
-            cell.Fill();
-            cell.Expand();
-            cell.Colspan = 4;
-            cell.MaxHeight = 200;
+            window.Add(splitPane).Configure.Fill().Expand().Colspan(4).MaxHeight(200);
 
             window.Pack();
 
@@ -132,10 +122,8 @@ namespace MonoGdxTests.Tests
             Window window2 = new Window("ScrollPane", _skin);
             window2.SetPosition(300, 200);
             window2.Defaults().SpaceBottom = 10;
-            window2.Row().Fill().ExpandX = 1;
-            cell = window2.Add(scrollPane22);
-            cell.MaxHeight = 250;
-            cell.MaxWidth = 150;
+            window2.Row().Configure.Fill().ExpandX();
+            window2.Add(scrollPane22).Configure.MaxHeight(250).MaxWidth(150);
             window2.Pack();
 
             _stage.AddActor(window2);

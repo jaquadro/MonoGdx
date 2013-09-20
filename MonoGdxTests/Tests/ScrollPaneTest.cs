@@ -50,9 +50,7 @@ namespace MonoGdxTests.Tests
             };
 
             table.Pad(10);
-            Cell cell = table.Defaults();
-            cell.ExpandX = 1;
-            cell.Space(4);
+            table.Defaults().Configure.ExpandX().Space(4);
 
             for (int i = 0; i < 100; i++) {
                 table.Row();
@@ -99,12 +97,12 @@ namespace MonoGdxTests.Tests
                 OnChanged = (ev, actor) => { scroll.ScrollBarsOnTop = onTopButton.IsChecked; }
             });
 
-            _container.Add(scroll).Expand().Fill().Colspan = 4;
-            _container.Row().Space(10).PadBottom = 10;
-            _container.Add(flickButton).Right().ExpandX = 1;
+            _container.Add(scroll).Configure.Expand().Fill().Colspan(4);
+            _container.Row().Configure.Space(10).PadBottom(10);
+            _container.Add(flickButton).Configure.Right().ExpandX();
             _container.Add(onTopButton);
             _container.Add(smoothButton);
-            _container.Add(fadeButton).Left().ExpandX = 1;
+            _container.Add(fadeButton).Configure.Left().ExpandX();
         }
 
         protected override void UpdateCore (GameTime gameTime)

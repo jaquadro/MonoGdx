@@ -40,7 +40,10 @@ namespace MonoGdx.TableLayout
         protected Cell ()
         {
             CellAboveIndex = -1;
+            Configure = new Configurer(this);
         }
+
+        public Configurer Configure { get; protected set; }
 
         public BaseTableLayout Layout { get; set; }
 
@@ -250,384 +253,6 @@ namespace MonoGdx.TableLayout
 
         public Alignment? Align { get; set; }
 
-        public Cell Size (Value size)
-        {
-            MinWidthValue = size;
-            MinHeightValue = size;
-            PrefWidthValue = size;
-            PrefHeightValue = size;
-            MaxWidthValue = size;
-            MaxHeightValue = size;
-
-            return this;
-        }
-
-        public Cell Size (Value width, Value height)
-        {
-            MinWidthValue = width;
-            MinHeightValue = height;
-            PrefWidthValue = width;
-            PrefHeightValue = height;
-            MaxWidthValue = width;
-            MaxHeightValue = height;
-
-            return this;
-        }
-
-        public Cell Size (float size)
-        {
-            Size(new FixedValue(size));
-
-            return this;
-        }
-
-        public Cell Width (Value width)
-        {
-            MinWidthValue = width;
-            PrefWidthValue = width;
-            MaxWidthValue = width;
-
-            return this;
-        }
-
-        public Cell Width (float width)
-        {
-            Width(new FixedValue(width));
-
-            return this;
-        }
-
-        public Cell Height (Value height)
-        {
-            MinHeightValue = height;
-            PrefHeightValue = height;
-            MaxHeightValue = height;
-
-            return this;
-        }
-
-        public Cell Height (float height)
-        {
-            Height(new FixedValue(height));
-
-            return this;
-        }
-
-        public Cell MinSize (Value size)
-        {
-            MinWidthValue = size;
-            MinHeightValue = size;
-
-            return this;
-        }
-
-        public Cell MinSize (Value width, Value height)
-        {
-            MinWidthValue = width;
-            MinHeightValue = height;
-
-            return this;
-        }
-
-        public Cell MinSize (float size)
-        {
-            MinWidthValue = new FixedValue(size);
-            MinHeightValue = new FixedValue(size);
-
-            return this;
-        }
-
-        public Cell MinSize (float width, float height)
-        {
-            MinWidthValue = new FixedValue(width);
-            MinHeightValue = new FixedValue(height);
-
-            return this;
-        }
-
-        public Cell PrefSize (Value size)
-        {
-            PrefWidthValue = size;
-            PrefHeightValue = size;
-
-            return this;
-        }
-
-        public Cell PrefSize (Value width, Value height)
-        {
-            PrefWidthValue = width;
-            PrefHeightValue = height;
-
-            return this;
-        }
-
-        public Cell PrefSize (float size)
-        {
-            PrefWidthValue = new FixedValue(size);
-            PrefHeightValue = new FixedValue(size);
-
-            return this;
-        }
-
-        public Cell PrefSize (float width, float height)
-        {
-            PrefWidthValue = new FixedValue(width);
-            PrefHeightValue = new FixedValue(height);
-
-            return this;
-        }
-
-        public Cell MaxSize (Value size)
-        {
-            MaxWidthValue = size;
-            MaxHeightValue = size;
-
-            return this;
-        }
-
-        public Cell MaxSize (Value width, Value height)
-        {
-            MaxWidthValue = width;
-            MaxHeightValue = height;
-
-            return this;
-        }
-
-        public Cell MaxSize (float size)
-        {
-            MaxWidthValue = new FixedValue(size);
-            MaxHeightValue = new FixedValue(size);
-
-            return this;
-        }
-
-        public Cell MaxSize (float width, float height)
-        {
-            MaxWidthValue = new FixedValue(width);
-            MaxHeightValue = new FixedValue(height);
-
-            return this;
-        }
-
-        public Cell Space (Value space)
-        {
-            SpaceTopValue = space;
-            SpaceLeftValue = space;
-            SpaceBottomValue = space;
-            SpaceRightValue = space;
-
-            return this;
-        }
-
-        public Cell Space (Value top, Value left, Value bottom, Value right)
-        {
-            SpaceTopValue = top;
-            SpaceLeftValue = left;
-            SpaceBottomValue = bottom;
-            SpaceRightValue = right;
-
-            return this;
-        }
-
-        public Cell Space (float space)
-        {
-            if (space < 0)
-                throw new ArgumentException("space cannot be < 0.");
-
-            SpaceTop = space;
-            SpaceLeft = space;
-            SpaceBottom = space;
-            SpaceRight = space;
-
-            return this;
-        }
-
-        public Cell Space (float top, float left, float bottom, float right)
-        {
-            if (top < 0)
-                throw new ArgumentException("top cannot be < 0.");
-            if (left < 0)
-                throw new ArgumentException("left cannot be < 0.");
-            if (bottom < 0)
-                throw new ArgumentException("bottom cannot be < 0.");
-            if (right < 0)
-                throw new ArgumentException("right cannot be < 0.");
-
-            SpaceTop = top;
-            SpaceLeft = left;
-            SpaceBottom = bottom;
-            SpaceRight = right;
-
-            return this;
-        }
-
-        public Cell Pad (Value pad)
-        {
-            PadTopValue = pad;
-            PadLeftValue = pad;
-            PadBottomValue = pad;
-            PadRightValue = pad;
-
-            return this;
-        }
-
-        public Cell Pad (Value top, Value left, Value bottom, Value right)
-        {
-            PadTopValue = top;
-            PadLeftValue = left;
-            PadBottomValue = bottom;
-            PadRightValue = right;
-
-            return this;
-        }
-
-        public Cell Pad (float pad)
-        {
-            PadTop = pad;
-            PadLeft = pad;
-            PadBottom = pad;
-            PadRight = pad;
-
-            return this;
-        }
-
-        public Cell Pad (float top, float left, float bottom, float right)
-        {
-            PadTop = top;
-            PadLeft = left;
-            PadBottom = bottom;
-            PadRight = right;
-
-            return this;
-        }
-
-        public Cell Fill ()
-        {
-            FillX = 1;
-            FillY = 1;
-
-            return this;
-        }
-
-        public Cell Fill (float x, float y)
-        {
-            FillX = x;
-            FillY = y;
-
-            return this;
-        }
-
-        public Cell Fill (bool fill)
-        {
-            FillX = fill ? 1 : 0;
-            FillY = fill ? 1 : 0;
-
-            return this;
-        }
-
-        public Cell Fill (bool x, bool y)
-        {
-            FillX = x ? 1 : 0;
-            FillY = y ? 1 : 0;
-
-            return this;
-        }
-
-        public Cell Center ()
-        {
-            Align = Alignment.Center;
-
-            return this;
-        }
-
-        public Cell Top ()
-        {
-            if (Align == null)
-                Align = Alignment.Top;
-            else {
-                Align |= Alignment.Top;
-                Align &= ~Alignment.Bottom;
-            }
-
-            return this;
-        }
-
-        public Cell Left ()
-        {
-            if (Align == null)
-                Align = Alignment.Left;
-            else {
-                Align |= Alignment.Left;
-                Align &= ~Alignment.Right;
-            }
-
-            return this;
-        }
-
-        public Cell Bottom ()
-        {
-            if (Align == null)
-                Align = Alignment.Bottom;
-            else {
-                Align |= Alignment.Bottom;
-                Align &= ~Alignment.Top;
-            }
-
-            return this;
-        }
-
-        public Cell Right ()
-        {
-            if (Align == null)
-                Align = Alignment.Right;
-            else {
-                Align |= Alignment.Right;
-                Align &= ~Alignment.Left;
-            }
-
-            return this;
-        }
-
-        public Cell Expand ()
-        {
-            ExpandX = 1;
-            ExpandY = 1;
-
-            return this;
-        }
-
-        public Cell Expand (int? x, int? y)
-        {
-            ExpandX = x;
-            ExpandY = y;
-
-            return this;
-        }
-
-        public Cell Expand (bool x, bool y)
-        {
-            ExpandX = x ? 1 : 0;
-            ExpandY = y ? 1 : 0;
-
-            return this;
-        }
-
-        public Cell Uniform ()
-        {
-            UniformX = true;
-            UniformY = true;
-
-            return this;
-        }
-
-        public Cell Uniform (bool x, bool y)
-        {
-            UniformX = x;
-            UniformY = y;
-
-            return this;
-        }
-
         public Cell LayoutRow
         {
             get { return Layout.Row(); }
@@ -695,6 +320,587 @@ namespace MonoGdx.TableLayout
         protected abstract object WidgetCore { get; }
 
         public abstract void ClearWidget ();
+
+        public class Configurer
+        {
+            private Cell _cell;
+
+            public Configurer (Cell cell)
+            {
+                _cell = cell;
+            }
+
+            public Configurer Bottom ()
+            {
+                if (_cell.Align == null)
+                    _cell.Align = Alignment.Bottom;
+                else {
+                    _cell.Align |= Alignment.Bottom;
+                    _cell.Align &= ~Alignment.Top;
+                }
+                return this;
+            }
+
+            public Configurer Center ()
+            {
+                _cell.Align = Alignment.Center;
+                return this;
+            }
+
+            public Configurer Colspan (int? colspan)
+            {
+                _cell.Colspan = colspan;
+                return this;
+            }
+
+            public Configurer Expand ()
+            {
+                _cell.ExpandX = 1;
+                _cell.ExpandY = 1;
+                return this;
+            }
+
+            public Configurer Expand (int? x, int? y)
+            {
+                _cell.ExpandX = x;
+                _cell.ExpandY = y;
+                return this;
+            }
+
+            public Configurer Expand (bool x, bool y)
+            {
+                _cell.ExpandX = x ? 1 : 0;
+                _cell.ExpandY = y ? 1 : 0;
+                return this;
+            }
+
+            public Configurer ExpandX ()
+            {
+                _cell.ExpandX = 1;
+                return this;
+            }
+
+            public Configurer ExpandY ()
+            {
+                _cell.ExpandY = 1;
+                return this;
+            }
+
+            public Configurer Fill ()
+            {
+                _cell.FillX = 1;
+                _cell.FillY = 1;
+                return this;
+            }
+
+            public Configurer Fill (float x, float y)
+            {
+                _cell.FillX = x;
+                _cell.FillY = y;
+                return this;
+            }
+
+            public Configurer Fill (bool fill)
+            {
+                _cell.FillX = fill ? 1 : 0;
+                _cell.FillY = fill ? 1 : 0;
+                return this;
+            }
+
+            public Configurer Fill (bool x, bool y)
+            {
+                _cell.FillX = x ? 1 : 0;
+                _cell.FillY = y ? 1 : 0;
+                return this;
+            }
+
+            public Configurer FillX ()
+            {
+                _cell.FillX = 1;
+                return this;
+            }
+
+            public Configurer FillY ()
+            {
+                _cell.FillY = 1;
+                return this;
+            }
+
+            public Configurer Height (Value height)
+            {
+                _cell.MinHeightValue = height;
+                _cell.PrefHeightValue = height;
+                _cell.MaxHeightValue = height;
+                return this;
+            }
+
+            public Configurer Height (float height)
+            {
+                Height(new FixedValue(height));
+                return this;
+            }
+
+            public Configurer Ignore ()
+            {
+                _cell.Ignore = true;
+                return this;
+            }
+
+            public Configurer Ignore (bool ignore)
+            {
+                _cell.Ignore = ignore;
+                return this;
+            }
+
+            public Configurer Left ()
+            {
+                if (_cell.Align == null)
+                    _cell.Align = Alignment.Left;
+                else {
+                    _cell.Align |= Alignment.Left;
+                    _cell.Align &= ~Alignment.Right;
+                }
+                return this;
+            }
+
+            public Configurer MaxHeight (Value height)
+            {
+                _cell.MaxHeightValue = height;
+                return this;
+            }
+
+            public Configurer MaxHeight (float height)
+            {
+                _cell.MaxHeight = height;
+                return this;
+            }
+
+            public Configurer MaxSize (Value size)
+            {
+                _cell.MaxWidthValue = size;
+                _cell.MaxHeightValue = size;
+                return this;
+            }
+
+            public Configurer MaxSize (Value width, Value height)
+            {
+                _cell.MaxWidthValue = width;
+                _cell.MaxHeightValue = height;
+                return this;
+            }
+
+            public Configurer MaxSize (float size)
+            {
+                _cell.MaxWidthValue = new FixedValue(size);
+                _cell.MaxHeightValue = new FixedValue(size);
+                return this;
+            }
+
+            public Configurer MaxSize (float width, float height)
+            {
+                _cell.MaxWidthValue = new FixedValue(width);
+                _cell.MaxHeightValue = new FixedValue(height);
+                return this;
+            }
+
+            public Configurer MaxWidth (Value width)
+            {
+                _cell.MaxWidthValue = width;
+                return this;
+            }
+
+            public Configurer MaxWidth (float width)
+            {
+                _cell.MaxWidth = width;
+                return this;
+            }
+
+            public Configurer MinHeight (Value height)
+            {
+                _cell.MinHeightValue = height;
+                return this;
+            }
+
+            public Configurer MinHeight (float height)
+            {
+                _cell.MinHeight = height;
+                return this;
+            }
+
+            public Configurer MinSize (Value size)
+            {
+                _cell.MinWidthValue = size;
+                _cell.MinHeightValue = size;
+                return this;
+            }
+
+            public Configurer MinSize (Value width, Value height)
+            {
+                _cell.MinWidthValue = width;
+                _cell.MinHeightValue = height;
+                return this;
+            }
+
+            public Configurer MinSize (float size)
+            {
+                _cell.MinWidthValue = new FixedValue(size);
+                _cell.MinHeightValue = new FixedValue(size);
+                return this;
+            }
+
+            public Configurer MinSize (float width, float height)
+            {
+                _cell.MinWidthValue = new FixedValue(width);
+                _cell.MinHeightValue = new FixedValue(height);
+                return this;
+            }
+
+            public Configurer MinWidth (Value width)
+            {
+                _cell.MinWidthValue = width;
+                return this;
+            }
+
+            public Configurer MinWidth (float width)
+            {
+                _cell.MinWidth = width;
+                return this;
+            }
+
+            public Configurer Pad (Value pad)
+            {
+                _cell.PadTopValue = pad;
+                _cell.PadLeftValue = pad;
+                _cell.PadBottomValue = pad;
+                _cell.PadRightValue = pad;
+                return this;
+            }
+
+            public Configurer Pad (Value top, Value left, Value bottom, Value right)
+            {
+                _cell.PadTopValue = top;
+                _cell.PadLeftValue = left;
+                _cell.PadBottomValue = bottom;
+                _cell.PadRightValue = right;
+                return this;
+            }
+
+            public Configurer Pad (float pad)
+            {
+                _cell.PadTop = pad;
+                _cell.PadLeft = pad;
+                _cell.PadBottom = pad;
+                _cell.PadRight = pad;
+                return this;
+            }
+
+            public Configurer Pad (float top, float left, float bottom, float right)
+            {
+                _cell.PadTop = top;
+                _cell.PadLeft = left;
+                _cell.PadBottom = bottom;
+                _cell.PadRight = right;
+                return this;
+            }
+
+            public Configurer PadBottom (Value bottom)
+            {
+                _cell.PadBottomValue = bottom;
+                return this;
+            }
+
+            public Configurer PadBottom (float bottom)
+            {
+                _cell.PadBottom = bottom;
+                return this;
+            }
+
+            public Configurer PadLeft (Value left)
+            {
+                _cell.PadLeftValue = left;
+                return this;
+            }
+
+            public Configurer PadLeft (float left)
+            {
+                _cell.PadLeft = left;
+                return this;
+            }
+
+            public Configurer PadRight (Value right)
+            {
+                _cell.PadRightValue = right;
+                return this;
+            }
+
+            public Configurer PadRight (float right)
+            {
+                _cell.PadRight = right;
+                return this;
+            }
+
+            public Configurer PadTop (Value top)
+            {
+                _cell.PadTopValue = top;
+                return this;
+            }
+
+            public Configurer PadTop (float top)
+            {
+                _cell.PadTop = top;
+                return this;
+            }
+
+            public Configurer PrefHeight (Value height)
+            {
+                _cell.PrefHeightValue = height;
+                return this;
+            }
+
+            public Configurer PrefHeight (float height)
+            {
+                _cell.PrefHeight = height;
+                return this;
+            }
+
+            public Configurer PrefSize (Value size)
+            {
+                _cell.PrefWidthValue = size;
+                _cell.PrefHeightValue = size;
+                return this;
+            }
+
+            public Configurer PrefSize (Value width, Value height)
+            {
+                _cell.PrefWidthValue = width;
+                _cell.PrefHeightValue = height;
+                return this;
+            }
+
+            public Configurer PrefSize (float size)
+            {
+                _cell.PrefWidthValue = new FixedValue(size);
+                _cell.PrefHeightValue = new FixedValue(size);
+                return this;
+            }
+
+            public Configurer PrefSize (float width, float height)
+            {
+                _cell.PrefWidthValue = new FixedValue(width);
+                _cell.PrefHeightValue = new FixedValue(height);
+                return this;
+            }
+
+            public Configurer PrefWidth (Value width)
+            {
+                _cell.PrefWidthValue = width;
+                return this;
+            }
+
+            public Configurer PrefWidth (float width)
+            {
+                _cell.PrefWidth = width;
+                return this;
+            }
+
+            public Configurer Right ()
+            {
+                if (_cell.Align == null)
+                    _cell.Align = Alignment.Right;
+                else {
+                    _cell.Align |= Alignment.Right;
+                    _cell.Align &= ~Alignment.Left;
+                }
+                return this;
+            }
+
+            public Configurer Size (Value size)
+            {
+                _cell.MinWidthValue = size;
+                _cell.MinHeightValue = size;
+                _cell.PrefWidthValue = size;
+                _cell.PrefHeightValue = size;
+                _cell.MaxWidthValue = size;
+                _cell.MaxHeightValue = size;
+                return this;
+            }
+
+            public Configurer Size (Value width, Value height)
+            {
+                _cell.MinWidthValue = width;
+                _cell.MinHeightValue = height;
+                _cell.PrefWidthValue = width;
+                _cell.PrefHeightValue = height;
+                _cell.MaxWidthValue = width;
+                _cell.MaxHeightValue = height;
+                return this;
+            }
+
+            public Configurer Size (float size)
+            {
+                Size(new FixedValue(size));
+                return this;
+            }
+
+            public Configurer Space (Value space)
+            {
+                _cell.SpaceTopValue = space;
+                _cell.SpaceLeftValue = space;
+                _cell.SpaceBottomValue = space;
+                _cell.SpaceRightValue = space;
+                return this;
+            }
+
+            public Configurer Space (Value top, Value left, Value bottom, Value right)
+            {
+                _cell.SpaceTopValue = top;
+                _cell.SpaceLeftValue = left;
+                _cell.SpaceBottomValue = bottom;
+                _cell.SpaceRightValue = right;
+                return this;
+            }
+
+            public Configurer Space (float space)
+            {
+                if (space < 0)
+                    throw new ArgumentException("space cannot be < 0.");
+
+                _cell.SpaceTop = space;
+                _cell.SpaceLeft = space;
+                _cell.SpaceBottom = space;
+                _cell.SpaceRight = space;
+                return this;
+            }
+
+            public Configurer Space (float top, float left, float bottom, float right)
+            {
+                if (top < 0)
+                    throw new ArgumentException("top cannot be < 0.");
+                if (left < 0)
+                    throw new ArgumentException("left cannot be < 0.");
+                if (bottom < 0)
+                    throw new ArgumentException("bottom cannot be < 0.");
+                if (right < 0)
+                    throw new ArgumentException("right cannot be < 0.");
+
+                _cell.SpaceTop = top;
+                _cell.SpaceLeft = left;
+                _cell.SpaceBottom = bottom;
+                _cell.SpaceRight = right;
+                return this;
+            }
+
+            public Configurer SpaceBottom (Value bottom)
+            {
+                _cell.SpaceBottomValue = bottom;
+                return this;
+            }
+
+            public Configurer SpaceBottom (float bottom)
+            {
+                if (bottom < 0)
+                    throw new ArgumentException("bottom cannot be < 0.");
+
+                _cell.SpaceBottom = bottom;
+                return this;
+            }
+
+            public Configurer SpaceLeft (Value left)
+            {
+                _cell.SpaceLeftValue = left;
+                return this;
+            }
+
+            public Configurer SpaceLeft (float left)
+            {
+                if (left < 0)
+                    throw new ArgumentException("left cannot be < 0.");
+
+                _cell.SpaceLeft = left;
+                return this;
+            }
+
+            public Configurer SpaceRight (Value right)
+            {
+                _cell.SpaceRightValue = right;
+                return this;
+            }
+
+            public Configurer SpaceRight (float right)
+            {
+                if (right < 0)
+                    throw new ArgumentException("right cannot be < 0.");
+
+                _cell.SpaceRight = right;
+                return this;
+            }
+
+            public Configurer SpaceTop (Value top)
+            {
+                _cell.SpaceTopValue = top;
+                return this;
+            }
+
+            public Configurer SpaceTop (float top)
+            {
+                if (top < 0)
+                    throw new ArgumentException("top cannot be < 0.");
+
+                _cell.SpaceTop = top;
+                return this;
+            }
+
+            public Configurer Top ()
+            {
+                if (_cell.Align == null)
+                    _cell.Align = Alignment.Top;
+                else {
+                    _cell.Align |= Alignment.Top;
+                    _cell.Align &= ~Alignment.Bottom;
+                }
+                return this;
+            }
+
+            public Configurer Uniform ()
+            {
+                _cell.UniformX = true;
+                _cell.UniformY = true;
+                return this;
+            }
+
+            public Configurer Uniform (bool x, bool y)
+            {
+                _cell.UniformX = x;
+                _cell.UniformY = y;
+                return this;
+            }
+
+            public Configurer UniformX ()
+            {
+                _cell.UniformX = true;
+                return this;
+            }
+
+            public Configurer UniformY ()
+            {
+                _cell.UniformY = true;
+                return this;
+            }
+
+            public Configurer Width (Value width)
+            {
+                _cell.MinWidthValue = width;
+                _cell.PrefWidthValue = width;
+                _cell.MaxWidthValue = width;
+                return this;
+            }
+
+            public Configurer Width (float width)
+            {
+                Width(new FixedValue(width));
+                return this;
+            }
+        }
     }
 
     public class Cell<T> : Cell

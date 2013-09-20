@@ -49,7 +49,7 @@ namespace MonoGdx.Scene2D.UI
         {
             _style = style;
 
-            Defaults().Space(3);
+            Defaults().Configure.Space(3);
 
             _image = new Image();
             _image.Scaling = Scaling.Fit;
