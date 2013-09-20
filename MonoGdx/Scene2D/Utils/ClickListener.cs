@@ -86,7 +86,8 @@ namespace MonoGdx.Scene2D.Utils
                     if (touchUpOver) {
                         long time = DateTime.Now.Ticks * 100;
                         if (time - _lastTapTime > _tapCountInterval)
-                            TapCount = TapCount + 1;
+                            TapCount = 0;
+                        TapCount = TapCount + 1;
                         _lastTapTime = time;
 
                         Clicked(e, x, y);
