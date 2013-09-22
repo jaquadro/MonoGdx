@@ -54,6 +54,8 @@ namespace MonoGdx.Scene2D.UI
 
             AddListener(_clickListener = new DispatchClickListener() {
                 OnTouchDown = (ev, x, y, pointer, button) => {
+                    if (IsDisabled)
+                        return false;
                     if (pointer == 0 && button != 0)
                         return false;
                     if (_list == null)
@@ -135,6 +137,8 @@ namespace MonoGdx.Scene2D.UI
             ISceneDrawable background;
             if (_list != null && _list.Parent != null && _style.BackgroundOpen != null)
                 background = _style.BackgroundOpen;
+            else if (IsDisabled && _style.BackgroundDisabled != null)
+                background = _style.BackgroundDisabled;
             else if (_clickListener.IsOver && _style.BackgroundOver != null)
                 background = _style.BackgroundOver;
             else
@@ -142,6 +146,9 @@ namespace MonoGdx.Scene2D.UI
 
             BitmapFont font = _style.Font;
             Color fontColor = _style.FontColor;
+
+            if (IsDisabled && _style.FontColorDisabled != null)
+                fontColor = _style.FontColorDisabled.Value;
 
             float x = X;
             float y = Y;
@@ -188,6 +195,8 @@ namespace MonoGdx.Scene2D.UI
             get { return _prefHeight; }
         }
 
+        public bool IsDisabled { get; set; }
+
         public void HideList ()
         {
             if (_list == null || _list.Parent == null)
@@ -223,7 +232,7 @@ namespace MonoGdx.Scene2D.UI
 
                 AddListener(new TouchListener() {
                     Down = (ev, x, y, pointer, button) => {
-                        if (ev.TargetActor == _list)
+                        if (ev.TargetActor == _list && !_selectBox.IsDisabled)
                             return true;
                         _selectBox.HideList();
                         return false;
@@ -330,17 +339,23 @@ namespace MonoGdx.Scene2D.UI
         {
             Font = style.Font;
             FontColor = style.FontColor;
+            FontColorDisabled = style.FontColorDisabled;
             Background = style.Background;
             ScrollStyle = style.ScrollStyle;
             ListStyle = style.ListStyle;
+            BackgroundOver = style.BackgroundOver;
+            BackgroundOpen = style.BackgroundOpen;
+            BackgroundDisabled = style.BackgroundDisabled;
         }
 
         public BitmapFont Font { get; set; }
         public Color FontColor { get; set; }
+        public Color? FontColorDisabled { get; set; }
         public ISceneDrawable Background { get; set; }
         public ScrollPaneStyle ScrollStyle { get; set; }
         public ListStyle ListStyle { get; set; }
         public ISceneDrawable BackgroundOver { get; set; }
         public ISceneDrawable BackgroundOpen { get; set; }
+        public ISceneDrawable BackgroundDisabled { get; set; }
     }
 }
