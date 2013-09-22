@@ -64,6 +64,7 @@
     <Compile Include="Scene2D\Actions\TemporalAction.cs" />
     <Compile Include="Scene2D\UI\ButtonGroup.cs" />
     <Compile Include="Scene2D\UI\CheckBox.cs" />
+    <Compile Include="Scene2D\UI\HorizontalGroup.cs" />
     <Compile Include="Scene2D\UI\Dialog.cs" />
     <Compile Include="Scene2D\UI\Image.cs" />
     <Compile Include="Scene2D\UI\ImageButton.cs" />
