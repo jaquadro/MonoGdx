@@ -20,11 +20,13 @@ using System.Linq;
 using System.Text;
 using MonoGdx.Scene2D.Utils;
 using MonoGdx.TableLayout;
+using MonoGdx.Graphics.G2D;
 
 namespace MonoGdx.Scene2D.UI
 {
     public class HorizontalGroup : WidgetGroup
     {
+        private HorizontalGroupStyle _style;
         private float _prefWidth;
         private float _prefHeight;
         private bool _sizeInvalid = true;
@@ -32,6 +34,26 @@ namespace MonoGdx.Scene2D.UI
         public HorizontalGroup ()
         {
             Touchable = Scene2D.Touchable.ChildrenOnly;
+        }
+
+        public HorizontalGroup (Skin skin)
+            : this(skin.Get<HorizontalGroupStyle>())
+        { }
+
+        public HorizontalGroup (Skin skin, string styleName)
+            : this(skin.Get<HorizontalGroupStyle>(styleName))
+        { }
+
+        public HorizontalGroup (HorizontalGroupStyle style)
+            : this()
+        {
+            Style = style;
+        }
+
+        public HorizontalGroupStyle Style
+        {
+            get { return _style; }
+            set { _style = value; }
         }
 
         public Alignment Alignment { get; set; }
@@ -100,6 +122,18 @@ namespace MonoGdx.Scene2D.UI
             }
         }
 
+        public override void Draw (GdxSpriteBatch spriteBatch, float parentAlpha)
+        {
+            Validate();
+
+            if (_style != null && _style.Background != null) {
+                spriteBatch.Color = Color.MultiplyAlpha(parentAlpha);
+                _style.Background.Draw(spriteBatch, X, Y, Width, Height);
+            }
+
+            base.Draw(spriteBatch, parentAlpha);
+        }
+
         public override float PrefWidth
         {
             get
@@ -119,5 +153,23 @@ namespace MonoGdx.Scene2D.UI
                 return _prefHeight;
             }
         }
+    }
+
+    public class HorizontalGroupStyle
+    {
+        public HorizontalGroupStyle ()
+        { }
+
+        public HorizontalGroupStyle (ISceneDrawable background)
+        {
+            Background = background;
+        }
+
+        public HorizontalGroupStyle (HorizontalGroupStyle style)
+        {
+            Background = style.Background;
+        }
+
+        public ISceneDrawable Background { get; set; }
     }
 }
