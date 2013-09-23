@@ -89,6 +89,11 @@ namespace MonoGdx.Graphics.G2D
 
             CalculateIndexBuffer();
 
+            _rasterizerScissorState = new RasterizerState() {
+                CullMode = CullMode.CullCounterClockwiseFace,
+                ScissorTestEnable = true,
+            };
+
             // projection uses CreateOrthographicOffCenter to create 2d projection
             // matrix with 0,0 in the upper left.
             /*_basicEffect.Projection = Matrix.CreateOrthographicOffCenter
@@ -142,11 +147,6 @@ namespace MonoGdx.Graphics.G2D
             _samplerState = SamplerState.LinearClamp;
             _depthStencilState = DepthStencilState.None;
             _rasterizerState = RasterizerState.CullCounterClockwise;
-
-            _rasterizerScissorState = new RasterizerState() {
-                CullMode = CullMode.CullCounterClockwiseFace,
-                ScissorTestEnable = true,
-            };
 
             _projectionMatrix = projectionMatrix;
             _transformMatrix = transformMatrix;
