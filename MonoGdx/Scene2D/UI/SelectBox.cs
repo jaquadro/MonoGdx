@@ -150,8 +150,8 @@ namespace MonoGdx.Scene2D.UI
             if (IsDisabled && _style.FontColorDisabled != null)
                 fontColor = _style.FontColorDisabled.Value;
 
-            float x = X;
-            float y = Y;
+            float x = (int)X;
+            float y = (int)Y;
             float width = Width;
             float height = Height;
 
@@ -288,8 +288,8 @@ namespace MonoGdx.Scene2D.UI
                 else
                     Y = stageCoords.Y + _selectBox.Height;
 
-                X = stageCoords.X;
-                Width = _selectBox.Width;
+                X = stageCoords.X + _selectBox.Style.ListLeftOffset;
+                Width = _selectBox.Width + _selectBox.Style.ListLeftOffset + _selectBox.Style.ListRightOffset;
                 Height = height;
 
                 ScrollToCenter(0, _list.Height - _selectBox.SelectionIndex * itemHeight - itemHeight / 2, 0, 0);
@@ -346,6 +346,8 @@ namespace MonoGdx.Scene2D.UI
             BackgroundOver = style.BackgroundOver;
             BackgroundOpen = style.BackgroundOpen;
             BackgroundDisabled = style.BackgroundDisabled;
+            ListLeftOffset = style.ListLeftOffset;
+            ListRightOffset = style.ListRightOffset;
         }
 
         public BitmapFont Font { get; set; }
@@ -357,5 +359,7 @@ namespace MonoGdx.Scene2D.UI
         public ISceneDrawable BackgroundOver { get; set; }
         public ISceneDrawable BackgroundOpen { get; set; }
         public ISceneDrawable BackgroundDisabled { get; set; }
+        public float ListLeftOffset { get; set; }
+        public float ListRightOffset { get; set; }
     }
 }
