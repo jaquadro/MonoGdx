@@ -78,6 +78,10 @@ namespace MonoGdx.Scene2D.UI
                     }
                     return _dragging || IsModal;
                 },
+                OnTouchUp = (ev, x, y, pointer, button) => {
+                    if (_dragging)
+                        _dragging = false;
+                },
                 OnTouchDragged = (ev, x, y, pointer) => {
                     if (!_dragging)
                         return;

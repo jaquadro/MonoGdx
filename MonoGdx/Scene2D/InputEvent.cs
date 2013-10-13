@@ -51,6 +51,11 @@ namespace MonoGdx.Scene2D
 
         public Actor RelatedActor { get; set; }
 
+        public bool IsTouchFocusCancel
+        {
+            get { return StageX == int.MinValue || StageY == int.MinValue; }
+        }
+
         public override void Reset ()
         {
             base.Reset();

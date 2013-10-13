@@ -307,7 +307,8 @@ namespace MonoGdx.Scene2D.UI
                 Actor actor = node.Actor;
                 float iconY = 0;
 
-                if (_selectedNodes.Contains(node) && _style.Selection != null)
+                bool selected = _selectedNodes.Contains(node);
+                if (selected && _style.Selection != null)
                     _style.Selection.Draw(spriteBatch, x, y + actor.Y - YSpacing / 2, Width, node.Height + YSpacing);
                 else if (node == _overNode && _style.Over != null)
                     _style.Over.Draw(spriteBatch, x, y + actor.Y - YSpacing / 2, Width, node.Height + YSpacing);
@@ -324,6 +325,9 @@ namespace MonoGdx.Scene2D.UI
                     continue;
 
                 ISceneDrawable expandIcon = node.IsExpanded ? minus : plus;
+                if (selected)
+                    expandIcon = node.IsExpanded ? _style.MinusSelection ?? minus : _style.PlusSelection ?? plus;
+
                 iconY = actor.Y + (float)Math.Round((node.Height - expandIcon.MinHeight) / 2);
                 expandIcon.Draw(spriteBatch, x + indent - IconSpacing, y + iconY, expandIcon.MinWidth, expandIcon.MinHeight);
 
@@ -752,12 +756,16 @@ namespace MonoGdx.Scene2D.UI
         public TreeStyle (TreeStyle style)
         {
             Plus = style.Plus;
+            PlusSelection = style.PlusSelection;
             Minus = style.Minus;
+            MinusSelection = style.MinusSelection;
             Selection = style.Selection;
         }
 
         public ISceneDrawable Plus { get; set; }
+        public ISceneDrawable PlusSelection { get; set; }
         public ISceneDrawable Minus { get; set; }
+        public ISceneDrawable MinusSelection { get; set; }
         public ISceneDrawable Over { get; set; }
         public ISceneDrawable Selection { get; set; }
         public ISceneDrawable Background { get; set; }
