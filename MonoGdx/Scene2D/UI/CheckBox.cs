@@ -74,11 +74,9 @@ namespace MonoGdx.Scene2D.UI
         public override void Draw (GdxSpriteBatch spriteBatch, float parentAlpha)
         {
             if (IsChecked && _style.CheckboxOn != null)
-                _image.Drawable = _style.CheckboxOn;
-            else if (IsOver && _style.CheckboxOver != null)
-                _image.Drawable = _style.CheckboxOver;
+                _image.Drawable = (IsOver) ? _style.CheckboxOnOver ?? _style.CheckboxOn : _style.CheckboxOn;
             else
-                _image.Drawable = Style.CheckboxOff;
+                _image.Drawable = (IsOver) ? _style.CheckboxOver ?? _style.CheckboxOff : _style.CheckboxOff;
 
             base.Draw(spriteBatch, parentAlpha);
         }
@@ -101,6 +99,8 @@ namespace MonoGdx.Scene2D.UI
         {
             CheckboxOff = style.CheckboxOff;
             CheckboxOn = style.CheckboxOn;
+            CheckboxOver = style.CheckboxOver;
+            CheckboxOnOver = style.CheckboxOnOver;
             Font = style.Font;
             FontColor = style.FontColor;
         }
@@ -108,5 +108,6 @@ namespace MonoGdx.Scene2D.UI
         public ISceneDrawable CheckboxOn { get; set; }
         public ISceneDrawable CheckboxOff { get; set; }
         public ISceneDrawable CheckboxOver { get; set; }
+        public ISceneDrawable CheckboxOnOver { get; set; }
     }
 }
