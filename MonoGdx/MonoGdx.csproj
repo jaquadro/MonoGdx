@@ -54,6 +54,7 @@
     <Compile Include="Graphics\G2D\BitmapFontCache.cs" />
     <Compile Include="Graphics\G2D\TextureContext.cs" />
     <Compile Include="Input\GestureDetector.cs" />
+    <Compile Include="Scene2D\RoutedEvent.cs" />
     <Compile Include="Scene2D\SceneAction.cs" />
     <Compile Include="Scene2D\Actions\ActionRepo.cs" />
     <Compile Include="Scene2D\Actions\AlphaAction.cs" />

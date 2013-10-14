@@ -40,6 +40,8 @@ namespace MonoGdx.Scene2D
         private readonly DelayedRemovalList<EventListener> _captureListeners = new DelayedRemovalList<EventListener>(0);
         private readonly List<SceneAction> _actions = new List<SceneAction>(0);
 
+        private Dictionary<int, DelayedRemovalList<RoutedEventHandlerInfo>> _handlers = new Dictionary<int, DelayedRemovalList<RoutedEventHandlerInfo>>(0);
+
         public Actor ()
         {
             Touchable = Touchable.Enabled;
@@ -80,7 +82,8 @@ namespace MonoGdx.Scene2D
 
             try {
                 // Notify all parent capture listeners, starting at the root. Ancestors may stop an event before children receive it.
-                foreach (Group currentTarget in ancestors) {
+                for (int i = ancestors.Count - 1; i >= 0; i--) {
+                    Group currentTarget = ancestors[i];
                     currentTarget.Notify(ev, true);
                     if (ev.IsStopped)
                         return ev.IsCancelled;
@@ -106,6 +109,64 @@ namespace MonoGdx.Scene2D
                 }
 
                 return ev.IsCancelled;
+            }
+            finally {
+                ancestors.Clear();
+                Pools<List<Group>>.Release(ancestors);
+            }
+        }
+
+        public bool RaiseEvent (RoutedEventArgs e)
+        {
+            if (e.Stage == null)
+                e.Stage = Stage;
+
+            if (e.OriginalSource == null) {
+                e.OriginalSource = this;
+                e.Source = this;
+            }
+
+            if (e.RoutedEvent.RoutingStrategy == RoutingStrategy.Direct) {
+                InvokeHandler(e);
+                return e.Cancelled;
+            }
+
+            // Collect ancestors so event propagation is unaffected by hierarchy changes.
+            List<Group> ancestors = Pools<List<Group>>.Obtain();
+            Group parent = Parent;
+            while (parent != null) {
+                ancestors.Add(parent);
+                parent = parent.Parent;
+            }
+
+            try {
+                if (e.RoutedEvent.RoutingStrategy == RoutingStrategy.Tunnel) {
+                    // Notify all parent capture listeners, starting at the root. Ancestors may stop an event before children receive it.
+                    for (int i = ancestors.Count - 1; i >= 0; i--) {
+                        Group currentTarget = ancestors[i];
+                        currentTarget.InvokeHandler(e);
+                        if (e.Stopped)
+                            return e.Cancelled;
+                    }
+
+                    InvokeHandler(e);
+                    if (e.Stopped)
+                        return e.Cancelled;
+                }
+                else if (e.RoutedEvent.RoutingStrategy == RoutingStrategy.Bubble) {
+                    InvokeHandler(e);
+                    if (e.Stopped)
+                        return e.Cancelled;
+
+                    // Notify all parent listeners, starting at the target. Children may stop an event before ancestors receive it.
+                    foreach (Group ancestor in ancestors) {
+                        ancestor.InvokeHandler(e);
+                        if (e.Stopped)
+                            return e.Cancelled;
+                    }
+                }
+
+                return e.Cancelled;
             }
             finally {
                 ancestors.Clear();
@@ -143,6 +204,25 @@ namespace MonoGdx.Scene2D
             return ev.IsCancelled;
         }
 
+        internal bool InvokeHandler (RoutedEventArgs args)
+        {
+            DelayedRemovalList<RoutedEventHandlerInfo> handlerList;
+            if (!_handlers.TryGetValue(args.RoutedEvent.Index, out handlerList) || handlerList.Count == 0)
+                return args.Cancelled;
+
+            if (args.Stage == null)
+                args.Stage = Stage;
+
+            handlerList.Begin();
+            foreach (var handlerInfo in handlerList) {
+                handlerInfo.InvokeHandler(this, args);
+                // TouchDownEvent specialization
+            }
+            handlerList.End();
+
+            return args.Cancelled;
+        }
+
         public virtual Actor Hit (float x, float y, bool touchable)
         {
             if (touchable && Touchable != Scene2D.Touchable.Enabled)
@@ -155,6 +235,42 @@ namespace MonoGdx.Scene2D
         {
             if (Parent != null)
                 return Parent.RemoveActor(this);
+            return false;
+        }
+
+        public bool AddHandler (RoutedEvent routedEvent, Delegate handler)
+        {
+            return AddHandler(routedEvent, handler, false);
+        }
+
+        public bool AddHandler (RoutedEvent routedEvent, Delegate handler, bool capturing)
+        {
+            DelayedRemovalList<RoutedEventHandlerInfo> handlerList;
+            if (!_handlers.TryGetValue(routedEvent.Index, out handlerList))
+                _handlers.Add(routedEvent.Index, handlerList = new DelayedRemovalList<RoutedEventHandlerInfo>(1));
+
+            foreach (var handlerInfo in handlerList) {
+                if (handlerInfo.Handler == handler)
+                    return false;
+            }
+
+            handlerList.Add(new RoutedEventHandlerInfo(handler, capturing));
+            return true;
+        }
+
+        public bool RemoveHandler (RoutedEvent routedEvent, Delegate handler)
+        {
+            DelayedRemovalList<RoutedEventHandlerInfo> handlerList;
+            if (!_handlers.TryGetValue(routedEvent.Index, out handlerList))
+                return false;
+
+            for (int i = 0; i < handlerList.Count; i++) {
+                if (handlerList[i].Handler == handler) {
+                    handlerList.RemoveAt(i);
+                    return true;
+                }
+            }
+
             return false;
         }
 

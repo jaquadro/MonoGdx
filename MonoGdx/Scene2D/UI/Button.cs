@@ -29,6 +29,9 @@ namespace MonoGdx.Scene2D.UI
 {
     public class Button : Table
     {
+        public static readonly RoutedEvent CheckedEvent = EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Button));
+        public static readonly RoutedEvent UncheckedEvent = EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Button));
+
         private class LocalClickListener : ClickListener
         {
             private Button _button;
@@ -131,6 +134,11 @@ namespace MonoGdx.Scene2D.UI
 
                 _isChecked = value;
                 if (!IsDisabled) {
+                    if (_isChecked)
+                        OnChecked();
+                    else
+                        OnUnchecked();
+
                     ChangeEvent changeEvent = Pools<ChangeEvent>.Obtain();
                     if (Fire(changeEvent))
                         _isChecked = !_isChecked;
@@ -266,6 +274,41 @@ namespace MonoGdx.Scene2D.UI
         public override float MinHeight
         {
             get { return PrefHeight; }
+        }
+
+        public event RoutedEventHandler Checked
+        {
+            add { AddHandler(CheckedEvent, value); }
+            remove { RemoveHandler(CheckedEvent, value); }
+        }
+
+        public event RoutedEventHandler Unchecked
+        {
+            add { AddHandler(UncheckedEvent, value); }
+            remove { RemoveHandler(UncheckedEvent, value); }
+        }
+
+        protected virtual void OnChecked ()
+        {
+            RoutedEventArgs args = InitializeEventArgs(Pools<RoutedEventArgs>.Obtain(), CheckedEvent);
+            RaiseEvent(args);
+            Pools<RoutedEventArgs>.Release(args);
+        }
+
+        protected virtual void OnUnchecked ()
+        {
+            RoutedEventArgs args = InitializeEventArgs(Pools<RoutedEventArgs>.Obtain(), UncheckedEvent);
+            RaiseEvent(args);
+            Pools<RoutedEventArgs>.Release(args);
+        }
+
+        RoutedEventArgs InitializeEventArgs (RoutedEventArgs e, RoutedEvent routedEvent)
+        {
+            e.RoutedEvent = routedEvent;
+            e.OriginalSource = this;
+            e.Source = this;
+
+            return e;
         }
     }
 
