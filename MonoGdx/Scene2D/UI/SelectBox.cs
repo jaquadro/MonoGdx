@@ -29,8 +29,13 @@ namespace MonoGdx.Scene2D.UI
 {
     public class SelectBox : Widget
     {
+        public static readonly RoutedEvent SelectionChangedEvent =
+            EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(SelectionChangedEventHandler), typeof(SelectBox));
+
         SelectBoxStyle _style;
-        string[] _items;
+        int _selectionIndex;
+        object[] _items;
+        string[] _itemsText;
         TextBounds _bounds;
         SelectList _list;
         private float _prefWidth;
@@ -89,15 +94,17 @@ namespace MonoGdx.Scene2D.UI
             if (objects == null)
                 throw new ArgumentNullException("objects");
 
+            _items = objects;
             if (!(objects is string[])) {
                 string[] strings = new string[objects.Length];
                 for (int i = 0, n = objects.Length; i < n; i++)
                     strings[i] = objects[i].ToString();
-                objects = strings;
+                _itemsText = strings;
             }
+            else
+                _itemsText = objects as string[];
 
-            _items = objects as string[];
-            SelectionIndex = 0;
+            _selectionIndex = 0;
 
             ISceneDrawable bg = _style.Background;
             BitmapFont font = _style.Font;
@@ -106,7 +113,7 @@ namespace MonoGdx.Scene2D.UI
 
             float maxItemWIdth = 0;
             for (int i = 0; i < _items.Length; i++)
-                maxItemWIdth = Math.Max(font.GetBounds(_items[i]).Width, maxItemWIdth);
+                maxItemWIdth = Math.Max(font.GetBounds(_itemsText[i]).Width, maxItemWIdth);
 
             _prefWidth = bg.LeftWidth + bg.RightWidth + maxItemWIdth;
 
@@ -127,7 +134,7 @@ namespace MonoGdx.Scene2D.UI
             InvalidateHierarchy();
         }
 
-        public string[] Items
+        public object[] Items
         {
             get { return _items; }
         }
@@ -160,27 +167,44 @@ namespace MonoGdx.Scene2D.UI
 
             if (_items.Length > 0) {
                 float availableWidth = width - background.LeftWidth - background.RightWidth;
-                int numGlyphs = font.ComputeVisibleGlyphs(_items[SelectionIndex], 0, _items[SelectionIndex].Length, availableWidth);
-                _bounds = font.GetBounds(_items[SelectionIndex]);
+                int numGlyphs = font.ComputeVisibleGlyphs(_itemsText[SelectionIndex], 0, _itemsText[SelectionIndex].Length, availableWidth);
+                _bounds = font.GetBounds(_itemsText[SelectionIndex]);
 
                 height -= background.BottomHeight + background.TopHeight;
                 float textY = (int)(height / 2 + background.BottomHeight + _bounds.Height / 2);
 
                 font.Color = fontColor.MultiplyAlpha(parentAlpha);
-                font.Draw(spriteBatch, _items[SelectionIndex], x + background.LeftWidth, y + textY, 0, numGlyphs);
+                font.Draw(spriteBatch, _itemsText[SelectionIndex], x + background.LeftWidth, y + textY, 0, numGlyphs);
             }
         }
 
-        public int SelectionIndex { get; set; }
+        public int SelectionIndex
+        {
+            get { return _selectionIndex; }
+            set
+            {
+                if (_selectionIndex == value)
+                    return;
 
-        public string Selection
+                object oldSelection = (_selectionIndex == -1) ? null : _items[_selectionIndex];
+
+                _selectionIndex = value;
+
+                object newSelection = (_selectionIndex == -1) ? null : _items[_selectionIndex];
+                OnSelectionChanged(oldSelection, newSelection);
+            }
+        }
+
+        public object Selection
         {
             get { return _items[SelectionIndex]; }
             set
             {
                 for (int i = 0; i < _items.Length; i++) {
-                    if (_items[i] == value)
+                    if (_items[i] == value) {
                         SelectionIndex = i;
+                        break;
+                    }
                 }
             }
         }
@@ -205,6 +229,21 @@ namespace MonoGdx.Scene2D.UI
             _list.AddAction(ActionRepo.Sequence(ActionRepo.FadeOut(.15f, Interpolation.Fade), ActionRepo.RemoveActor()));
         }
 
+        public event SelectionChangedEventHandler SelectionChanged
+        {
+            add { AddHandler(SelectionChangedEvent, value); }
+            remove { RemoveHandler(SelectionChangedEvent, value); }
+        }
+
+        protected virtual void OnSelectionChanged (object oldSelection, object newSelection)
+        {
+            RaiseEvent(new SelectionChangedEventArgs(newSelection, oldSelection) {
+                RoutedEvent = SelectionChangedEvent,
+                OriginalSource = this,
+                Source = this,
+            });
+        }
+
         private class SelectList : ScrollPane
         {
             private SelectBox _selectBox;
@@ -222,6 +261,8 @@ namespace MonoGdx.Scene2D.UI
 
                 _list = new List(new object[0], _selectBox.Style.ListStyle);
                 Widget = _list;
+
+                _list.SelectionChanged += (s, e) => { e.Stopped = true; };
 
                 _list.AddListener(new DispatchInputListener() {
                     OnMouseMoved = (ev, x, y) => {
@@ -241,11 +282,6 @@ namespace MonoGdx.Scene2D.UI
                     Up = (ev, x, y, pointer, button) => {
                         if (Hit(x, y, true) == _list) {
                             _selectBox.SelectionIndex = _list.SelectedIndex;
-
-                            ChangeEvent changeEvent = Pools<ChangeEvent>.Obtain();
-                            _selectBox.Fire(changeEvent);
-
-                            Pools<ChangeEvent>.Release(changeEvent);
                             _selectBox.HideList();
                         }
                     },

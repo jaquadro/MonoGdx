@@ -28,8 +28,12 @@ namespace MonoGdx.Scene2D.UI
 {
     public class List : Widget, ICullable
     {
+        public static readonly RoutedEvent SelectionChangedEvent = 
+            EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(SelectionChangedEventHandler), typeof(List));
+
         private ListStyle _style;
-        private string[] _items;
+        private object[] _items;
+        private string[] _itemsText;
         private int _selectedIndex;
         private RectangleF _cullingArea;
         private float _prefWidth;
@@ -82,10 +86,9 @@ namespace MonoGdx.Scene2D.UI
             _selectedIndex = Math.Min(_items.Length - 1, _selectedIndex);
 
             if (oldIndex != _selectedIndex) {
-                ChangeEvent changeEvent = Pools<ChangeEvent>.Obtain();
-                if (Fire(changeEvent))
-                    _selectedIndex = oldIndex;
-                Pools<ChangeEvent>.Release(changeEvent);
+                object oldSelection = (oldIndex == -1) ? null : _items[oldIndex];
+                object newSelection = (_selectedIndex == -1) ? null : _items[_selectedIndex];
+                OnSelectionChanged(oldSelection, newSelection);
             }
         }
 
@@ -126,7 +129,7 @@ namespace MonoGdx.Scene2D.UI
                         selectedDrawable.Draw(spriteBatch, x, y + itemY - _itemHeight, Width, ItemHeight);
                         font.Color = fontColorSelected.MultiplyAlpha(parentAlpha);
                     }
-                    font.Draw(spriteBatch, _items[i], x + _textOffsetX, y + itemY - _textOffsetY);
+                    font.Draw(spriteBatch, _itemsText[i], x + _textOffsetX, y + itemY - _textOffsetY);
 
                     if (_selectedIndex == i)
                         font.Color = fontColorUnselected.MultiplyAlpha(parentAlpha);
@@ -143,13 +146,21 @@ namespace MonoGdx.Scene2D.UI
             get { return _selectedIndex; }
             set
             {
+                if (value == _selectedIndex)
+                    return;
                 if (value < -1 || value >= _items.Length)
                     throw new ArgumentOutOfRangeException("SelectedIndex");
+
+                object oldSelection = (_selectedIndex == -1) ? null : _items[_selectedIndex];
+
                 _selectedIndex = value;
+
+                object newSelection = (_selectedIndex == -1) ? null : _items[_selectedIndex];
+                OnSelectionChanged(oldSelection, newSelection);
             }
         }
 
-        public string Selection
+        public object Selection
         {
             get
             {
@@ -161,8 +172,10 @@ namespace MonoGdx.Scene2D.UI
             set { SetSelection(value); }
         }
 
-        public int SetSelection (string item)
+        public int SetSelection (object item)
         {
+            int oldIndex = _selectedIndex;
+
             _selectedIndex = -1;
             for (int i = 0, n = _items.Length; i < n; i++) {
                 if (_items[i] == item) {
@@ -170,6 +183,13 @@ namespace MonoGdx.Scene2D.UI
                     break;
                 }
             }
+
+            if (oldIndex == _selectedIndex)
+                return _selectedIndex;
+
+            object oldSelection = (oldIndex == -1) ? null : _items[oldIndex];
+            object newSelection = (_selectedIndex == -1) ? null : _items[_selectedIndex];
+            OnSelectionChanged(oldSelection, newSelection);
 
             return _selectedIndex;
         }
@@ -179,14 +199,15 @@ namespace MonoGdx.Scene2D.UI
             if (objects == null)
                 throw new ArgumentNullException("objects");
 
+            _items = objects;
             if (!(objects is string[])) {
                 string[] strings = new string[objects.Length];
                 for (int i = 0, n = objects.Length; i < n; i++)
                     strings[i] = objects[i].ToString();
-                _items = strings;
+                _itemsText = strings;
             }
             else
-                _items = objects as string[];
+                _itemsText = objects as string[];
 
             _selectedIndex = 0;
 
@@ -200,7 +221,7 @@ namespace MonoGdx.Scene2D.UI
 
             _prefWidth = 0;
             for (int i = 0; i < _items.Length; i++) {
-                TextBounds bounds = font.GetBounds(_items[i]);
+                TextBounds bounds = font.GetBounds(_itemsText[i]);
                 _prefWidth = Math.Max(bounds.Width, _prefWidth);
             }
             _prefWidth += selectedDrawable.LeftWidth + selectedDrawable.RightWidth;
@@ -209,7 +230,7 @@ namespace MonoGdx.Scene2D.UI
             InvalidateHierarchy();
         }
 
-        public string[] Items
+        public object[] Items
         {
             get { return _items; }
         }
@@ -238,6 +259,21 @@ namespace MonoGdx.Scene2D.UI
         public void SetCullingArea (RectangleF cullingArea)
         {
             _cullingArea = cullingArea;
+        }
+
+        public event SelectionChangedEventHandler SelectionChanged
+        {
+            add { AddHandler(SelectionChangedEvent, value); }
+            remove { RemoveHandler(SelectionChangedEvent, value); }
+        }
+
+        protected virtual void OnSelectionChanged (object oldSelection, object newSelection)
+        {
+            RaiseEvent(new SelectionChangedEventArgs(newSelection, oldSelection) {
+                RoutedEvent = SelectionChangedEvent,
+                OriginalSource = this,
+                Source = this,
+            });
         }
     }
 

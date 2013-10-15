@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using MonoGdx.Utils;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,7 @@ namespace MonoGdx.Scene2D
 {
     public delegate void RoutedEventHandler (Actor sender, RoutedEventArgs e);
     public delegate void TouchEventHandler (Actor sender, TouchEventArgs e);
+    public delegate void SelectionChangedEventHandler (Actor sender, SelectionChangedEventArgs e);
 
     public enum RoutingStrategy
     {
@@ -77,7 +79,7 @@ namespace MonoGdx.Scene2D
         public Actor OriginalSource { get; internal set; }
         public Actor Source { get; set; }
 
-        public void Reset ()
+        public virtual void Reset ()
         {
             RoutedEvent = null;
             Stage = null;
@@ -117,6 +119,41 @@ namespace MonoGdx.Scene2D
         protected override void InvokeEventHandler (Delegate handler, Actor target)
         {
             ((TouchEventHandler)handler)(target, this);
+        }
+    }
+
+    public class SelectionChangedEventArgs : RoutedEventArgs
+    {
+        private static readonly IList _empty = new List<object>(0);
+
+        private IList _added;
+        private IList _removed;
+
+        public SelectionChangedEventArgs (IList addedItems, IList removedItems)
+        {
+            _added = addedItems;
+            _removed = removedItems;
+        }
+
+        public SelectionChangedEventArgs (object addedItem, object removedItem)
+        {
+            _added = (addedItem != null) ? new List<object>(1) { addedItem } : _empty;
+            _removed = (removedItem != null) ? new List<object>(1) { removedItem } : _empty;
+        }
+
+        public IList AddedItems
+        {
+            get { return _added; }
+        }
+
+        public IList RemovedItems
+        {
+            get { return _removed; }
+        }
+
+        protected override void InvokeEventHandler (Delegate handler, Actor target)
+        {
+            ((SelectionChangedEventHandler)handler)(target, this);
         }
     }
 
