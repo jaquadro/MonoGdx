@@ -52,9 +52,13 @@ namespace MonoGdxTests.Tests
             node3.Add(node4);
             tree.Add(node5);
 
-            node5.Actor.AddListener(new DispatchClickListener() {
-                OnClicked = (ev, x, y) => { tree.Remove(node4); }
-            });
+            (node5.Actor as Button).Clicked += (sender, e) => {
+                tree.Remove(node4);
+            };
+
+            //node5.Actor.AddListener(new DispatchClickListener() {
+            //    OnClicked = (ev, x, y) => { tree.Remove(node4); }
+            //});
 
             table.Add(tree).Configure.Fill().Expand();
 
