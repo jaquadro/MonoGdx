@@ -28,7 +28,11 @@ namespace MonoGdx.Scene2D.UI
 {
     public class Tree : WidgetGroup
     {
+        public static readonly RoutedEvent SelectionChangedEvent =
+            EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(SelectionChangedEventHandler), typeof(Tree));
+
         private TreeStyle _style;
+        private readonly SelectionChanger<TreeNode> _selectionChanger;
         private readonly List<TreeNode> _rootNodes = new List<TreeNode>();
         private readonly List<TreeNode> _selectedNodes = new List<TreeNode>();
         private float _indentSpacing;
@@ -39,6 +43,9 @@ namespace MonoGdx.Scene2D.UI
         private TreeNode _foundNode;
         private TreeNode _overNode;
         private ClickListener _clickListener;
+
+        private readonly List<TreeNode> _selectEventAdd = new List<TreeNode>();
+        private readonly List<TreeNode> _selectEventRemove = new List<TreeNode>();
 
         public Tree (Skin skin)
             : this(skin.Get<TreeStyle>())
@@ -55,6 +62,11 @@ namespace MonoGdx.Scene2D.UI
             MultiSelect = true;
             ToggleSelect = true;
             Style = style;
+
+            _selectionChanger = new SelectionChanger<TreeNode>() {
+                CanSelectMultiple = true,
+                SelectionChangeHandler = SelectionChangeHandler,
+            };
 
             Initialize();
         }
@@ -88,13 +100,17 @@ namespace MonoGdx.Scene2D.UI
                     float low = _tree._selectedNodes.First().Actor.Y;
                     float high = node.Actor.Y;
 
+                    _tree._selectionChanger.Begin(_tree._selectedNodes);
+
                     if (!ctrlPressed)
-                        _tree._selectedNodes.Clear();
+                        _tree._selectionChanger.UnselectAll();
 
                     if (low > high)
                         _tree.SelectNodes(_tree._rootNodes, high, low);
                     else
                         _tree.SelectNodes(_tree._rootNodes, low, high);
+
+                    _tree._selectionChanger.End();
 
                     _tree.FireChangeEvent();
                     return;
@@ -116,18 +132,25 @@ namespace MonoGdx.Scene2D.UI
                         return;
 
                     bool unselect = _tree.ToggleSelect && _tree._selectedNodes.Count == 1 && _tree._selectedNodes.Contains(node);
-                    _tree._selectedNodes.Clear();
+
+                    _tree._selectionChanger.Begin(_tree._selectedNodes);
+                    _tree._selectionChanger.UnselectAll();
+                    if (!unselect)
+                        _tree._selectionChanger.Select(node);
+                    _tree._selectionChanger.End();
 
                     if (unselect) {
                         _tree.FireChangeEvent();
-                        return;
                     }
+
+                    return;
                 }
                 else if (!node.IsSelectable)
                     return;
 
-                if (!_tree._selectedNodes.Remove(node))
-                    _tree._selectedNodes.Add(node);
+                _tree._selectionChanger.Begin(_tree._selectedNodes);
+                _tree._selectionChanger.Select(node);
+                _tree._selectionChanger.End();
 
                 _tree.FireChangeEvent();
             }
@@ -145,6 +168,12 @@ namespace MonoGdx.Scene2D.UI
                     _tree.OverNode = null;
             }
         }
+
+        private void SelectionChangeHandler (List<TreeNode> addedItems, List<TreeNode> removedItems) 
+        {
+            OnSelectionChanged(removedItems, addedItems);
+        }
+
         public TreeStyle Style
         {
             get { return _style; }
@@ -371,7 +400,8 @@ namespace MonoGdx.Scene2D.UI
                 if (!node.IsSelectable)
                     continue;
                 if (node.Actor.Y <= high)
-                    _selectedNodes.Add(node);
+                    _selectionChanger.Select(node);
+                    //_selectedNodes.Add(node);
                 if (node.IsExpanded)
                     SelectNodes(node.Children, low, high);
             }
@@ -382,17 +412,24 @@ namespace MonoGdx.Scene2D.UI
             get { return _selectedNodes; }
             set
             {
-                _selectedNodes.Clear();
-                _selectedNodes.AddRange(value);
+                _selectionChanger.Begin(_selectedNodes);
+                _selectionChanger.UnselectAll();
+                _selectionChanger.SelectAll(value);
+                _selectionChanger.End();
+
                 FireChangeEvent();
             }
         }
 
         public void SetSelection (TreeNode node)
         {
-            _selectedNodes.Clear();
+            _selectionChanger.Begin(_selectedNodes);
             if (node != null)
-                _selectedNodes.Add(node);
+                _selectionChanger.SelectOnly(node);
+            else
+                _selectionChanger.UnselectAll();
+            _selectionChanger.End();
+
             FireChangeEvent();
         }
 
@@ -400,13 +437,20 @@ namespace MonoGdx.Scene2D.UI
         {
             if (node == null)
                 return;
-            _selectedNodes.Add(node);
+
+            _selectionChanger.Begin(_selectedNodes);
+            _selectionChanger.Select(node);
+            _selectionChanger.End();
+
             FireChangeEvent();
         }
 
         public void ClearSelection ()
         {
-            _selectedNodes.Clear();
+            _selectionChanger.Begin(_selectedNodes);
+            _selectionChanger.UnselectAll();
+            _selectionChanger.End();
+
             FireChangeEvent();
         }
 
@@ -518,6 +562,21 @@ namespace MonoGdx.Scene2D.UI
 
         public bool MultiSelect { get; set; }
         public bool ToggleSelect { get; set; }
+
+        public event SelectionChangedEventHandler SelectionChanged
+        {
+            add { AddHandler(SelectionChangedEvent, value); }
+            remove { RemoveHandler(SelectionChangedEvent, value); }
+        }
+
+        protected virtual void OnSelectionChanged (IList<TreeNode> oldSelection, IList<TreeNode> newSelection)
+        {
+            RaiseEvent(new SelectionChangedEventArgs(newSelection as IList, oldSelection as IList) {
+                RoutedEvent = SelectionChangedEvent,
+                OriginalSource = this,
+                Source = this,
+            });
+        }
     }
 
     public class TreeNode

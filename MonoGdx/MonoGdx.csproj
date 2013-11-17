@@ -87,6 +87,7 @@
     <Compile Include="Scene2D\Utils\ClickListener.cs" />
     <Compile Include="Scene2D\Utils\Json.cs" />
     <Compile Include="Scene2D\Utils\NinePatchDrawable.cs" />
+    <Compile Include="Scene2D\Utils\SelectionChanger.cs" />
     <Compile Include="Scene2D\Utils\SpriteDrawable.cs" />
     <Compile Include="Scene2D\Utils\TextureRegionDrawable.cs" />
     <Compile Include="Scene2D\Utils\TiledDrawable.cs" />

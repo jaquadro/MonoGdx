@@ -52,6 +52,22 @@ namespace MonoGdxTests.Tests
             node3.Add(node4);
             tree.Add(node5);
 
+            Label label = new Label("", skin, "default");
+
+            tree.SelectionChanged += (sender, e) => {
+                if (e.AddedItems.Count == 0)
+                    return;
+
+                StringBuilder txt = new StringBuilder();
+                foreach (TreeNode node in e.AddedItems) {
+                    TextButton button = node.Actor as TextButton;
+                    txt.Append(button.Text + ", ");
+                }
+
+                label.Text = txt.ToString();
+                label.Invalidate();
+            };            
+
             (node5.Actor as Button).Clicked += (sender, e) => {
                 tree.Remove(node4);
             };
@@ -61,6 +77,8 @@ namespace MonoGdxTests.Tests
             //});
 
             table.Add(tree).Configure.Fill().Expand();
+            table.Row();
+            table.Add(label).Configure.Fill().Expand();
 
             //Debugger.Launch();
         }
