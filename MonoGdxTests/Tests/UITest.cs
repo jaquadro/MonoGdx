@@ -68,9 +68,13 @@ namespace MonoGdxTests.Tests
             };
             ImageButton iconButton = new ImageButton(style);
 
-            Button buttonMulti = new TextButton("Multi\nLine\nToggle", _skin, "toggle");
+            Button buttonMulti = new TextButton("Multi\nLine\nToggle", _skin, "toggle") {
+                IsToggle = true,
+            };
             Button imgButton = new Button(new Image(image), _skin);
-            Button imgToggleButton = new Button(new Image(image), _skin, "toggle");
+            Button imgToggleButton = new Button(new Image(image), _skin, "toggle") {
+                IsToggle = true,
+            };
 
             Label myLabel = new Label("This is some text.", _skin);
             myLabel.TextWrapping = true;

@@ -29,6 +29,7 @@ namespace MonoGdx.Scene2D.UI
 {
     public class Button : Table
     {
+        public static readonly RoutedEvent ClickEvent = EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Button));
         public static readonly RoutedEvent CheckedEvent = EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Button));
         public static readonly RoutedEvent UncheckedEvent = EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Button));
 
@@ -45,11 +46,15 @@ namespace MonoGdx.Scene2D.UI
             {
                 if (_button.IsDisabled)
                     return;
-                _button.IsChecked = !_button.IsChecked;
+
+                _button.OnClicked();
+                if (_button.IsToggle)
+                    _button.IsChecked = !_button.IsChecked;
             }
         }
 
         private ButtonStyle _style;
+        private bool _isToggle;
         private bool _isChecked;
 
         public Button (Skin skin)
@@ -122,11 +127,24 @@ namespace MonoGdx.Scene2D.UI
 
         internal ButtonGroup ButtonGroup { get; set; }
 
+        public bool IsToggle
+        {
+            get { return _isToggle; }
+            set
+            {
+                _isToggle = value;
+                if (!_isToggle)
+                    _isChecked = false;
+            }
+        }
+
         public bool IsChecked
         {
             get { return _isChecked; }
             set
             {
+                if (!IsToggle)
+                    return;
                 if (_isChecked == value)
                     return;
                 if (ButtonGroup != null && !ButtonGroup.CanCheck(this, _isChecked))
@@ -149,6 +167,8 @@ namespace MonoGdx.Scene2D.UI
 
         public void Toggle ()
         {
+            if (!IsToggle)
+                return;
             IsChecked = !IsChecked;
         }
 
@@ -276,6 +296,12 @@ namespace MonoGdx.Scene2D.UI
             get { return PrefHeight; }
         }
 
+        public event RoutedEventHandler Clicked
+        {
+            add { AddHandler(ClickEvent, value); }
+            remove { RemoveHandler(ClickEvent, value); }
+        }
+
         public event RoutedEventHandler Checked
         {
             add { AddHandler(CheckedEvent, value); }
@@ -286,6 +312,13 @@ namespace MonoGdx.Scene2D.UI
         {
             add { AddHandler(UncheckedEvent, value); }
             remove { RemoveHandler(UncheckedEvent, value); }
+        }
+
+        protected virtual void OnClicked ()
+        {
+            RoutedEventArgs args = InitializeEventArgs(Pools<RoutedEventArgs>.Obtain(), ClickEvent);
+            RaiseEvent(args);
+            Pools<RoutedEventArgs>.Release(args);
         }
 
         protected virtual void OnChecked ()
