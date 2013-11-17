@@ -99,12 +99,12 @@ namespace MonoGdxTests
 
         protected override void Initialize ()
         {
-            base.Initialize();
-
             _input = new XnaInput();
             _input.Processor = _test;
 
             _test.Initialize();
+
+            base.Initialize();
         }
 
         protected override void Update (GameTime gameTime)
