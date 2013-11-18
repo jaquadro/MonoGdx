@@ -47,7 +47,9 @@ namespace MonoGdx.Scene2D.UI
                 if (_button.IsDisabled)
                     return;
 
-                _button.OnClicked();
+                if (_button.OnClicked())
+                    return;
+
                 if (_button.IsToggle)
                     _button.IsChecked = !_button.IsChecked;
             }
@@ -152,15 +154,14 @@ namespace MonoGdx.Scene2D.UI
 
                 _isChecked = value;
                 if (!IsDisabled) {
+                    bool cancel = false;
                     if (_isChecked)
-                        OnChecked();
+                        cancel = OnChecked();
                     else
-                        OnUnchecked();
+                        cancel = OnUnchecked();
 
-                    ChangeEvent changeEvent = Pools<ChangeEvent>.Obtain();
-                    if (Fire(changeEvent))
+                    if (cancel)
                         _isChecked = !_isChecked;
-                    Pools<ChangeEvent>.Release(changeEvent);
                 }
             }
         }
@@ -314,34 +315,28 @@ namespace MonoGdx.Scene2D.UI
             remove { RemoveHandler(UncheckedEvent, value); }
         }
 
-        protected virtual void OnClicked ()
+        protected virtual bool OnClicked ()
         {
             RoutedEventArgs args = InitializeEventArgs(Pools<RoutedEventArgs>.Obtain(), ClickEvent);
-            RaiseEvent(args);
+            bool cancel = RaiseEvent(args);
             Pools<RoutedEventArgs>.Release(args);
+            return cancel;
         }
 
-        protected virtual void OnChecked ()
+        protected virtual bool OnChecked ()
         {
             RoutedEventArgs args = InitializeEventArgs(Pools<RoutedEventArgs>.Obtain(), CheckedEvent);
-            RaiseEvent(args);
+            bool cancel = RaiseEvent(args);
             Pools<RoutedEventArgs>.Release(args);
+            return cancel;
         }
 
-        protected virtual void OnUnchecked ()
+        protected virtual bool OnUnchecked ()
         {
             RoutedEventArgs args = InitializeEventArgs(Pools<RoutedEventArgs>.Obtain(), UncheckedEvent);
-            RaiseEvent(args);
+            bool cancel = RaiseEvent(args);
             Pools<RoutedEventArgs>.Release(args);
-        }
-
-        RoutedEventArgs InitializeEventArgs (RoutedEventArgs e, RoutedEvent routedEvent)
-        {
-            e.RoutedEvent = routedEvent;
-            e.OriginalSource = this;
-            e.Source = this;
-
-            return e;
+            return cancel;
         }
     }
 

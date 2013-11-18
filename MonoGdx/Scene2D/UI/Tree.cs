@@ -112,7 +112,6 @@ namespace MonoGdx.Scene2D.UI
 
                     _tree._selectionChanger.End();
 
-                    _tree.FireChangeEvent();
                     return;
                 }
 
@@ -139,10 +138,6 @@ namespace MonoGdx.Scene2D.UI
                         _tree._selectionChanger.Select(node);
                     _tree._selectionChanger.End();
 
-                    if (unselect) {
-                        _tree.FireChangeEvent();
-                    }
-
                     return;
                 }
                 else if (!node.IsSelectable)
@@ -151,8 +146,6 @@ namespace MonoGdx.Scene2D.UI
                 _tree._selectionChanger.Begin(_tree._selectedNodes);
                 _tree._selectionChanger.Select(node);
                 _tree._selectionChanger.End();
-
-                _tree.FireChangeEvent();
             }
 
             public override bool MouseMoved (InputEvent e, float x, float y)
@@ -214,16 +207,12 @@ namespace MonoGdx.Scene2D.UI
         {
             base.ClearChildren();
             _rootNodes.Clear();
-            _selectedNodes.Clear();
-            OverNode = null;
-            FireChangeEvent();
-        }
 
-        internal void FireChangeEvent ()
-        {
-            ChangeEvent ev = Pools<ChangeEvent>.Obtain();
-            Fire(ev);
-            Pools<ChangeEvent>.Release(ev);
+            _selectionChanger.Begin(_selectedNodes);
+            _selectionChanger.UnselectAll();
+            _selectionChanger.End();
+
+            OverNode = null;
         }
 
         public List<TreeNode> Nodes
@@ -401,7 +390,6 @@ namespace MonoGdx.Scene2D.UI
                     continue;
                 if (node.Actor.Y <= high)
                     _selectionChanger.Select(node);
-                    //_selectedNodes.Add(node);
                 if (node.IsExpanded)
                     SelectNodes(node.Children, low, high);
             }
@@ -416,8 +404,6 @@ namespace MonoGdx.Scene2D.UI
                 _selectionChanger.UnselectAll();
                 _selectionChanger.SelectAll(value);
                 _selectionChanger.End();
-
-                FireChangeEvent();
             }
         }
 
@@ -429,8 +415,6 @@ namespace MonoGdx.Scene2D.UI
             else
                 _selectionChanger.UnselectAll();
             _selectionChanger.End();
-
-            FireChangeEvent();
         }
 
         public void AddSelection (TreeNode node)
@@ -441,8 +425,6 @@ namespace MonoGdx.Scene2D.UI
             _selectionChanger.Begin(_selectedNodes);
             _selectionChanger.Select(node);
             _selectionChanger.End();
-
-            FireChangeEvent();
         }
 
         public void ClearSelection ()
@@ -450,8 +432,6 @@ namespace MonoGdx.Scene2D.UI
             _selectionChanger.Begin(_selectedNodes);
             _selectionChanger.UnselectAll();
             _selectionChanger.End();
-
-            FireChangeEvent();
         }
 
         public TreeNode OverNode { get; set; }

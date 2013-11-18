@@ -126,9 +126,11 @@ namespace MonoGdx.Scene2D.UI
                     _style.ScrollStyle.VScrollKnob != null ? _style.ScrollStyle.VScrollKnob.MinWidth : 0));
 
             if (_items.Length > 0) {
-                ChangeEvent changeEvent = Pools<ChangeEvent>.Obtain();
-                Fire(changeEvent);
-                Pools<ChangeEvent>.Release(changeEvent);
+                // TODO: Event for change of items
+
+                //ChangeEvent changeEvent = Pools<ChangeEvent>.Obtain();
+                //Fire(changeEvent);
+                //Pools<ChangeEvent>.Release(changeEvent);
             }
 
             InvalidateHierarchy();

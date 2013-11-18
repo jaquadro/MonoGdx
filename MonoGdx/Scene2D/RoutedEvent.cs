@@ -11,6 +11,7 @@ namespace MonoGdx.Scene2D
     public delegate void RoutedEventHandler (Actor sender, RoutedEventArgs e);
     public delegate void TouchEventHandler (Actor sender, TouchEventArgs e);
     public delegate void SelectionChangedEventHandler (Actor sender, SelectionChangedEventArgs e);
+    public delegate void RoutedPropertyChangedEventHandler<T> (Actor sender, RoutedPropertyChangedEventArgs<T> e);
 
     public enum RoutingStrategy
     {
@@ -102,6 +103,31 @@ namespace MonoGdx.Scene2D
         internal void InvokeHandler (Delegate handler, Actor target)
         {
             InvokeEventHandler(handler, target);
+        }
+    }
+
+    public class RoutedPropertyChangedEventArgs<T> : RoutedEventArgs
+    {
+        public T NewValue { get; set; }
+        public T OldValue { get; set; }
+
+        public RoutedPropertyChangedEventArgs (T oldValue, T newValue)
+        {
+            NewValue = newValue;
+            OldValue = oldValue;
+        }
+
+        public override void Reset ()
+        {
+            base.Reset();
+
+            NewValue = default(T);
+            OldValue = default(T);
+        }
+
+        protected override void InvokeEventHandler (Delegate handler, Actor target)
+        {
+            ((RoutedPropertyChangedEventHandler<T>)handler)(target, this);
         }
     }
 

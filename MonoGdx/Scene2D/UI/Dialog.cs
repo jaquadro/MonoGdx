@@ -76,18 +76,16 @@ namespace MonoGdx.Scene2D.UI
             _contentTable.Defaults().Configure.Space(6);
             _buttonTable.Defaults().Configure.Space(6);
 
-            _buttonTable.AddListener(new DispatchChangeListener() {
-                OnChanged = (ev, actor) => {
-                    if (!_values.ContainsKey(actor))
-                        return;
-                    while (actor.Parent != _buttonTable)
-                        actor = actor.Parent;
-                    Result(_values[actor]);
-                    if (!_cancelHide)
-                        Hide();
-                    _cancelHide = false;
-                },
-            });
+            _buttonTable.AddHandler(Button.ClickEvent, new RoutedEventHandler((actor, e) => {
+                if (!_values.ContainsKey(actor))
+                    return;
+                while (actor.Parent != _buttonTable)
+                    actor = actor.Parent;
+                Result(_values[actor]);
+                if (!_cancelHide)
+                    Hide();
+                _cancelHide = false;
+            }));
 
             AddListener(new DispatchFocusListener() {
                 OnKeyboardFocusChanged = (ev, actor, focused) => {
@@ -253,7 +251,7 @@ namespace MonoGdx.Scene2D.UI
             });
         }
 
-        protected void Result (object obj)
+        protected virtual void Result (object obj)
         { }
 
         public void Cancel ()

@@ -174,6 +174,15 @@ namespace MonoGdx.Scene2D
             }
         }
 
+        protected virtual RoutedEventArgs InitializeEventArgs (RoutedEventArgs e, RoutedEvent routedEvent)
+        {
+            e.RoutedEvent = routedEvent;
+            e.OriginalSource = this;
+            e.Source = this;
+
+            return e;
+        }
+
         public bool Notify (Event ev, bool capture)
         {
             if (ev.TargetActor == null)

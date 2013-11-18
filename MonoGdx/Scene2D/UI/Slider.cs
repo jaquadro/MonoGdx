@@ -27,6 +27,9 @@ namespace MonoGdx.Scene2D.UI
 {
     public class Slider : Widget
     {
+        public static readonly RoutedEvent ValueChangedEvent =
+            EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(RoutedPropertyChangedEventHandler<float>), typeof(Slider));
+
         private SliderStyle _style;
         private float _min;
         private float _max;
@@ -83,9 +86,11 @@ namespace MonoGdx.Scene2D.UI
                     _draggingPointer = -1;
 
                     if (!CalculatePositionAndValue(x, y)) {
-                        ChangeEvent changeEvent = Pools<ChangeEvent>.Obtain();
-                        Fire(changeEvent);
-                        Pools<ChangeEvent>.Release(changeEvent);
+                        // TODO: Raise event for end of dragging control.
+                        
+                        //ChangeEvent changeEvent = Pools<ChangeEvent>.Obtain();
+                        //Fire(changeEvent);
+                        //Pools<ChangeEvent>.Release(changeEvent);
                     }
                 },
 
@@ -230,8 +235,7 @@ namespace MonoGdx.Scene2D.UI
             float oldVisualValue = VisualValue;
             _value = value;
 
-            ChangeEvent changeEvent = Pools<ChangeEvent>.Obtain();
-            bool cancelled = Fire(changeEvent);
+            bool cancelled = OnValueChanged(oldValue, value);
             if (cancelled)
                 _value = oldValue;
             else if (_animateDuration > 0) {
@@ -239,7 +243,6 @@ namespace MonoGdx.Scene2D.UI
                 _animateTime = _animateDuration;
             }
 
-            Pools<ChangeEvent>.Release(changeEvent);
             return !cancelled;
         }
 
@@ -352,6 +355,21 @@ namespace MonoGdx.Scene2D.UI
         }
 
         public bool IsDisabled { get; set; }
+
+        public event RoutedPropertyChangedEventHandler<float> ValueChanged
+        {
+            add { AddHandler(ValueChangedEvent, value); }
+            remove { RemoveHandler(ValueChangedEvent, value); }
+        }
+
+        protected virtual bool OnValueChanged (float oldValue, float newValue)
+        {
+            return RaiseEvent(new RoutedPropertyChangedEventArgs<float>(oldValue, newValue) {
+                RoutedEvent = ValueChangedEvent,
+                OriginalSource = this,
+                Source = this,
+            });
+        }
     }
 
     public class SliderStyle
