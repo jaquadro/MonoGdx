@@ -57,6 +57,10 @@
     <Compile Include="Scene2D\Actions\MoveByAction.cs" />
     <Compile Include="Scene2D\Actions\MoveToAction.cs" />
     <Compile Include="Scene2D\Actions\RelativeTemporalAction.cs" />
+    <Compile Include="Scene2D\Actions\RotateByAction.cs" />
+    <Compile Include="Scene2D\Actions\RotateToAction.cs" />
+    <Compile Include="Scene2D\Actions\ScaleByAction.cs" />
+    <Compile Include="Scene2D\Actions\ScaleToAction.cs" />
     <Compile Include="Scene2D\Actions\SizeByAction.cs" />
     <Compile Include="Scene2D\Actions\SizeToAction.cs" />
     <Compile Include="Scene2D\RoutedEvent.cs" />

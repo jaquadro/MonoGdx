@@ -112,6 +112,84 @@ namespace MonoGdx.Scene2D.Actions
             return action;
         }
 
+        public static ScaleToAction ScaleTo (float x, float y)
+        {
+            return ScaleTo(x, y, 0, null);
+        }
+
+        public static ScaleToAction ScaleTo (float x, float y, float duration)
+        {
+            return ScaleTo(x, y, duration, null);
+        }
+
+        public static ScaleToAction ScaleTo (float x, float y, float duration, Interpolation interpolation)
+        {
+            ScaleToAction action = Action<ScaleToAction>();
+            action.X = x;
+            action.Y = y;
+            action.Duration = duration;
+            action.Interpolation = interpolation;
+            return action;
+        }
+
+        public static ScaleByAction ScaleBy (float amountX, float amountY)
+        {
+            return ScaleBy(amountX, amountY, 0, null);
+        }
+
+        public static ScaleByAction ScaleBy (float amountX, float amountY, float duration)
+        {
+            return ScaleBy(amountX, amountY, duration, null);
+        }
+
+        public static ScaleByAction ScaleBy (float amountX, float amountY, float duration, Interpolation interpolation)
+        {
+            ScaleByAction action = Action<ScaleByAction>();
+            action.AmountX = amountX;
+            action.AmountY = amountY;
+            action.Duration = duration;
+            action.Interpolation = interpolation;
+            return action;
+        }
+
+        public static RotateToAction RotateTo (float rotation)
+        {
+            return RotateTo(rotation, 0, null);
+        }
+
+        public static RotateToAction RotateTo (float rotation, float duration)
+        {
+            return RotateTo(rotation, duration, null);
+        }
+
+        public static RotateToAction RotateTo (float rotation, float duration, Interpolation interpolation)
+        {
+            RotateToAction action = Action<RotateToAction>();
+            action.Rotation = rotation;
+            action.Duration = duration;
+            action.Interpolation = interpolation;
+            return action;
+        }
+
+        public static RotateByAction RotateBy (float rotationAmount)
+        {
+            return RotateBy(rotationAmount, 0, null);
+        }
+
+        public static RotateByAction RotateBy (float rotationAmount, float duration)
+        {
+            return RotateBy(rotationAmount, duration, null);
+        }
+
+        public static RotateByAction RotateBy (float rotationAmount, float duration, Interpolation interpolation)
+        {
+            RotateByAction action = Action<RotateByAction>();
+            action.Amount = rotationAmount;
+            action.Duration = duration;
+            action.Interpolation = interpolation;
+            return action;
+        }
+
         public static AlphaAction Alpha (float a)
         {
             return Alpha(a, 0, null);
