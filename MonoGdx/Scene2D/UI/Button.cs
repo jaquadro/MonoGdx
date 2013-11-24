@@ -32,6 +32,7 @@ namespace MonoGdx.Scene2D.UI
         public static readonly RoutedEvent ClickEvent = EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Button));
         public static readonly RoutedEvent CheckedEvent = EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Button));
         public static readonly RoutedEvent UncheckedEvent = EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Button));
+        public static readonly RoutedEvent ToggleEvent = EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Button));
 
         private class LocalClickListener : ClickListener
         {
@@ -154,11 +155,14 @@ namespace MonoGdx.Scene2D.UI
 
                 _isChecked = value;
                 if (!IsDisabled) {
-                    bool cancel = false;
-                    if (_isChecked)
-                        cancel = OnChecked();
-                    else
-                        cancel = OnUnchecked();
+                    bool cancel = OnToggled();
+
+                    if (cancel) {
+                        if (_isChecked)
+                            cancel = OnChecked();
+                        else
+                            cancel = OnUnchecked();
+                    }
 
                     if (cancel)
                         _isChecked = !_isChecked;
@@ -315,6 +319,12 @@ namespace MonoGdx.Scene2D.UI
             remove { RemoveHandler(UncheckedEvent, value); }
         }
 
+        public event RoutedEventHandler Toggled
+        {
+            add { AddHandler(ToggleEvent, value); }
+            remove { RemoveHandler(ToggleEvent, value); }
+        }
+
         protected virtual bool OnClicked ()
         {
             RoutedEventArgs args = InitializeEventArgs(Pools<RoutedEventArgs>.Obtain(), ClickEvent);
@@ -334,6 +344,14 @@ namespace MonoGdx.Scene2D.UI
         protected virtual bool OnUnchecked ()
         {
             RoutedEventArgs args = InitializeEventArgs(Pools<RoutedEventArgs>.Obtain(), UncheckedEvent);
+            bool cancel = RaiseEvent(args);
+            Pools<RoutedEventArgs>.Release(args);
+            return cancel;
+        }
+
+        protected virtual bool OnToggled ()
+        {
+            RoutedEventArgs args = InitializeEventArgs(Pools<RoutedEventArgs>.Obtain(), ToggleEvent);
             bool cancel = RaiseEvent(args);
             Pools<RoutedEventArgs>.Release(args);
             return cancel;

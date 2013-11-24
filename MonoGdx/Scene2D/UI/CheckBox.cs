@@ -48,6 +48,7 @@ namespace MonoGdx.Scene2D.UI
             Label.SetAlignment(Alignment.Left);
             Width = PrefWidth;
             Height = PrefHeight;
+            IsToggle = true;
         }
 
         public new CheckBoxStyle Style
