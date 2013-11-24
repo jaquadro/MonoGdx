@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+using Microsoft.Xna.Framework;
 using MonoGdx.Geometry;
 using MonoGdx.Utils;
 
@@ -185,6 +186,25 @@ namespace MonoGdx.Scene2D.Actions
         {
             RotateByAction action = Action<RotateByAction>();
             action.Amount = rotationAmount;
+            action.Duration = duration;
+            action.Interpolation = interpolation;
+            return action;
+        }
+
+        public static ColorAction Color (Color color)
+        {
+            return Color(color, 0, null);
+        }
+
+        public static ColorAction Color (Color color, float duration)
+        {
+            return Color(color, duration, null);
+        }
+
+        public static ColorAction Color (Color color, float duration, Interpolation interpolation)
+        {
+            ColorAction action = Action<ColorAction>();
+            action.EndColor = color;
             action.Duration = duration;
             action.Interpolation = interpolation;
             return action;
