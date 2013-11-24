@@ -50,6 +50,7 @@ namespace MonoGdx.Scene2D.Actions
             float a = _startColor.A + (EndColor.A - _startColor.A) * percent;
 
             Color = new Color((byte)r, (byte)g, (byte)b, (byte)a);
+            Actor.Color = Color.Value;
         }
 
         public override void Reset ()
