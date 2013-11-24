@@ -616,7 +616,7 @@ namespace MonoGdx.Graphics.G2D
             sbyte[] page = Kerning[ch >> BitmapFont.Log2PageSize];
             if (page == null)
                 Kerning[ch >> BitmapFont.Log2PageSize] = page = new sbyte[BitmapFont.PageSize];
-            page[ch & BitmapFont.Log2PageSize - 1] = (sbyte)value;
+            page[ch & BitmapFont.PageSize - 1] = (sbyte)value;
         }
     }
 
