@@ -121,7 +121,18 @@ namespace MonoGdx.Scene2D.UI
                         if (node.Icon != null)
                             rowX -= _tree.IconSpacing + node.Icon.MinWidth;
 
-                        if (x < rowX) {
+                        float indent = 0;
+                        if (node.Children == null || node.Children.Count == 0)
+                            indent = rowX;
+                        else {
+                            TreeNode parent = node.Parent;
+                            while (parent != null) {
+                                indent += _tree._indentSpacing;
+                                parent = parent.Parent;
+                            }
+                        }
+
+                        if (x > indent && x < rowX) {
                             node.IsExpanded = !node.IsExpanded;
                             return;
                         }
