@@ -19,29 +19,22 @@ using System;
 namespace MonoGdx.Scene2D.Actions
 {
     /// <summary>
-    /// Removes a listener from an actor.
+    /// Moves an actor from its current size to a relative size.
     /// </summary>
-    public class RemoveListenerAction : SceneAction
+    public class SizeByAction : RelativeTemporalAction
     {
-        public Actor TargetActor { get; set; }
-        public EventListener Listener { get; set; }
-        public bool Capture { get; set; }
+        public float AmountWidth { get; set; }
+        public float AmountHeight { get; set; }
 
-        public override bool Act (float delta)
+        public void SetAmount (float width, float height)
         {
-            Actor actor = (TargetActor != null) ? TargetActor : Actor;
-            if (Capture)
-                actor.RemoveCaptureListener(Listener);
-            else
-                actor.RemoveListener(Listener);
-            return true;
+            AmountWidth = width;
+            AmountHeight = height;
         }
 
-        public override void Reset ()
+        protected override void UpdateRelative (float percentDelta)
         {
-            base.Reset();
-            TargetActor = null;
-            Listener = null;
+            Actor.Size(AmountWidth * percentDelta, AmountHeight * percentDelta);
         }
     }
 }

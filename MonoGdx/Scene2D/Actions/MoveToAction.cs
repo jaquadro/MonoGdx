@@ -19,29 +19,31 @@ using System;
 namespace MonoGdx.Scene2D.Actions
 {
     /// <summary>
-    /// Removes a listener from an actor.
+    /// Moves an actor from its current position to a specific position.
     /// </summary>
-    public class RemoveListenerAction : SceneAction
+    public class MoveToAction : TemporalAction
     {
-        public Actor TargetActor { get; set; }
-        public EventListener Listener { get; set; }
-        public bool Capture { get; set; }
+        private float _startX;
+        private float _startY;
 
-        public override bool Act (float delta)
+        public float X { get; set; }
+        public float Y { get; set; }
+
+        public void SetPosition (float x, float y)
         {
-            Actor actor = (TargetActor != null) ? TargetActor : Actor;
-            if (Capture)
-                actor.RemoveCaptureListener(Listener);
-            else
-                actor.RemoveListener(Listener);
-            return true;
+            X = x;
+            Y = y;
         }
 
-        public override void Reset ()
+        protected override void Begin ()
         {
-            base.Reset();
-            TargetActor = null;
-            Listener = null;
+            _startX = Actor.X;
+            _startY = Actor.Y;
+        }
+
+        protected override void Update (float percent)
+        {
+            Actor.SetPosition(_startX + (X - _startX) * percent, _startY + (Y - _startY) * percent);
         }
     }
 }

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.Xna.Framework;
 
 namespace MonoGdx.Scene2D.Actions
 {
+    /// <summary>
+    /// Sets the alpha for an actor's color (or a specified color), from the current alpha to the new alpha.
+    /// </summary>
+    /// <remarks>Note this action transitions from the alpha at the time the action starts to the specified alpha.</remarks>
     public class AlphaAction : TemporalAction
     {
         private float _start;

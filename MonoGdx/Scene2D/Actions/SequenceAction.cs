@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using MonoGdx.Utils;
 
 namespace MonoGdx.Scene2D.Actions
 {
+    /// <summary>
+    /// Executes a number of actions one at a time.
+    /// </summary>
     public class SequenceAction : ParallelAction
     {
         private int _index;

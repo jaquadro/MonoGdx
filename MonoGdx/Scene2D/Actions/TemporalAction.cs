@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using MonoGdx.Geometry;
 using MonoGdx.Utils;
 
 namespace MonoGdx.Scene2D.Actions
 {
+    /// <summary>
+    /// Base class for actions that transition over time using the percent complete.
+    /// </summary>
     public abstract class TemporalAction : SceneAction
     {
         private bool _complete;

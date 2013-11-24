@@ -15,12 +15,12 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MonoGdx.Scene2D.Actions
 {
+    /// <summary>
+    /// Removes an actor from the stage.
+    /// </summary>
     public class RemoveActorAction : SceneAction
     {
         private bool _removed;

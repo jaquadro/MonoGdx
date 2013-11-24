@@ -15,33 +15,30 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace MonoGdx.Scene2D.Actions
 {
     /// <summary>
-    /// Removes a listener from an actor.
+    /// Base class for actions that transition over time using the percent complete since the last frame.
     /// </summary>
-    public class RemoveListenerAction : SceneAction
+    abstract public class RelativeTemporalAction : TemporalAction
     {
-        public Actor TargetActor { get; set; }
-        public EventListener Listener { get; set; }
-        public bool Capture { get; set; }
+        private float _lastPercent;
 
-        public override bool Act (float delta)
+        protected override void Begin ()
         {
-            Actor actor = (TargetActor != null) ? TargetActor : Actor;
-            if (Capture)
-                actor.RemoveCaptureListener(Listener);
-            else
-                actor.RemoveListener(Listener);
-            return true;
+            _lastPercent = 0;
         }
 
-        public override void Reset ()
+        protected override void Update (float percent)
         {
-            base.Reset();
-            TargetActor = null;
-            Listener = null;
+            UpdateRelative(percent - _lastPercent);
+            _lastPercent = percent;
         }
+
+        protected abstract void UpdateRelative (float percentDelta);
     }
 }

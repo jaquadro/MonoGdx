@@ -1,12 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿/**
+ * Copyright 2011-2013 See AUTHORS file.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 using MonoGdx.Geometry;
 using MonoGdx.Utils;
 
 namespace MonoGdx.Scene2D.Actions
 {
+    /// <summary>
+    /// Static convenience methods for using pooled actions.
+    /// </summary>
     public static class ActionRepo
     {
         public static T Action<T> ()
@@ -14,6 +29,86 @@ namespace MonoGdx.Scene2D.Actions
         {
             T action = Pools<T>.Obtain();
             action.Pool = Pools<T>.Pool;
+            return action;
+        }
+
+        public static MoveToAction MoveTo (float x, float y)
+        {
+            return MoveTo(x, y, 0, null);
+        }
+
+        public static MoveToAction MoveTo (float x, float y, float duration)
+        {
+            return MoveTo(x, y, duration, null);
+        }
+
+        public static MoveToAction MoveTo (float x, float y, float duration, Interpolation interpolation)
+        {
+            MoveToAction action = Action<MoveToAction>();
+            action.X = x;
+            action.Y = y;
+            action.Duration = duration;
+            action.Interpolation = interpolation;
+            return action;
+        }
+
+        public static MoveByAction MoveBy (float amountX, float amountY)
+        {
+            return MoveBy(amountX, amountY, 0, null);
+        }
+
+        public static MoveByAction MoveBy (float amountX, float amountY, float duration)
+        {
+            return MoveBy(amountX, amountY, duration, null);
+        }
+
+        public static MoveByAction MoveBy (float amountX, float amountY, float duration, Interpolation interpolation)
+        {
+            MoveByAction action = Action<MoveByAction>();
+            action.AmountX = amountX;
+            action.AmountY = amountY;
+            action.Duration = duration;
+            action.Interpolation = interpolation;
+            return action;
+        }
+
+        public static SizeToAction SizeTo (float x, float y)
+        {
+            return SizeTo(x, y, 0, null);
+        }
+
+        public static SizeToAction SizeTo (float x, float y, float duration)
+        {
+            return SizeTo(x, y, duration, null);
+        }
+
+        public static SizeToAction SizeTo (float x, float y, float duration, Interpolation interpolation)
+        {
+            SizeToAction action = Action<SizeToAction>();
+            action.Width = x;
+            action.Height = y;
+            action.Duration = duration;
+            action.Interpolation = interpolation;
+            return action;
+        }
+
+        public static SizeByAction SizeBy (float amountX, float amountY)
+        {
+            return SizeBy(amountX, amountY, 0, null);
+        }
+
+        public static SizeByAction SizeBy (float amountX, float amountY, float duration)
+        {
+            return SizeBy(amountX, amountY, duration, null);
+        }
+
+        public static SizeByAction SizeBy (float amountX, float amountY, float duration, Interpolation interpolation)
+        {
+            SizeByAction action = Action<SizeByAction>();
+            action.AmountWidth = amountX;
+            action.AmountHeight = amountY;
+            action.Duration = duration;
+            action.Interpolation = interpolation;
             return action;
         }
 
