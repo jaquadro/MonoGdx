@@ -55,6 +55,7 @@
     <Compile Include="Graphics\G2D\TextureContext.cs" />
     <Compile Include="Input\GestureDetector.cs" />
     <Compile Include="Scene2D\Actions\ColorAction.cs" />
+    <Compile Include="Scene2D\Actions\DelegateAction.cs" />
     <Compile Include="Scene2D\Actions\MoveByAction.cs" />
     <Compile Include="Scene2D\Actions\MoveToAction.cs" />
     <Compile Include="Scene2D\Actions\RelativeTemporalAction.cs" />
