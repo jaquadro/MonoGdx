@@ -496,8 +496,8 @@ namespace MonoGdx.Scene2D.UI
                 ? _style.DisabledBackground ?? _style.Background
                 : (focused) ? _style.FocusedBackground ?? _style.Background : _style.Background;
 
-            float x = X;
-            float y = Y;
+            float x = (int)X;
+            float y = (int)Y;
             float width = Width;
             float height = Height;
             float textY = _textBounds.Height / 2 + font.Descent;
