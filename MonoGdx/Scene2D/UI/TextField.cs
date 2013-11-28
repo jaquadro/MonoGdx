@@ -14,6 +14,11 @@ namespace MonoGdx.Scene2D.UI
     [TODO]
     public class TextField : Widget
     {
+        public static RoutedEvent SelectionChangedEvent = 
+            EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(TextField));
+        public static RoutedEvent TextChangedEvent =
+            EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(TextField));
+
         private const char CharBackspace = (char)8;
         private const char CharEnterDesktop = '\r';
         private const char CharEnterAndroid = '\n';
@@ -183,6 +188,9 @@ namespace MonoGdx.Scene2D.UI
                     }
 
                     if (shift) {
+                        bool hasSelection = _self._hasSelection;
+                        int cursor = _self._cursor;
+
                         switch (key) {
                             case Keys.Insert:
                                 _self.Paste();
@@ -245,6 +253,9 @@ namespace MonoGdx.Scene2D.UI
 
                         _self._cursor = Math.Max(0, _self._cursor);
                         _self._cursor = Math.Min(_self._text.Length, _self._cursor);
+
+                        if (hasSelection != _self._hasSelection || cursor != _self._cursor)
+                            _self.OnSelectionChanged();
                     }
                     else {
                         switch (key) {
@@ -326,6 +337,7 @@ namespace MonoGdx.Scene2D.UI
                                 _self.UpdateDisplayText();
                                 _self._cursor--;
                                 _self._renderOffset = 0;
+                                _self.OnTextChanged();
                             }
                             else
                                 _self.Delete();
@@ -336,6 +348,7 @@ namespace MonoGdx.Scene2D.UI
                             if (!_self._hasSelection) {
                                 _self._text = _self._text.Substring(0, _self._cursor) + _self._text.Substring(_self._cursor + 1);
                                 _self.UpdateDisplayText();
+                                _self.OnTextChanged();
                             }
                             else
                                 _self.Delete();
@@ -359,6 +372,7 @@ namespace MonoGdx.Scene2D.UI
                                 + _self._text.Substring(_self._cursor, _self._text.Length - _self._cursor);
                             _self.UpdateDisplayText();
                             _self._cursor++;
+                            _self.OnTextChanged();
                         }
                         else {
                             int minIndex = Math.Min(_self._cursor, _self._selectionStart);
@@ -369,6 +383,8 @@ namespace MonoGdx.Scene2D.UI
                             _self._cursor = minIndex;
                             _self._text = _self._text.Substring(0, _self._cursor) + character
                                 + _self._text.Substring(_self._cursor, _self._text.Length - _self._cursor);
+                            _self.OnTextChanged();
+
                             _self.UpdateDisplayText();
                             _self._cursor++;
                             _self.ClearSelection();
@@ -625,6 +641,7 @@ namespace MonoGdx.Scene2D.UI
                     _text = _text.Substring(0, _cursor) + content + _text.Substring(_cursor, _text.Length - _cursor);
                     UpdateDisplayText();
                     _cursor += content.Length;
+                    OnTextChanged();
                 }
                 else {
                     int minIndex = Math.Min(_cursor, _selectionStart);
@@ -634,6 +651,7 @@ namespace MonoGdx.Scene2D.UI
                         + (maxIndex < _text.Length ? _text.Substring(maxIndex, _text.Length - maxIndex) : "");
                     _cursor = minIndex;
                     _text = _text.Substring(0, _cursor) + content + _text.Substring(_cursor, _text.Length - _cursor);
+                    OnTextChanged();
 
                     UpdateDisplayText();
                     _cursor = minIndex + content.Length;
@@ -646,12 +664,17 @@ namespace MonoGdx.Scene2D.UI
         {
             int minIndex = Math.Min(_cursor, _selectionStart);
             int maxIndex = Math.Max(_cursor, _selectionStart);
+            if (maxIndex - minIndex == 0)
+                return;
+
             _text = (minIndex > 0 ? _text.Substring(0, minIndex) : "")
                 + (maxIndex < _text.Length ? _text.Substring(maxIndex, _text.Length - maxIndex) : "");
 
             UpdateDisplayText();
             _cursor = minIndex;
             ClearSelection();
+
+            OnTextChanged();
         }
 
         [TODO("OnScreenKeyboard")]
@@ -733,7 +756,11 @@ namespace MonoGdx.Scene2D.UI
                     buffer.Append(c);
                 }
 
-                _text = buffer.ToString();
+                string bufferText = buffer.ToString();
+                if (Text == bufferText)
+                    return;
+
+                _text = bufferText;
                 UpdateDisplayText();
                 _cursor = 0;
                 ClearSelection();
@@ -741,6 +768,8 @@ namespace MonoGdx.Scene2D.UI
                 _textBounds = font.GetBounds(_displayText);
                 _textBounds.Height -= font.Descent * 2;
                 font.ComputeGlyphAdvancesAndPositions(_displayText, _glyphAdvances, _glyphPositions);
+
+                OnTextChanged();
             }
         }
 
@@ -768,6 +797,8 @@ namespace MonoGdx.Scene2D.UI
             _hasSelection = true;
             _selectionStart = selectionStart;
             _cursor = selectionEnd;
+
+            OnSelectionChanged();
         }
 
         public void SelectAll ()
@@ -777,7 +808,10 @@ namespace MonoGdx.Scene2D.UI
 
         public void ClearSelection ()
         {
-            _hasSelection = false;
+            if (_hasSelection) {
+                _hasSelection = false;
+                OnSelectionChanged();
+            }
         }
 
         public int CursorPosition
@@ -828,6 +862,34 @@ namespace MonoGdx.Scene2D.UI
         public float BlinkTime { get; set; }
 
         public bool IsDisabled { get; set; }
+
+        public event RoutedEventHandler SelectionChanged
+        {
+            add { AddHandler(SelectionChangedEvent, value); }
+            remove { RemoveHandler(SelectionChangedEvent, value); }
+        }
+
+        public event RoutedEventHandler TextChanged
+        {
+            add { AddHandler(TextChangedEvent, value); }
+            remove { RemoveHandler(TextChangedEvent, value); }
+        }
+
+        protected virtual bool OnSelectionChanged ()
+        {
+            RoutedEventArgs args = InitializeEventArgs(Pools<RoutedEventArgs>.Obtain(), SelectionChangedEvent);
+            bool cancel = RaiseEvent(args);
+            Pools<RoutedEventArgs>.Release(args);
+            return cancel;
+        }
+
+        protected virtual bool OnTextChanged ()
+        {
+            RoutedEventArgs args = InitializeEventArgs(Pools<RoutedEventArgs>.Obtain(), TextChangedEvent);
+            bool cancel = RaiseEvent(args);
+            Pools<RoutedEventArgs>.Release(args);
+            return cancel;
+        }
     }
 
     [TODO("Task")]
