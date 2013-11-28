@@ -31,6 +31,11 @@ namespace MonoGdx.Scene2D
 {
     public class Stage : InputAdapter, IDisposable
     {
+        public static readonly RoutedEvent GotKeyboardFocusEvent =
+            EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(KeyboardFocusChangedEventHandler), typeof(Stage));
+        public static readonly RoutedEvent LostKeyboardFocusEvent =
+            EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(KeyboardFocusChangedEventHandler), typeof(Stage));
+
         private bool _ownsSpriteBatch;
         private float _viewportX;
         private float _viewportY;
@@ -532,7 +537,32 @@ namespace MonoGdx.Scene2D
             if (_keyboardFocus == actor)
                 return;
 
-            FocusEvent ev = Pools<FocusEvent>.Obtain();
+            Actor oldKeyboardFocus = _keyboardFocus;
+            _keyboardFocus = actor;
+
+            if (oldKeyboardFocus != null) {
+                KeyboardFocusChangedEventArgs eva = Pools<KeyboardFocusChangedEventArgs>.Obtain();
+                eva.RoutedEvent = LostKeyboardFocusEvent;
+                eva.NewFocus = actor;
+                eva.OldFocus = oldKeyboardFocus;
+
+                oldKeyboardFocus.RaiseEvent(eva);
+                Pools<KeyboardFocusChangedEventArgs>.Release(eva);
+            }
+
+            if (actor != null) {
+                KeyboardFocusChangedEventArgs eva = Pools<KeyboardFocusChangedEventArgs>.Obtain();
+                eva.RoutedEvent = GotKeyboardFocusEvent;
+                eva.NewFocus = actor;
+                eva.OldFocus = oldKeyboardFocus;
+
+                if (actor.RaiseEvent(eva))
+                    SetKeyboardFocus(oldKeyboardFocus);
+
+                Pools<KeyboardFocusChangedEventArgs>.Release(eva);
+            }
+
+            /*FocusEvent ev = Pools<FocusEvent>.Obtain();
             ev.Stage = this;
             ev.Type = FocusType.Keyboard;
 
@@ -554,7 +584,7 @@ namespace MonoGdx.Scene2D
                 }
             }
 
-            Pools<FocusEvent>.Release(ev);
+            Pools<FocusEvent>.Release(ev);*/
         }
 
         public Actor GetKeyboardFocus ()

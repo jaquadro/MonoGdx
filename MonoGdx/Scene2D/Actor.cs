@@ -36,11 +36,20 @@ namespace MonoGdx.Scene2D
 
     public class Actor
     {
+        //public static readonly RoutedEvent GotKeyboardFocusEvent = Stage.GotKeyboardFocusEvent;
+        //public static readonly RoutedEvent LostKeyboardFocusEvent = Stage.LostKeyboardFocusEvent;
+
         private readonly DelayedRemovalList<EventListener> _listeners = new DelayedRemovalList<EventListener>(0);
         private readonly DelayedRemovalList<EventListener> _captureListeners = new DelayedRemovalList<EventListener>(0);
         private readonly List<SceneAction> _actions = new List<SceneAction>(0);
 
         private Dictionary<int, DelayedRemovalList<RoutedEventHandlerInfo>> _handlers = new Dictionary<int, DelayedRemovalList<RoutedEventHandlerInfo>>(0);
+
+        static Actor ()
+        {
+            EventManager.RegisterClassHandler(typeof(Actor), Stage.GotKeyboardFocusEvent, new KeyboardFocusChangedEventHandler(GotKeyboardFocusClass));
+            EventManager.RegisterClassHandler(typeof(Actor), Stage.LostKeyboardFocusEvent, new KeyboardFocusChangedEventHandler(LostKeyboardFocusClass));
+        }
 
         public Actor ()
         {
@@ -125,6 +134,8 @@ namespace MonoGdx.Scene2D
                 e.OriginalSource = this;
                 e.Source = this;
             }
+
+            EventManager.InvokeClassHandlers(this, e);
 
             if (e.RoutedEvent.RoutingStrategy == RoutingStrategy.Direct) {
                 InvokeHandler(e);
@@ -389,6 +400,41 @@ namespace MonoGdx.Scene2D
                 actor = actor.Parent;
             }
         }
+
+        public bool IsKeyboardFocused
+        {
+            get { return Stage != null && Stage.GetKeyboardFocus() == this; }
+        }
+
+        public event KeyboardFocusChangedEventHandler GotKeyboardFocus
+        {
+            add { AddHandler(Stage.GotKeyboardFocusEvent, value); }
+            remove { RemoveHandler(Stage.GotKeyboardFocusEvent, value); }
+        }
+
+        public event KeyboardFocusChangedEventHandler LostKeyboardFocus
+        {
+            add { AddHandler(Stage.LostKeyboardFocusEvent, value); }
+            remove { RemoveHandler(Stage.LostKeyboardFocusEvent, value); }
+        }
+
+        private static void GotKeyboardFocusClass (Actor sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (sender != null)
+                sender.OnGotKeyboardFocus(e);
+        }
+
+        private static void LostKeyboardFocusClass (Actor sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (sender != null)
+                sender.OnLostKeyboardFocus(e);
+        }
+
+        protected virtual void OnGotKeyboardFocus (KeyboardFocusChangedEventArgs e)
+        { }
+
+        protected virtual void OnLostKeyboardFocus (KeyboardFocusChangedEventArgs e)
+        { }
 
         public bool HasParent
         {

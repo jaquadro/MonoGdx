@@ -483,8 +483,7 @@ namespace MonoGdx.Scene2D.UI
 
         public override void Draw (GdxSpriteBatch spriteBatch, float parentAlpha)
         {
-            Stage stage = Stage;
-            bool focused = stage != null && stage.GetKeyboardFocus() == this;
+            bool focused = IsKeyboardFocused;
 
             BitmapFont font = _style.Font;
             Color? fontColor = (IsDisabled) 

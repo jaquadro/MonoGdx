@@ -12,6 +12,7 @@ namespace MonoGdx.Scene2D
     public delegate void TouchEventHandler (Actor sender, TouchEventArgs e);
     public delegate void SelectionChangedEventHandler (Actor sender, SelectionChangedEventArgs e);
     public delegate void RoutedPropertyChangedEventHandler<T> (Actor sender, RoutedPropertyChangedEventArgs<T> e);
+    public delegate void KeyboardFocusChangedEventHandler (Actor sender, KeyboardFocusChangedEventArgs e);
 
     public enum RoutingStrategy
     {
@@ -71,6 +72,8 @@ namespace MonoGdx.Scene2D
 
     public class RoutedEventArgs : EventArgs, IPoolable
     {
+        private Actor _source;
+
         public bool Handled { get; set; }
         public bool Cancelled { get; set; }
         public bool Stopped { get; set; }
@@ -78,7 +81,16 @@ namespace MonoGdx.Scene2D
 
         public Stage Stage { get; set; }
         public Actor OriginalSource { get; internal set; }
-        public Actor Source { get; set; }
+        public Actor Source
+        {
+            get { return _source; }
+            set
+            {
+                _source = value;
+                if (OriginalSource == null)
+                    OriginalSource = value;
+            }
+        }
 
         public virtual void Reset ()
         {
@@ -128,6 +140,25 @@ namespace MonoGdx.Scene2D
         protected override void InvokeEventHandler (Delegate handler, Actor target)
         {
             ((RoutedPropertyChangedEventHandler<T>)handler)(target, this);
+        }
+    }
+
+    public class KeyboardFocusChangedEventArgs : RoutedEventArgs
+    {
+        public Actor OldFocus { get; internal set; }
+        public Actor NewFocus { get; internal set; }
+
+        public override void Reset ()
+        {
+            base.Reset();
+
+            OldFocus = null;
+            NewFocus = null;
+        }
+
+        protected override void InvokeEventHandler (Delegate handler, Actor target)
+        {
+            ((KeyboardFocusChangedEventHandler)handler)(target, this);
         }
     }
 
@@ -188,15 +219,46 @@ namespace MonoGdx.Scene2D
         private static int _nextIndex = 0;
         private static HashSet<RoutedEvent> _registry = new HashSet<RoutedEvent>();
 
+        private static Dictionary<RoutedEvent, Dictionary<Type, RoutedEventHandlerInfo>> _classHandlers = 
+            new Dictionary<RoutedEvent, Dictionary<Type, RoutedEventHandlerInfo>>();
+
         public static RoutedEvent RegisterRoutedEvent(RoutingStrategy routingStrategy, Type handlerType, Type ownerType)
         {
-            if (!typeof(Actor).IsAssignableFrom(ownerType))
-                throw new ArgumentException("Owner Type must be derived from Actor");
+            //if (!typeof(Actor).IsAssignableFrom(ownerType))
+            //    throw new ArgumentException("Owner Type must be derived from Actor");
 
             RoutedEvent rev = new RoutedEvent(routingStrategy, handlerType, ownerType);
             _registry.Add(rev);
 
             return rev;
+        }
+
+        public static void RegisterClassHandler (Type classType, RoutedEvent routedEvent, Delegate handler)
+        {
+            RegisterClassHandler(classType, routedEvent, handler, false);
+        }
+
+        public static void RegisterClassHandler (Type classType, RoutedEvent routedEvent, Delegate handler, bool capturingHandler)
+        {
+            Dictionary<Type, RoutedEventHandlerInfo> eventHandlers;
+            if (!_classHandlers.TryGetValue(routedEvent, out eventHandlers))
+                _classHandlers.Add(routedEvent, eventHandlers = new Dictionary<Type, RoutedEventHandlerInfo>());
+
+            RoutedEventHandlerInfo handlerInfo = new RoutedEventHandlerInfo(handler, capturingHandler);
+            eventHandlers[classType] = handlerInfo;
+        }
+
+        internal static void InvokeClassHandlers (Actor target, RoutedEventArgs e)
+        {
+            if (e.RoutedEvent == null)
+                return;
+
+            Dictionary<Type, RoutedEventHandlerInfo> eventHandlers;
+            if (!_classHandlers.TryGetValue(e.RoutedEvent, out eventHandlers))
+                return;
+
+            foreach (var kvp in eventHandlers)
+                kvp.Value.InvokeHandler(target, e);
         }
 
         internal static int TakeNextIndex ()
