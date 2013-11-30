@@ -140,7 +140,9 @@ namespace MonoGdx.Scene2D
             EventManager.InvokeClassHandlers(this, e);
 
             if (e.RoutedEvent.RoutingStrategy == RoutingStrategy.Direct) {
-                InvokeHandler(e);
+                EventManager.InvokeClassHandlers(this, e);
+                if (!e.Stopped)
+                    InvokeHandler(e);
                 return e.Cancelled;
             }
 
@@ -157,23 +159,31 @@ namespace MonoGdx.Scene2D
                     // Notify all parent capture listeners, starting at the root. Ancestors may stop an event before children receive it.
                     for (int i = ancestors.Count - 1; i >= 0; i--) {
                         Group currentTarget = ancestors[i];
-                        currentTarget.InvokeHandler(e);
+                        EventManager.InvokeClassHandlers(currentTarget, e);
+                        if (!e.Stopped)
+                            currentTarget.InvokeHandler(e);
                         if (e.Stopped)
                             return e.Cancelled;
                     }
 
-                    InvokeHandler(e);
+                    EventManager.InvokeClassHandlers(this, e);
+                    if (!e.Stopped)
+                        InvokeHandler(e);
                     if (e.Stopped)
                         return e.Cancelled;
                 }
                 else if (e.RoutedEvent.RoutingStrategy == RoutingStrategy.Bubble) {
-                    InvokeHandler(e);
+                    EventManager.InvokeClassHandlers(this, e);
+                    if (!e.Stopped)
+                        InvokeHandler(e);
                     if (e.Stopped)
                         return e.Cancelled;
 
                     // Notify all parent listeners, starting at the target. Children may stop an event before ancestors receive it.
                     foreach (Group ancestor in ancestors) {
-                        ancestor.InvokeHandler(e);
+                        EventManager.InvokeClassHandlers(ancestor, e);
+                        if (!e.Stopped)
+                            ancestor.InvokeHandler(e);
                         if (e.Stopped)
                             return e.Cancelled;
                     }
