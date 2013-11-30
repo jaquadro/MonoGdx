@@ -546,8 +546,11 @@ namespace MonoGdx.Scene2D
                 eva.NewFocus = actor;
                 eva.OldFocus = oldKeyboardFocus;
 
-                oldKeyboardFocus.RaiseEvent(eva);
+                bool cancel = oldKeyboardFocus.RaiseEvent(eva);
                 Pools<KeyboardFocusChangedEventArgs>.Release(eva);
+
+                if (cancel)
+                    return;
             }
 
             if (actor != null) {
