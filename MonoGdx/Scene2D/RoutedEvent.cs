@@ -13,6 +13,7 @@ namespace MonoGdx.Scene2D
     public delegate void SelectionChangedEventHandler (Actor sender, SelectionChangedEventArgs e);
     public delegate void RoutedPropertyChangedEventHandler<T> (Actor sender, RoutedPropertyChangedEventArgs<T> e);
     public delegate void KeyboardFocusChangedEventHandler (Actor sender, KeyboardFocusChangedEventArgs e);
+    public delegate void ScrollFocusChangedEventHandler (Actor sender, ScrollFocusChangedEventArgs e);
 
     public enum RoutingStrategy
     {
@@ -159,6 +160,25 @@ namespace MonoGdx.Scene2D
         protected override void InvokeEventHandler (Delegate handler, Actor target)
         {
             ((KeyboardFocusChangedEventHandler)handler)(target, this);
+        }
+    }
+
+    public class ScrollFocusChangedEventArgs : RoutedEventArgs
+    {
+        public Actor OldFocus { get; internal set; }
+        public Actor NewFocus { get; internal set; }
+
+        public override void Reset ()
+        {
+            base.Reset();
+
+            OldFocus = null;
+            NewFocus = null;
+        }
+
+        protected override void InvokeEventHandler (Delegate handler, Actor target)
+        {
+            ((ScrollFocusChangedEventHandler)handler)(target, this);
         }
     }
 

@@ -49,6 +49,8 @@ namespace MonoGdx.Scene2D
         {
             EventManager.RegisterClassHandler(typeof(Actor), Stage.GotKeyboardFocusEvent, new KeyboardFocusChangedEventHandler(GotKeyboardFocusClass));
             EventManager.RegisterClassHandler(typeof(Actor), Stage.LostKeyboardFocusEvent, new KeyboardFocusChangedEventHandler(LostKeyboardFocusClass));
+            EventManager.RegisterClassHandler(typeof(Actor), Stage.GotScrollFocusEvent, new ScrollFocusChangedEventHandler(GotScrollFocusClass));
+            EventManager.RegisterClassHandler(typeof(Actor), Stage.LostScrollFocusEvent, new ScrollFocusChangedEventHandler(LostScrollFocusClass));
         }
 
         public Actor ()
@@ -434,6 +436,41 @@ namespace MonoGdx.Scene2D
         { }
 
         protected virtual void OnLostKeyboardFocus (KeyboardFocusChangedEventArgs e)
+        { }
+
+        public bool IsScrollFocused
+        {
+            get { return Stage != null && Stage.GetScrollFocus() == this; }
+        }
+
+        public event ScrollFocusChangedEventHandler GotScrollFocus
+        {
+            add { AddHandler(Stage.GotScrollFocusEvent, value); }
+            remove { RemoveHandler(Stage.GotScrollFocusEvent, value); }
+        }
+
+        public event ScrollFocusChangedEventHandler LostScrollFocus
+        {
+            add { AddHandler(Stage.LostScrollFocusEvent, value); }
+            remove { RemoveHandler(Stage.LostScrollFocusEvent, value); }
+        }
+
+        private static void GotScrollFocusClass (Actor sender, ScrollFocusChangedEventArgs e)
+        {
+            if (sender != null)
+                sender.OnGotScrollFocus(e);
+        }
+
+        private static void LostScrollFocusClass (Actor sender, ScrollFocusChangedEventArgs e)
+        {
+            if (sender != null)
+                sender.OnLostScrollFocus(e);
+        }
+
+        protected virtual void OnGotScrollFocus (ScrollFocusChangedEventArgs e)
+        { }
+
+        protected virtual void OnLostScrollFocus (ScrollFocusChangedEventArgs e)
         { }
 
         public bool HasParent

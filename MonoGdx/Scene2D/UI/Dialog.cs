@@ -86,26 +86,25 @@ namespace MonoGdx.Scene2D.UI
                     Hide();
                 _cancelHide = false;
             }));
-
-            AddListener(new DispatchFocusListener() {
-                OnKeyboardFocusChanged = (ev, actor, focused) => {
-                    if (!focused)
-                        FocusChanged(ev);
-                },
-                OnScrollFocusChanged = (ev, actor, focused) => {
-                    if (!focused)
-                        FocusChanged(ev);
-                },
-            });
         }
 
-        private void FocusChanged (FocusEvent ev)
+        protected override void OnLostKeyboardFocus (KeyboardFocusChangedEventArgs e)
         {
             Stage stage = Stage;
             if (IsModal && stage != null && stage.Root.Children.Count > 0 && stage.Root.Children[stage.Root.Children.Count - 1] == this) {
-                Actor newFocusedActor = ev.RelatedActor;
+                Actor newFocusedActor = e.NewFocus;
                 if (newFocusedActor != null && !newFocusedActor.IsDescendentOf(this))
-                    ev.Cancel();
+                    e.Cancelled = true;
+            }
+        }
+
+        protected override void OnLostScrollFocus (ScrollFocusChangedEventArgs e)
+        {
+            Stage stage = Stage;
+            if (IsModal && stage != null && stage.Root.Children.Count > 0 && stage.Root.Children[stage.Root.Children.Count - 1] == this) {
+                Actor newFocusedActor = e.NewFocus;
+                if (newFocusedActor != null && !newFocusedActor.IsDescendentOf(this))
+                    e.Cancelled = true;
             }
         }
 

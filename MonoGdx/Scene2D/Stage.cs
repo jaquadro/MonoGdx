@@ -35,6 +35,10 @@ namespace MonoGdx.Scene2D
             EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(KeyboardFocusChangedEventHandler), typeof(Stage));
         public static readonly RoutedEvent LostKeyboardFocusEvent =
             EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(KeyboardFocusChangedEventHandler), typeof(Stage));
+        public static readonly RoutedEvent GotScrollFocusEvent =
+            EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(ScrollFocusChangedEventHandler), typeof(Stage));
+        public static readonly RoutedEvent LostScrollFocusEvent =
+            EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(ScrollFocusChangedEventHandler), typeof(Stage));
 
         private bool _ownsSpriteBatch;
         private float _viewportX;
@@ -564,30 +568,6 @@ namespace MonoGdx.Scene2D
 
                 Pools<KeyboardFocusChangedEventArgs>.Release(eva);
             }
-
-            /*FocusEvent ev = Pools<FocusEvent>.Obtain();
-            ev.Stage = this;
-            ev.Type = FocusType.Keyboard;
-
-            Actor oldKeyboardFocus = _keyboardFocus;
-            if (oldKeyboardFocus != null) {
-                ev.IsFocused = false;
-                ev.RelatedActor = actor;
-                oldKeyboardFocus.Fire(ev);
-            }
-
-            if (!ev.IsCancelled) {
-                _keyboardFocus = actor;
-                if (actor != null) {
-                    ev.IsFocused = true;
-                    ev.RelatedActor = oldKeyboardFocus;
-                    actor.Fire(ev);
-                    if (ev.IsCancelled)
-                        SetKeyboardFocus(oldKeyboardFocus);
-                }
-            }
-
-            Pools<FocusEvent>.Release(ev);*/
         }
 
         public Actor GetKeyboardFocus ()
@@ -600,29 +580,33 @@ namespace MonoGdx.Scene2D
             if (_scrollFocus == actor)
                 return;
 
-            FocusEvent ev = Pools<FocusEvent>.Obtain();
-            ev.Stage = this;
-            ev.Type = FocusType.Scroll;
-
             Actor oldScrollFocus = _scrollFocus;
+            _scrollFocus = actor;
+
             if (oldScrollFocus != null) {
-                ev.IsFocused = false;
-                ev.RelatedActor = actor;
-                oldScrollFocus.Fire(ev);
+                ScrollFocusChangedEventArgs eva = Pools<ScrollFocusChangedEventArgs>.Obtain();
+                eva.RoutedEvent = LostScrollFocusEvent;
+                eva.NewFocus = actor;
+                eva.OldFocus = oldScrollFocus;
+
+                bool cancel = oldScrollFocus.RaiseEvent(eva);
+                Pools<ScrollFocusChangedEventArgs>.Release(eva);
+
+                if (cancel)
+                    return;
             }
 
-            if (!ev.IsCancelled) {
-                _scrollFocus = actor;
-                if (actor != null) {
-                    ev.IsFocused = true;
-                    ev.RelatedActor = oldScrollFocus;
-                    actor.Fire(ev);
-                    if (ev.IsCancelled)
-                        SetScrollFocus(oldScrollFocus);
-                }
-            }
+            if (actor != null) {
+                ScrollFocusChangedEventArgs eva = Pools<ScrollFocusChangedEventArgs>.Obtain();
+                eva.RoutedEvent = GotScrollFocusEvent;
+                eva.NewFocus = actor;
+                eva.OldFocus = oldScrollFocus;
 
-            Pools<FocusEvent>.Release(ev);
+                if (actor.RaiseEvent(eva))
+                    SetScrollFocus(oldScrollFocus);
+
+                Pools<ScrollFocusChangedEventArgs>.Release(eva);
+            }
         }
 
         public Actor GetScrollFocus ()

@@ -131,8 +131,6 @@
     <Compile Include="Scene2D\UI\TableToolkit.cs" />
     <Compile Include="Scene2D\UI\Widget.cs" />
     <Compile Include="Scene2D\UI\WidgetGroup.cs" />
-    <Compile Include="Scene2D\Utils\FocusEvent.cs" />
-    <Compile Include="Scene2D\Utils\FocusListener.cs" />
     <Compile Include="Scene2D\Utils\ICullable.cs" />
     <Compile Include="Scene2D\Utils\IDrawable.cs" />
     <Compile Include="Scene2D\Utils\ILayout.cs" />
