@@ -236,17 +236,21 @@ namespace MonoGdx.Scene2D
 
     public static class EventManager
     {
+        private class ClassHandlerNode
+        {
+            public Type Class;
+            public RoutedEventHandlerInfo Handler;
+            public List<ClassHandlerNode> SubClassHandlers = new List<ClassHandlerNode>();
+        }
+
         private static int _nextIndex = 0;
         private static HashSet<RoutedEvent> _registry = new HashSet<RoutedEvent>();
 
-        private static Dictionary<RoutedEvent, Dictionary<Type, RoutedEventHandlerInfo>> _classHandlers = 
-            new Dictionary<RoutedEvent, Dictionary<Type, RoutedEventHandlerInfo>>();
+        private static Dictionary<RoutedEvent, List<ClassHandlerNode>> _classHandlers = 
+            new Dictionary<RoutedEvent, List<ClassHandlerNode>>();
 
         public static RoutedEvent RegisterRoutedEvent(RoutingStrategy routingStrategy, Type handlerType, Type ownerType)
         {
-            //if (!typeof(Actor).IsAssignableFrom(ownerType))
-            //    throw new ArgumentException("Owner Type must be derived from Actor");
-
             RoutedEvent rev = new RoutedEvent(routingStrategy, handlerType, ownerType);
             _registry.Add(rev);
 
@@ -258,14 +262,81 @@ namespace MonoGdx.Scene2D
             RegisterClassHandler(classType, routedEvent, handler, false);
         }
 
-        public static void RegisterClassHandler (Type classType, RoutedEvent routedEvent, Delegate handler, bool capturingHandler)
+        public static void RegisterClassHandler (Type classType, RoutedEvent routedEvent, Delegate handler, bool handledEventsToo)
         {
-            Dictionary<Type, RoutedEventHandlerInfo> eventHandlers;
-            if (!_classHandlers.TryGetValue(routedEvent, out eventHandlers))
-                _classHandlers.Add(routedEvent, eventHandlers = new Dictionary<Type, RoutedEventHandlerInfo>());
+            List<ClassHandlerNode> rootNodes;
+            if (!_classHandlers.TryGetValue(routedEvent, out rootNodes))
+                _classHandlers.Add(routedEvent, rootNodes = new List<ClassHandlerNode>());
 
-            RoutedEventHandlerInfo handlerInfo = new RoutedEventHandlerInfo(handler, capturingHandler);
-            eventHandlers[classType] = handlerInfo;
+            RoutedEventHandlerInfo handlerInfo = new RoutedEventHandlerInfo(handler, handledEventsToo);
+
+            foreach (ClassHandlerNode node in rootNodes) {
+                ClassHandlerNode resultNode = PlaceInNode(node, classType, handlerInfo);
+                if (resultNode == null)
+                    continue;
+
+                if (resultNode != node) {
+                    rootNodes.Remove(node);
+                    rootNodes.Add(resultNode);
+                }
+
+                return;
+            }
+
+            ClassHandlerNode newNode = new ClassHandlerNode() {
+                Class = classType,
+                Handler = handlerInfo,
+            };
+
+            rootNodes.Add(newNode);
+        }
+
+        private static ClassHandlerNode PlaceInNode (ClassHandlerNode node, Type classType, RoutedEventHandlerInfo handler)
+        {
+            // If classes are the same, replace existing handler
+            Type nodeType = node.Class.GetType();
+            if (nodeType == classType) {
+                node.Handler = handler;
+                return node;
+            }
+
+            // If new class is a subclass of the node, insert it
+            if (classType.IsSubclassOf(nodeType)) {
+                foreach (ClassHandlerNode subNode in node.SubClassHandlers) {
+                    ClassHandlerNode resultNode = PlaceInNode(subNode, classType, handler);
+                    if (resultNode == null)
+                        continue;
+
+                    if (resultNode != subNode) {
+                        node.SubClassHandlers.Remove(subNode);
+                        node.SubClassHandlers.Add(resultNode);
+                    }
+
+                    return node;
+                }
+
+                // No interior place found to insert node
+                ClassHandlerNode newNode = new ClassHandlerNode() {
+                    Class = classType,
+                    Handler = handler,
+                };
+
+                node.SubClassHandlers.Add(newNode);
+                return node;
+            }
+
+            // If the new node is a super of the node, rearrange
+            if (nodeType.IsSubclassOf(classType)) {
+                ClassHandlerNode newNode = new ClassHandlerNode() {
+                    Class = classType,
+                    Handler = handler,
+                };
+
+                newNode.SubClassHandlers.Add(node);
+                return newNode;
+            }
+
+            return null;
         }
 
         internal static void InvokeClassHandlers (Actor target, RoutedEventArgs e)
@@ -273,12 +344,20 @@ namespace MonoGdx.Scene2D
             if (e.RoutedEvent == null)
                 return;
 
-            Dictionary<Type, RoutedEventHandlerInfo> eventHandlers;
-            if (!_classHandlers.TryGetValue(e.RoutedEvent, out eventHandlers))
+            List<ClassHandlerNode> rootNodes;
+            if (!_classHandlers.TryGetValue(e.RoutedEvent, out rootNodes))
                 return;
 
-            foreach (var kvp in eventHandlers)
-                kvp.Value.InvokeHandler(target, e);
+            foreach (var node in rootNodes)
+                InvokeClassHandlers(node, target, e);
+        }
+
+        private static void InvokeClassHandlers (ClassHandlerNode node, Actor target, RoutedEventArgs e)
+        {
+            foreach (var subNode in node.SubClassHandlers)
+                InvokeClassHandlers(subNode, target, e);
+
+            node.Handler.InvokeHandler(target, e);
         }
 
         internal static int TakeNextIndex ()
