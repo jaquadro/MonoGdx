@@ -34,31 +34,10 @@ namespace MonoGdx.Scene2D.UI
         public static readonly RoutedEvent UncheckedEvent = EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Button));
         public static readonly RoutedEvent ToggleEvent = EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Button));
 
-        private class LocalClickListener : ClickListener
-        {
-            private Button _button;
-
-            public LocalClickListener (Button button)
-            {
-                _button = button;
-            }
-
-            public override void Clicked (InputEvent ev, float x, float y)
-            {
-                if (_button.IsDisabled)
-                    return;
-
-                if (_button.OnClicked())
-                    return;
-
-                if (_button.IsToggle)
-                    _button.IsChecked = !_button.IsChecked;
-            }
-        }
-
         private ButtonStyle _style;
         private bool _isToggle;
         private bool _isChecked;
+        private ClickEventManager _clickManager;
 
         public Button (Skin skin)
             : base(skin)
@@ -107,9 +86,19 @@ namespace MonoGdx.Scene2D.UI
         [TODO]
         private void Initialize ()
         {
+            _clickManager = new ClickEventManager(this);
+            _clickManager.ClickHandler = e => {
+                if (IsDisabled)
+                    return;
+
+                if (OnClicked())
+                    return;
+
+                if (IsToggle)
+                    IsChecked = !IsChecked;
+            };
+
             Touchable = Touchable.Enabled;
-            ClickListener = new LocalClickListener(this);
-            AddListener(ClickListener);
         }
 
         public Button (ISceneDrawable up)
@@ -179,15 +168,13 @@ namespace MonoGdx.Scene2D.UI
 
         public bool IsPressed
         {
-            get { return ClickListener.IsPressed; }
+            get { return _clickManager.IsPressed; }
         }
 
         public bool IsOver
         {
-            get { return ClickListener.IsOver; }
+            get { return _clickManager.IsOver; }
         }
-
-        public ClickListener ClickListener { get; private set; }
 
         public bool IsDisabled { get; set; }
 

@@ -94,6 +94,7 @@
     <Compile Include="Scene2D\UI\Window.cs" />
     <Compile Include="Scene2D\Utils\ActorGestureListener.cs" />
     <Compile Include="Scene2D\Utils\BaseDrawable.cs" />
+    <Compile Include="Scene2D\Utils\ClickEventManager.cs" />
     <Compile Include="Scene2D\Utils\ClickListener.cs" />
     <Compile Include="Scene2D\Utils\Json.cs" />
     <Compile Include="Scene2D\Utils\NinePatchDrawable.cs" />
