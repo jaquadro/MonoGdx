@@ -40,7 +40,7 @@ namespace MonoGdx.Scene2D.UI
         SelectList _list;
         private float _prefWidth;
         private float _prefHeight;
-        private ClickListener _clickListener;
+        private bool _pointerIsOver;
 
         public SelectBox (object[] items, Skin skin)
             : this (items, skin.Get<SelectBoxStyle>())
@@ -56,19 +56,37 @@ namespace MonoGdx.Scene2D.UI
             SetItems(items);
             Width = PrefWidth;
             Height = PrefHeight;
+        }
 
-            AddListener(_clickListener = new DispatchClickListener() {
-                OnTouchDown = (ev, x, y, pointer, button) => {
-                    if (IsDisabled)
-                        return false;
-                    if (pointer == 0 && button != 0)
-                        return false;
-                    if (_list == null)
-                        _list = new SelectList(this);
-                    _list.Show(Stage);
-                    return true;
-                },
-            });
+        protected override void OnTouchDown (TouchEventArgs e)
+        {
+            if (IsDisabled)
+                return;
+            if (e.Pointer == 0 && e.Button != 0)
+                return;
+            if (_list == null)
+                _list = new SelectList(this);
+            _list.Show(Stage);
+
+            e.Handled = true;
+
+            base.OnTouchDown(e);
+        }
+
+        protected override void OnTouchEnter (TouchEventArgs e)
+        {
+            if (e.Pointer == -1 && !e.Cancelled)
+                _pointerIsOver = true;
+
+            base.OnTouchEnter(e);
+        }
+
+        protected override void OnTouchLeave (TouchEventArgs e)
+        {
+            if (e.Pointer == -1 && !e.Cancelled)
+                _pointerIsOver = false;
+
+            base.OnTouchLeave(e);
         }
 
         public int MaxListCount { get; set; }
@@ -148,7 +166,7 @@ namespace MonoGdx.Scene2D.UI
                 background = _style.BackgroundOpen;
             else if (IsDisabled && _style.BackgroundDisabled != null)
                 background = _style.BackgroundDisabled;
-            else if (_clickListener.IsOver && _style.BackgroundOver != null)
+            else if (_pointerIsOver && _style.BackgroundOver != null)
                 background = _style.BackgroundOver;
             else
                 background = _style.Background;
