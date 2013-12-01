@@ -600,15 +600,28 @@ namespace MonoGdx.Scene2D
         {
             Actor target = (_keyboardFocus == null) ? Root : _keyboardFocus;
 
-            InputEvent ev = Pools<InputEvent>.Obtain();
+            KeyCharEventArgs ev = Pools<KeyCharEventArgs>.Obtain();
+            ev.RoutedEvent = PreviewKeyTypedEvent;
             ev.Stage = this;
-            ev.Type = InputType.KeyTyped;
             ev.Character = character;
 
-            target.Fire(ev);
-            bool handled = ev.IsHandled;
+            if (!target.RaiseEvent(ev)) {
+                ev.RoutedEvent = KeyTypedEvent;
+                target.RaiseEvent(ev);
+            }
 
-            Pools<InputEvent>.Release(ev);
+            Pools<KeyCharEventArgs>.Release(ev);
+
+            // TODO: Deprecated
+            InputEvent ev2 = Pools<InputEvent>.Obtain();
+            ev2.Stage = this;
+            ev2.Type = InputType.KeyTyped;
+            ev2.Character = character;
+
+            target.Fire(ev2);
+            bool handled = ev2.IsHandled;
+
+            Pools<InputEvent>.Release(ev2);
             return handled;
         }
 
