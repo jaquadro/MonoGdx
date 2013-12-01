@@ -10,6 +10,7 @@ namespace MonoGdx.Scene2D
 {
     public delegate void RoutedEventHandler (Actor sender, RoutedEventArgs e);
     public delegate void TouchEventHandler (Actor sender, TouchEventArgs e);
+    public delegate void MouseEventHandler (Actor sender, MouseEventArgs e);
     public delegate void SelectionChangedEventHandler (Actor sender, SelectionChangedEventArgs e);
     public delegate void RoutedPropertyChangedEventHandler<T> (Actor sender, RoutedPropertyChangedEventArgs<T> e);
     public delegate void KeyboardFocusChangedEventHandler (Actor sender, KeyboardFocusChangedEventArgs e);
@@ -187,6 +188,17 @@ namespace MonoGdx.Scene2D
         public int Pointer { get; internal set; }
         public int Button { get; internal set; }
         public Vector2 StagePosition { get; internal set; }
+        public Actor RelatedActor { get; internal set; }
+
+        public override void Reset ()
+        {
+            base.Reset();
+
+            Pointer = -1;
+            Button = -1;
+            StagePosition = Vector2.Zero;
+            RelatedActor = null;
+        }
 
         public Vector2 GetPosition (Actor actor)
         {
@@ -196,6 +208,30 @@ namespace MonoGdx.Scene2D
         protected override void InvokeEventHandler (Delegate handler, Actor target)
         {
             ((TouchEventHandler)handler)(target, this);
+        }
+    }
+
+    public class MouseEventArgs : RoutedEventArgs
+    {
+        public int Pointer { get; internal set; }
+        public Vector2 StagePosition { get; internal set; }
+
+        public override void Reset ()
+        {
+            base.Reset();
+
+            Pointer = -1;
+            StagePosition = Vector2.Zero;
+        }
+
+        public Vector2 GetPosition (Actor actor)
+        {
+            return actor.StageToLocalCoordinates(StagePosition);
+        }
+
+        protected override void InvokeEventHandler (Delegate handler, Actor target)
+        {
+            ((MouseEventHandler)handler)(target, this);
         }
     }
 

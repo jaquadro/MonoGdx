@@ -51,6 +51,17 @@ namespace MonoGdx.Scene2D
             EventManager.RegisterClassHandler(typeof(Actor), Stage.LostKeyboardFocusEvent, new KeyboardFocusChangedEventHandler(LostKeyboardFocusClass));
             EventManager.RegisterClassHandler(typeof(Actor), Stage.GotScrollFocusEvent, new ScrollFocusChangedEventHandler(GotScrollFocusClass));
             EventManager.RegisterClassHandler(typeof(Actor), Stage.LostScrollFocusEvent, new ScrollFocusChangedEventHandler(LostScrollFocusClass));
+
+            EventManager.RegisterClassHandler(typeof(Actor), Stage.PreviewMouseMoveEvent, new MouseEventHandler(PreviewMouseMoveClass));
+            EventManager.RegisterClassHandler(typeof(Actor), Stage.MouseMoveEvent, new MouseEventHandler(MouseMoveClass));
+            EventManager.RegisterClassHandler(typeof(Actor), Stage.PreviewTouchDownEvent, new TouchEventHandler(PreviewTouchDownClass));
+            EventManager.RegisterClassHandler(typeof(Actor), Stage.TouchDownEvent, new TouchEventHandler(TouchDownClass));
+            EventManager.RegisterClassHandler(typeof(Actor), Stage.PreviewTouchDragEvent, new TouchEventHandler(PreviewTouchDragClass));
+            EventManager.RegisterClassHandler(typeof(Actor), Stage.TouchDragEvent, new TouchEventHandler(TouchDragClass));
+            EventManager.RegisterClassHandler(typeof(Actor), Stage.PreviewTouchUpEvent, new TouchEventHandler(PreviewTouchUpClass));
+            EventManager.RegisterClassHandler(typeof(Actor), Stage.TouchUpEvent, new TouchEventHandler(TouchUpClass));
+            EventManager.RegisterClassHandler(typeof(Actor), Stage.TouchEnterEvent, new TouchEventHandler(TouchEnterClass));
+            EventManager.RegisterClassHandler(typeof(Actor), Stage.TouchLeaveEvent, new TouchEventHandler(TouchLeaveClass));
         }
 
         public Actor ()
@@ -136,8 +147,6 @@ namespace MonoGdx.Scene2D
                 e.OriginalSource = this;
                 e.Source = this;
             }
-
-            EventManager.InvokeClassHandlers(this, e);
 
             if (e.RoutedEvent.RoutingStrategy == RoutingStrategy.Direct) {
                 EventManager.InvokeClassHandlers(this, e);
@@ -248,7 +257,13 @@ namespace MonoGdx.Scene2D
             handlerList.Begin();
             foreach (var handlerInfo in handlerList) {
                 handlerInfo.InvokeHandler(this, args);
+
                 // TouchDownEvent specialization
+                if (args is TouchEventArgs) {
+                    TouchEventArgs touchArgs = args as TouchEventArgs;
+                    if (args.RoutedEvent == Stage.PreviewTouchDownEvent || args.RoutedEvent == Stage.TouchDownEvent)
+                        args.Stage.AddTouchFocus(handlerInfo, this, args.Source, touchArgs.Pointer, touchArgs.Button);
+                }
             }
             handlerList.End();
 
@@ -412,6 +427,156 @@ namespace MonoGdx.Scene2D
                 actor = actor.Parent;
             }
         }
+
+        public event MouseEventHandler PreviewMouseMove
+        {
+            add { AddHandler(Stage.PreviewMouseMoveEvent, value); }
+            remove { AddHandler(Stage.PreviewMouseMoveEvent, value); }
+        }
+
+        public event MouseEventHandler MouseMove
+        {
+            add { AddHandler(Stage.MouseMoveEvent, value); }
+            remove { AddHandler(Stage.MouseMoveEvent, value); }
+        }
+
+        public event TouchEventHandler PreviewTouchDown
+        {
+            add { AddHandler(Stage.PreviewTouchDownEvent, value); }
+            remove { AddHandler(Stage.PreviewTouchDownEvent, value); }
+        }
+
+        public event TouchEventHandler TouchDown
+        {
+            add { AddHandler(Stage.TouchDownEvent, value); }
+            remove { AddHandler(Stage.TouchDownEvent, value); }
+        }
+
+        public event TouchEventHandler PreviewTouchDrag
+        {
+            add { AddHandler(Stage.PreviewTouchDragEvent, value); }
+            remove { AddHandler(Stage.PreviewTouchDragEvent, value); }
+        }
+
+        public event TouchEventHandler TouchDrag
+        {
+            add { AddHandler(Stage.TouchDragEvent, value); }
+            remove { AddHandler(Stage.TouchDragEvent, value); }
+        }
+
+        public event TouchEventHandler PreviewTouchUp
+        {
+            add { AddHandler(Stage.PreviewTouchUpEvent, value); }
+            remove { AddHandler(Stage.PreviewTouchUpEvent, value); }
+        }
+
+        public event TouchEventHandler TouchUp
+        {
+            add { AddHandler(Stage.TouchUpEvent, value); }
+            remove { AddHandler(Stage.TouchUpEvent, value); }
+        }
+
+        public event TouchEventHandler TouchEnter
+        {
+            add { AddHandler(Stage.TouchEnterEvent, value); }
+            remove { AddHandler(Stage.TouchEnterEvent, value); }
+        }
+
+        public event TouchEventHandler TouchLeave
+        {
+            add { AddHandler(Stage.TouchLeaveEvent, value); }
+            remove { AddHandler(Stage.TouchLeaveEvent, value); }
+        }
+
+        private static void PreviewMouseMoveClass (Actor sender, MouseEventArgs e)
+        {
+            if (sender != null)
+                sender.OnPreviewMouseMove(e);
+        }
+
+        private static void MouseMoveClass (Actor sender, MouseEventArgs e)
+        {
+            if (sender != null)
+                sender.OnMouseMove(e);
+        }
+
+        private static void PreviewTouchDownClass (Actor sender, TouchEventArgs e)
+        {
+            if (sender != null)
+                sender.OnPreviewTouchDown(e);
+        }
+
+        private static void TouchDownClass (Actor sender, TouchEventArgs e)
+        {
+            if (sender != null)
+                sender.OnTouchDown(e);
+        }
+
+        private static void PreviewTouchDragClass (Actor sender, TouchEventArgs e)
+        {
+            if (sender != null)
+                sender.OnPreviewTouchDrag(e);
+        }
+
+        private static void TouchDragClass (Actor sender, TouchEventArgs e)
+        {
+            if (sender != null)
+                sender.OnTouchDrag(e);
+        }
+
+        private static void PreviewTouchUpClass (Actor sender, TouchEventArgs e)
+        {
+            if (sender != null)
+                sender.OnPreviewTouchUp(e);
+        }
+
+        private static void TouchUpClass (Actor sender, TouchEventArgs e)
+        {
+            if (sender != null)
+                sender.OnTouchUp(e);
+        }
+
+        private static void TouchEnterClass (Actor sender, TouchEventArgs e)
+        {
+            if (sender != null)
+                sender.OnTouchEnter(e);
+        }
+
+        private static void TouchLeaveClass (Actor sender, TouchEventArgs e)
+        {
+            if (sender != null)
+                sender.OnTouchLeave(e);
+        }
+
+        protected virtual void OnPreviewMouseMove (MouseEventArgs e)
+        { }
+
+        protected virtual void OnMouseMove (MouseEventArgs e)
+        { }
+
+        protected virtual void OnPreviewTouchDown (TouchEventArgs e)
+        { }
+
+        protected virtual void OnTouchDown (TouchEventArgs e)
+        { }
+
+        protected virtual void OnPreviewTouchDrag (TouchEventArgs e)
+        { }
+
+        protected virtual void OnTouchDrag (TouchEventArgs e)
+        { }
+
+        protected virtual void OnPreviewTouchUp (TouchEventArgs e)
+        { }
+
+        protected virtual void OnTouchUp (TouchEventArgs e)
+        { }
+
+        protected virtual void OnTouchEnter (TouchEventArgs e)
+        { }
+
+        protected virtual void OnTouchLeave (TouchEventArgs e)
+        { }
 
         public bool IsKeyboardFocused
         {
