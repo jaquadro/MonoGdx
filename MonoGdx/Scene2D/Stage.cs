@@ -40,6 +40,18 @@ namespace MonoGdx.Scene2D
         public static readonly RoutedEvent LostScrollFocusEvent =
             EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(ScrollFocusChangedEventHandler), typeof(Stage));
 
+        public static readonly RoutedEvent PreviewKeyDownEvent =
+            EventManager.RegisterRoutedEvent(RoutingStrategy.Tunnel, typeof(KeyEventHandler), typeof(Stage));
+        public static readonly RoutedEvent KeyDownEvent =
+            EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(KeyEventHandler), typeof(Stage));
+        public static readonly RoutedEvent PreviewKeyUpEvent =
+            EventManager.RegisterRoutedEvent(RoutingStrategy.Tunnel, typeof(KeyEventHandler), typeof(Stage));
+        public static readonly RoutedEvent KeyUpEvent =
+            EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(KeyEventHandler), typeof(Stage));
+        public static readonly RoutedEvent PreviewKeyTypedEvent =
+            EventManager.RegisterRoutedEvent(RoutingStrategy.Tunnel, typeof(KeyCharEventHandler), typeof(Stage));
+        public static readonly RoutedEvent KeyTypedEvent =
+            EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(KeyCharEventHandler), typeof(Stage));
         public static readonly RoutedEvent PreviewMouseMoveEvent =
             EventManager.RegisterRoutedEvent(RoutingStrategy.Tunnel, typeof(MouseEventHandler), typeof(Stage));
         public static readonly RoutedEvent MouseMoveEvent =
@@ -528,15 +540,29 @@ namespace MonoGdx.Scene2D
         {
             Actor target = (_keyboardFocus == null) ? Root : _keyboardFocus;
 
-            InputEvent ev = Pools<InputEvent>.Obtain();
+            KeyEventArgs ev = Pools<KeyEventArgs>.Obtain();
+            ev.RoutedEvent = PreviewKeyDownEvent;
             ev.Stage = this;
-            ev.Type = InputType.KeyDown;
             ev.KeyCode = keycode;
+            ev.IsDown = true;
 
-            target.Fire(ev);
-            bool handled = ev.IsHandled;
+            if (!target.RaiseEvent(ev)) {
+                ev.RoutedEvent = KeyDownEvent;
+                target.RaiseEvent(ev);
+            }
 
-            Pools<InputEvent>.Release(ev);
+            Pools<KeyEventArgs>.Release(ev);
+
+            // TODO: Deprecated
+            InputEvent ev2 = Pools<InputEvent>.Obtain();
+            ev2.Stage = this;
+            ev2.Type = InputType.KeyDown;
+            ev2.KeyCode = keycode;
+
+            target.Fire(ev2);
+            bool handled = ev2.IsHandled;
+
+            Pools<InputEvent>.Release(ev2);
             return handled;
         }
 
@@ -544,15 +570,29 @@ namespace MonoGdx.Scene2D
         {
             Actor target = (_keyboardFocus == null) ? Root : _keyboardFocus;
 
-            InputEvent ev = Pools<InputEvent>.Obtain();
+            KeyEventArgs ev = Pools<KeyEventArgs>.Obtain();
+            ev.RoutedEvent = PreviewKeyUpEvent;
             ev.Stage = this;
-            ev.Type = InputType.KeyUp;
             ev.KeyCode = keycode;
+            ev.IsUp = true;
 
-            target.Fire(ev);
-            bool handled = ev.IsHandled;
+            if (!target.RaiseEvent(ev)) {
+                ev.RoutedEvent = KeyUpEvent;
+                target.RaiseEvent(ev);
+            }
 
-            Pools<InputEvent>.Release(ev);
+            Pools<KeyEventArgs>.Release(ev);
+
+            // TODO: Deprecated
+            InputEvent ev2 = Pools<InputEvent>.Obtain();
+            ev2.Stage = this;
+            ev2.Type = InputType.KeyUp;
+            ev2.KeyCode = keycode;
+
+            target.Fire(ev2);
+            bool handled = ev2.IsHandled;
+
+            Pools<InputEvent>.Release(ev2);
             return handled;
         }
 

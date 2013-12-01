@@ -11,6 +11,8 @@ namespace MonoGdx.Scene2D
     public delegate void RoutedEventHandler (Actor sender, RoutedEventArgs e);
     public delegate void TouchEventHandler (Actor sender, TouchEventArgs e);
     public delegate void MouseEventHandler (Actor sender, MouseEventArgs e);
+    public delegate void KeyEventHandler (Actor sender, KeyEventArgs e);
+    public delegate void KeyCharEventHandler (Actor sender, KeyCharEventArgs e);
     public delegate void SelectionChangedEventHandler (Actor sender, SelectionChangedEventArgs e);
     public delegate void RoutedPropertyChangedEventHandler<T> (Actor sender, RoutedPropertyChangedEventArgs<T> e);
     public delegate void KeyboardFocusChangedEventHandler (Actor sender, KeyboardFocusChangedEventArgs e);
@@ -232,6 +234,55 @@ namespace MonoGdx.Scene2D
         protected override void InvokeEventHandler (Delegate handler, Actor target)
         {
             ((MouseEventHandler)handler)(target, this);
+        }
+    }
+
+    public class KeyEventArgs : RoutedEventArgs
+    {
+        private bool _down;
+
+        public int KeyCode { get; internal set; }
+
+        public bool IsDown
+        {
+            get { return _down; }
+            internal set { _down = value; }
+        }
+
+        public bool IsUp
+        {
+            get { return !_down; }
+            internal set { _down = !value; }
+        }
+
+        public override void Reset ()
+        {
+            base.Reset();
+
+            KeyCode = -1;
+            _down = false;
+        }
+
+        protected override void InvokeEventHandler (Delegate handler, Actor target)
+        {
+            ((KeyEventHandler)handler)(target, this);
+        }
+    }
+
+    public class KeyCharEventArgs : RoutedEventArgs
+    {
+        public char Character { get; internal set; }
+
+        public override void Reset ()
+        {
+            base.Reset();
+
+            Character = '\0';
+        }
+
+        protected override void InvokeEventHandler (Delegate handler, Actor target)
+        {
+            ((KeyCharEventHandler)handler)(target, this);
         }
     }
 

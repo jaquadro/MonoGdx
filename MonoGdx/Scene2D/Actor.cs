@@ -52,6 +52,10 @@ namespace MonoGdx.Scene2D
             EventManager.RegisterClassHandler(typeof(Actor), Stage.GotScrollFocusEvent, new ScrollFocusChangedEventHandler(GotScrollFocusClass));
             EventManager.RegisterClassHandler(typeof(Actor), Stage.LostScrollFocusEvent, new ScrollFocusChangedEventHandler(LostScrollFocusClass));
 
+            EventManager.RegisterClassHandler(typeof(Actor), Stage.PreviewKeyDownEvent, new KeyEventHandler(PreviewKeyDownClass));
+            EventManager.RegisterClassHandler(typeof(Actor), Stage.KeyDownEvent, new KeyEventHandler(KeyDownClass));
+            EventManager.RegisterClassHandler(typeof(Actor), Stage.PreviewKeyUpEvent, new KeyEventHandler(PreviewKeyUpClass));
+            EventManager.RegisterClassHandler(typeof(Actor), Stage.KeyUpEvent, new KeyEventHandler(KeyUpClass));
             EventManager.RegisterClassHandler(typeof(Actor), Stage.PreviewMouseMoveEvent, new MouseEventHandler(PreviewMouseMoveClass));
             EventManager.RegisterClassHandler(typeof(Actor), Stage.MouseMoveEvent, new MouseEventHandler(MouseMoveClass));
             EventManager.RegisterClassHandler(typeof(Actor), Stage.PreviewTouchDownEvent, new TouchEventHandler(PreviewTouchDownClass));
@@ -428,6 +432,30 @@ namespace MonoGdx.Scene2D
             }
         }
 
+        public event KeyEventHandler PreviewKeyDown
+        {
+            add { AddHandler(Stage.PreviewKeyDownEvent, value); }
+            remove { AddHandler(Stage.PreviewKeyDownEvent, value); }
+        }
+
+        public event MouseEventHandler KeyDown
+        {
+            add { AddHandler(Stage.KeyDownEvent, value); }
+            remove { AddHandler(Stage.KeyDownEvent, value); }
+        }
+
+        public event KeyEventHandler PreviewKeyUp
+        {
+            add { AddHandler(Stage.PreviewKeyUpEvent, value); }
+            remove { AddHandler(Stage.PreviewKeyUpEvent, value); }
+        }
+
+        public event KeyEventHandler KeyUp
+        {
+            add { AddHandler(Stage.KeyUpEvent, value); }
+            remove { AddHandler(Stage.KeyUpEvent, value); }
+        }
+
         public event MouseEventHandler PreviewMouseMove
         {
             add { AddHandler(Stage.PreviewMouseMoveEvent, value); }
@@ -486,6 +514,30 @@ namespace MonoGdx.Scene2D
         {
             add { AddHandler(Stage.TouchLeaveEvent, value); }
             remove { AddHandler(Stage.TouchLeaveEvent, value); }
+        }
+
+        private static void PreviewKeyDownClass (Actor sender, KeyEventArgs e)
+        {
+            if (sender != null)
+                sender.OnPreviewKeyDown(e);
+        }
+
+        private static void KeyDownClass (Actor sender, KeyEventArgs e)
+        {
+            if (sender != null)
+                sender.OnKeyDown(e);
+        }
+
+        private static void PreviewKeyUpClass (Actor sender, KeyEventArgs e)
+        {
+            if (sender != null)
+                sender.OnPreviewKeyUp(e);
+        }
+
+        private static void KeyUpClass (Actor sender, KeyEventArgs e)
+        {
+            if (sender != null)
+                sender.OnKeyUp(e);
         }
 
         private static void PreviewMouseMoveClass (Actor sender, MouseEventArgs e)
@@ -547,6 +599,18 @@ namespace MonoGdx.Scene2D
             if (sender != null)
                 sender.OnTouchLeave(e);
         }
+
+        protected virtual void OnPreviewKeyDown (KeyEventArgs e)
+        { }
+
+        protected virtual void OnKeyDown (KeyEventArgs e)
+        { }
+
+        protected virtual void OnPreviewKeyUp (KeyEventArgs e)
+        { }
+
+        protected virtual void OnKeyUp (KeyEventArgs e)
+        { }
 
         protected virtual void OnPreviewMouseMove (MouseEventArgs e)
         { }
