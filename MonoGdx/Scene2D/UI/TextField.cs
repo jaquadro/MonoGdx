@@ -57,6 +57,14 @@ namespace MonoGdx.Scene2D.UI
         private float _keyRepeatInitialTime = .4f;
         private float _keyRepeatTime = .1f;
 
+        private ClickEventManager _clickManager;
+
+        static TextField ()
+        {
+            EventManager.RegisterClassHandler(typeof(TextField), Stage.PreviewKeyTypedEvent, new KeyCharEventHandler(PreviewKeyTypedClass));
+            EventManager.RegisterClassHandler(typeof(TextField), Stage.KeyTypedEvent, new KeyCharEventHandler(KeyTypedClass));
+        }
+
         public TextField (string text, Skin skin)
             : this(text, skin.Get<TextFieldStyle>())
         { }
@@ -83,332 +91,353 @@ namespace MonoGdx.Scene2D.UI
 
         private void Initialize ()
         {
-            AddListener(new LocalClickListener(this));
+            _clickManager = new ClickEventManager(this);
+            _clickManager.ClickHandler += e => {
+                if (_clickManager.TapCount > 1)
+                    SetSelection(0, Text.Length);
+            };
         }
 
-        private class LocalClickListener : ClickListener
+        protected override void OnTouchDown (TouchEventArgs e)
         {
-            private TextField _self;
+            do {
+                if (e.Pointer == 0 && e.Button != 0)
+                    break;
+                if (IsDisabled) {
+                    e.Handled = true;
+                    break;
+                }
 
-            public LocalClickListener (TextField self)
-            {
-                _self = self;
-            }
+                Vector2 position = e.GetPosition(this);
 
-            public override void Clicked (InputEvent ev, float x, float y)
-            {
-                if (TapCount > 1)
-                    _self.SetSelection(0, _self.Text.Length);
-            }
+                ClearSelection();
+                SetCursorPosition(position.X);
+                _selectionStart = _cursor;
 
-            public override bool TouchDown (InputEvent e, float x, float y, int pointer, int button)
-            {
-                if (!base.TouchDown(e, x, y, pointer, button))
-                    return false;
-
-                if (pointer == 0 && button != 0)
-                    return false;
-                if (_self.IsDisabled)
-                    return true;
-
-                _self.ClearSelection();
-                SetCursorPosition(x);
-                _self._selectionStart = _self._cursor;
-
-                Stage stage = _self.Stage;
+                Stage stage = Stage;
                 if (stage != null)
-                    stage.SetKeyboardFocus(_self);
+                    stage.SetKeyboardFocus(this);
 
-                _self.OnscreenKeyboard.Show(true);
-                return true;
+                OnscreenKeyboard.Show(true);
+                //e.Handled = true;
+            } while (false);
+                
+            base.OnTouchDown(e);
+        }
+
+        protected override void OnTouchDrag (TouchEventArgs e)
+        {
+            Vector2 position = e.GetPosition(this);
+
+            _lastBlink = 0;
+            _cursorOn = false;
+            SetCursorPosition(position.X);
+            _hasSelection = true;
+
+            base.OnTouchDrag(e);
+        }
+
+        private void SetCursorPosition (float x)
+        {
+            _lastBlink = 0;
+            _cursorOn = false;
+
+            x -= _renderOffset + _textOffset;
+            for (int i = 0; i < _glyphPositions.Count; i++) {
+                if (_glyphPositions[i] > x) {
+                    _cursor = Math.Max(0, i - 1);
+                    return;
+                }
             }
 
-            public override void TouchDragged (InputEvent e, float x, float y, int pointer)
-            {
-                base.TouchDragged(e, x, y, pointer);
-                _self._lastBlink = 0;
-                _self._cursorOn = false;
-                SetCursorPosition(x);
-                _self._hasSelection = true;
+            _cursor = Math.Max(0, _glyphPositions.Count - 1);
+        }
+
+        [TODO("KeyRepeatTask")]
+        protected override void OnKeyDown (KeyEventArgs e)
+        {
+            if (IsDisabled) {
+                base.OnKeyDown(e);
+                return;
             }
 
-            private void SetCursorPosition (float x)
-            {
-                _self._lastBlink = 0;
-                _self._cursorOn = false;
+            BitmapFont font = _style.Font;
 
-                x -= _self._renderOffset + _self._textOffset;
-                for (int i = 0; i < _self._glyphPositions.Count; i++) {
-                    if (_self._glyphPositions[i] > x) {
-                        _self._cursor = Math.Max(0, i - 1);
+            _lastBlink = 0;
+            _cursorOn = false;
+
+            Stage stage = Stage;
+            if (stage != null && stage.GetKeyboardFocus() == this) {
+                KeyboardState keyboard = Keyboard.GetState();
+                Keys key = (Keys)e.KeyCode;
+
+                bool repeat = false;
+                bool ctrl = keyboard.IsKeyDown(Keys.LeftControl) || keyboard.IsKeyDown(Keys.RightControl);
+                bool shift = keyboard.IsKeyDown(Keys.LeftShift) || keyboard.IsKeyDown(Keys.RightShift);
+
+                if (ctrl) {
+                    e.Handled = true;
+
+                    switch (key) {
+                        case Keys.V:
+                            Paste();
+                            break;
+                        case Keys.C:
+                        case Keys.Insert:
+                            Copy();
+                            break;
+                        case Keys.X:
+                        case Keys.Back:
+                            Cut();
+                            break;
+                        case Keys.A:
+                            SelectAll();
+                            break;
+                        default:
+                            e.Handled = false;
+                            break;
+                    }
+
+                    if (e.Handled) {
+                        base.OnKeyDown(e);
                         return;
                     }
                 }
 
-                _self._cursor = Math.Max(0, _self._glyphPositions.Count - 1);
+                if (shift) {
+                    bool hasSelection = _hasSelection;
+                    int cursor = _cursor;
+
+                    switch (key) {
+                        case Keys.Insert:
+                            Paste();
+                            break;
+                        case Keys.Delete:
+                            if (_hasSelection) {
+                                Copy();
+                                Delete();
+                            }
+                            break;
+                        case Keys.Left:
+                            if (!_hasSelection) {
+                                _selectionStart = _cursor;
+                                _hasSelection = true;
+                            }
+                            while (--_cursor > 0 && ctrl) {
+                                char c = _text[_cursor];
+                                if (c >= 'A' && c <= 'Z')
+                                    continue;
+                                if (c >= 'a' && c <= 'z')
+                                    continue;
+                                if (c >= '0' && c <= '9')
+                                    continue;
+                                break;
+                            }
+                            repeat = true;
+                            break;
+                        case Keys.Right:
+                            if (!_hasSelection) {
+                                _selectionStart = _cursor;
+                                _hasSelection = true;
+                            }
+                            while (++_cursor < _text.Length && ctrl) {
+                                char c = _text[_cursor - 1];
+                                if (c >= 'A' && c <= 'Z')
+                                    continue;
+                                if (c >= 'a' && c <= 'z')
+                                    continue;
+                                if (c >= '0' && c <= '9')
+                                    continue;
+                                break;
+                            }
+                            repeat = true;
+                            break;
+                        case Keys.Home:
+                            if (!_hasSelection) {
+                                _selectionStart = _cursor;
+                                _hasSelection = true;
+                            }
+                            _cursor = 0;
+                            break;
+                        case Keys.End:
+                            if (!_hasSelection) {
+                                _selectionStart = _cursor;
+                                _hasSelection = true;
+                            }
+                            _cursor = _text.Length;
+                            break;
+                    }
+
+                    _cursor = Math.Max(0, _cursor);
+                    _cursor = Math.Min(_text.Length, _cursor);
+
+                    if (hasSelection != _hasSelection || cursor != _cursor)
+                        OnSelectionChanged();
+                }
+                else {
+                    switch (key) {
+                        case Keys.Left:
+                            while (_cursor-- > 1 && ctrl) {
+                                char c = _text[_cursor - 1];
+                                if (c >= 'A' && c <= 'Z')
+                                    continue;
+                                if (c >= 'a' && c <= 'z')
+                                    continue;
+                                if (c >= '0' && c <= '9')
+                                    continue;
+                                break;
+                            }
+                            ClearSelection();
+                            repeat = true;
+                            break;
+                        case Keys.Right:
+                            while (++_cursor < _text.Length && ctrl) {
+                                char c = _text[_cursor - 1];
+                                if (c >= 'A' && c <= 'Z')
+                                    continue;
+                                if (c >= 'a' && c <= 'z')
+                                    continue;
+                                if (c >= '0' && c <= '9')
+                                    continue;
+                                break;
+                            }
+                            ClearSelection();
+                            repeat = true;
+                            break;
+                        case Keys.Home:
+                            _cursor = 0;
+                            ClearSelection();
+                            break;
+                        case Keys.End:
+                            _cursor = _text.Length;
+                            ClearSelection();
+                            break;
+                    }
+
+                    _cursor = Math.Max(0, _cursor);
+                    _cursor = Math.Min(_text.Length, _cursor);
+                }
+
+                //if (repeat && (!_keyRepeatTask.IsScheduled() || _keyRepeatTask.Keycode != keycode)) {
+                //    _keyRepeatTask.Keycode = keycode;
+                //    _keyRepeatTask.Cancel();
+                //    Timer.Schedule(_keyRepeatTask, _keyRepeatInitialTime, _keyRepeatTime);
+                //}
+
+                e.Handled = true;
             }
 
-            [TODO("KeyRepeatTask")]
-            public override bool KeyDown (InputEvent e, int keycode)
-            {
-                if (_self.IsDisabled)
-                    return false;
+            base.OnKeyDown(e);
+        }
 
-                BitmapFont font = _self._style.Font;
+        [TODO]
+        protected override void OnKeyUp (KeyEventArgs e)
+        {
+            if (IsDisabled) {
+                base.OnKeyUp(e);
+                return;
+            }
 
-                _self._lastBlink = 0;
-                _self._cursorOn = false;
+            //_self._keyRepeatTask.Cancel();
+            e.Handled = true;
 
-                Stage stage = _self.Stage;
-                if (stage != null && stage.GetKeyboardFocus() == _self) {
+            base.OnKeyUp(e);
+        }
+
+        private static void PreviewKeyTypedClass (Actor sender, KeyCharEventArgs e)
+        {
+            TextField field = sender as TextField;
+            if (field != null)
+                field.OnPreviewKeyTyped(e);
+        }
+
+        private static void KeyTypedClass (Actor sender, KeyCharEventArgs e)
+        {
+            TextField field = sender as TextField;
+            if (field != null)
+                field.OnKeyTyped(e);
+        }
+
+        protected virtual void OnPreviewKeyTyped (KeyCharEventArgs e)
+        { }
+
+        protected virtual void OnKeyTyped (KeyCharEventArgs e)
+        {
+            if (IsDisabled)
+                return;
+
+            BitmapFont font = _style.Font;
+
+            Stage stage = Stage;
+            if (stage != null && stage.GetKeyboardFocus() == this) {
+                if (e.Character == CharBackspace) {
+                    if (_cursor > 0 || _hasSelection) {
+                        if (!_hasSelection) {
+                            _text = _text.Substring(0, _cursor - 1) + _text.Substring(_cursor);
+                            UpdateDisplayText();
+                            _cursor--;
+                            _renderOffset = 0;
+                            OnTextChanged();
+                        }
+                        else
+                            Delete();
+                    }
+                }
+                else if (e.Character == CharDelete) {
+                    if (_cursor < _text.Length || _hasSelection) {
+                        if (!_hasSelection) {
+                            _text = _text.Substring(0, _cursor) + _text.Substring(_cursor + 1);
+                            UpdateDisplayText();
+                            OnTextChanged();
+                        }
+                        else
+                            Delete();
+                    }
+                }
+                else if ((e.Character == CharTab || e.Character == CharEnterAndroid) && FocusTraversal) {
                     KeyboardState keyboard = Keyboard.GetState();
-                    Keys key = (Keys)keycode;
-
-                    bool repeat = false;
-                    bool ctrl = keyboard.IsKeyDown(Keys.LeftControl) || keyboard.IsKeyDown(Keys.RightControl);
-                    bool shift = keyboard.IsKeyDown(Keys.LeftShift) || keyboard.IsKeyDown(Keys.RightShift);
-
-                    if (ctrl) {
-                        switch (key) {
-                            case Keys.V:
-                                _self.Paste();
-                                return true;
-                            case Keys.C:
-                            case Keys.Insert:
-                                _self.Copy();
-                                return true;
-                            case Keys.X:
-                            case Keys.Back:
-                                _self.Cut();
-                                return true;
-                            case Keys.A:
-                                _self.SelectAll();
-                                return true;
+                    Next(keyboard.IsKeyDown(Keys.LeftShift) || keyboard.IsKeyDown(Keys.RightShift));
+                }
+                else if (font.ContainsCharacter(e.Character)) {
+                    if (e.Character != CharEnterDesktop && e.Character != CharEnterAndroid) {
+                        if (TextFieldFilter != null && !TextFieldFilter.AcceptChar(this, e.Character)) {
+                            e.Handled = true;
+                            return;
                         }
                     }
 
-                    if (shift) {
-                        bool hasSelection = _self._hasSelection;
-                        int cursor = _self._cursor;
+                    if (MaxLength > 0 && _text.Length + 1 > MaxLength) {
+                        e.Handled = true;
+                        return;
+                    }
 
-                        switch (key) {
-                            case Keys.Insert:
-                                _self.Paste();
-                                break;
-                            case Keys.Delete:
-                                if (_self._hasSelection) {
-                                    _self.Copy();
-                                    _self.Delete();
-                                }
-                                break;
-                            case Keys.Left:
-                                if (!_self._hasSelection) {
-                                    _self._selectionStart = _self._cursor;
-                                    _self._hasSelection = true;
-                                }
-                                while (--_self._cursor > 0 && ctrl) {
-                                    char c = _self._text[_self._cursor];
-                                    if (c >= 'A' && c <= 'Z')
-                                        continue;
-                                    if (c >= 'a' && c <= 'z')
-                                        continue;
-                                    if (c >= '0' && c <= '9')
-                                        continue;
-                                    break;
-                                }
-                                repeat = true;
-                                break;
-                            case Keys.Right:
-                                if (!_self._hasSelection) {
-                                    _self._selectionStart = _self._cursor;
-                                    _self._hasSelection = true;
-                                }
-                                while (++_self._cursor < _self._text.Length && ctrl) {
-                                    char c = _self._text[_self._cursor - 1];
-                                    if (c >= 'A' && c <= 'Z')
-                                        continue;
-                                    if (c >= 'a' && c <= 'z')
-                                        continue;
-                                    if (c >= '0' && c <= '9')
-                                        continue;
-                                    break;
-                                }
-                                repeat = true;
-                                break;
-                            case Keys.Home:
-                                if (!_self._hasSelection) {
-                                    _self._selectionStart = _self._cursor;
-                                    _self._hasSelection = true;
-                                }
-                                _self._cursor = 0;
-                                break;
-                            case Keys.End:
-                                if (!_self._hasSelection) {
-                                    _self._selectionStart = _self._cursor;
-                                    _self._hasSelection = true;
-                                }
-                                _self._cursor = _self._text.Length;
-                                break;
-                        }
-
-                        _self._cursor = Math.Max(0, _self._cursor);
-                        _self._cursor = Math.Min(_self._text.Length, _self._cursor);
-
-                        if (hasSelection != _self._hasSelection || cursor != _self._cursor)
-                            _self.OnSelectionChanged();
+                    if (!_hasSelection) {
+                        _text = _text.Substring(0, _cursor) + e.Character
+                            + _text.Substring(_cursor, _text.Length - _cursor);
+                        UpdateDisplayText();
+                        _cursor++;
+                        OnTextChanged();
                     }
                     else {
-                        switch (key) {
-                            case Keys.Left:
-                                while (_self._cursor-- > 1 && ctrl) {
-                                    char c = _self._text[_self._cursor - 1];
-                                    if (c >= 'A' && c <= 'Z')
-                                        continue;
-                                    if (c >= 'a' && c <= 'z')
-                                        continue;
-                                    if (c >= '0' && c <= '9')
-                                        continue;
-                                    break;
-                                }
-                                _self.ClearSelection();
-                                repeat = true;
-                                break;
-                            case Keys.Right:
-                                while (++_self._cursor < _self._text.Length && ctrl) {
-                                    char c = _self._text[_self._cursor - 1];
-                                    if (c >= 'A' && c <= 'Z')
-                                        continue;
-                                    if (c >= 'a' && c <= 'z')
-                                        continue;
-                                    if (c >= '0' && c <= '9')
-                                        continue;
-                                    break;
-                                }
-                                _self.ClearSelection();
-                                repeat = true;
-                                break;
-                            case Keys.Home:
-                                _self._cursor = 0;
-                                _self.ClearSelection();
-                                break;
-                            case Keys.End:
-                                _self._cursor = _self._text.Length;
-                                _self.ClearSelection();
-                                break;
-                        }
+                        int minIndex = Math.Min(_cursor, _selectionStart);
+                        int maxIndex = Math.Max(_cursor, _selectionStart);
 
-                        _self._cursor = Math.Max(0, _self._cursor);
-                        _self._cursor = Math.Min(_self._text.Length, _self._cursor);
+                        _text = (minIndex > 0 ? _text.Substring(0, minIndex) : "")
+                            + (maxIndex < _text.Length ? _text.Substring(maxIndex, _text.Length - maxIndex) : "");
+                        _cursor = minIndex;
+                        _text = _text.Substring(0, _cursor) + e.Character
+                            + _text.Substring(_cursor, _text.Length - _cursor);
+                        OnTextChanged();
+
+                        UpdateDisplayText();
+                        _cursor++;
+                        ClearSelection();
                     }
-
-                    //if (repeat && (!_self._keyRepeatTask.IsScheduled() || _self._keyRepeatTask.Keycode != keycode)) {
-                    //    _self._keyRepeatTask.Keycode = keycode;
-                    //    _self._keyRepeatTask.Cancel();
-                    //    Timer.Schedule(_self._keyRepeatTask, _self._keyRepeatInitialTime, _self._keyRepeatTime);
-                    //}
-                    return true;
                 }
 
-                return false;
-            }
-
-            [TODO]
-            public override bool KeyUp (InputEvent e, int keycode)
-            {
-                if (_self.IsDisabled)
-                    return false;
-                //_self._keyRepeatTask.Cancel();
-                return true;
-            }
-
-            public override bool KeyTyped (InputEvent e, char character)
-            {
-                if (_self.IsDisabled)
-                    return false;
-
-                BitmapFont font = _self._style.Font;
-
-                Stage stage = _self.Stage;
-                if (stage != null && stage.GetKeyboardFocus() == _self) {
-                    if (character == CharBackspace) {
-                        if (_self._cursor > 0 || _self._hasSelection) {
-                            if (!_self._hasSelection) {
-                                _self._text = _self._text.Substring(0, _self._cursor - 1) + _self._text.Substring(_self._cursor);
-                                _self.UpdateDisplayText();
-                                _self._cursor--;
-                                _self._renderOffset = 0;
-                                _self.OnTextChanged();
-                            }
-                            else
-                                _self.Delete();
-                        }
-                    }
-                    else if (character == CharDelete) {
-                        if (_self._cursor < _self._text.Length || _self._hasSelection) {
-                            if (!_self._hasSelection) {
-                                _self._text = _self._text.Substring(0, _self._cursor) + _self._text.Substring(_self._cursor + 1);
-                                _self.UpdateDisplayText();
-                                _self.OnTextChanged();
-                            }
-                            else
-                                _self.Delete();
-                        }
-                    }
-                    else if ((character == CharTab || character == CharEnterAndroid) && _self.FocusTraversal) {
-                        KeyboardState keyboard = Keyboard.GetState();
-                        _self.Next(keyboard.IsKeyDown(Keys.LeftShift) || keyboard.IsKeyDown(Keys.RightShift));
-                    }
-                    else if (font.ContainsCharacter(character)) {
-                        if (character != CharEnterDesktop && character != CharEnterAndroid) {
-                            if (_self.TextFieldFilter != null && !_self.TextFieldFilter.AcceptChar(_self, character))
-                                return true;
-                        }
-
-                        if (_self.MaxLength > 0 && _self._text.Length + 1 > _self.MaxLength)
-                            return true;
-
-                        if (!_self._hasSelection) {
-                            _self._text = _self._text.Substring(0, _self._cursor) + character
-                                + _self._text.Substring(_self._cursor, _self._text.Length - _self._cursor);
-                            _self.UpdateDisplayText();
-                            _self._cursor++;
-                            _self.OnTextChanged();
-                        }
-                        else {
-                            int minIndex = Math.Min(_self._cursor, _self._selectionStart);
-                            int maxIndex = Math.Max(_self._cursor, _self._selectionStart);
-
-                            _self._text = (minIndex > 0 ? _self._text.Substring(0, minIndex) : "")
-                                + (maxIndex < _self._text.Length ? _self._text.Substring(maxIndex, _self._text.Length - maxIndex) : "");
-                            _self._cursor = minIndex;
-                            _self._text = _self._text.Substring(0, _self._cursor) + character
-                                + _self._text.Substring(_self._cursor, _self._text.Length - _self._cursor);
-                            _self.OnTextChanged();
-
-                            _self.UpdateDisplayText();
-                            _self._cursor++;
-                            _self.ClearSelection();
-                        }
-                    }
-
-                    _self.OnKeyTyped(character);
-
-                    return true;
-                }
-                else
-                    return false;
+                e.Handled = true;
             }
         }
-
-        public event Action<TextField, char> KeyTyped;
-
-        protected virtual void OnKeyTyped (char character)
-        {
-            var ev = KeyTyped;
-            if (ev != null)
-                ev(this, character);
-        }
-
         public int MaxLength { get; set; }
 
         public bool OnlyFontChars { get; set; }
