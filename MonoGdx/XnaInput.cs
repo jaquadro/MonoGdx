@@ -117,13 +117,16 @@ namespace MonoGdx
 
             if (state.Position != _oldMouseState.Position) {
                 TouchEvent ev = ObtainTouchEvent(ref state);
+                ev.Type = TouchEventType.Moved;
+                _touchEvents.Add(ev);
+
                 if (state.LeftButton == ButtonState.Pressed
                     || state.MiddleButton == ButtonState.Pressed
-                    || state.RightButton == ButtonState.Pressed)
+                    || state.RightButton == ButtonState.Pressed) {
+                    ev = ObtainTouchEvent(ref state);
                     ev.Type = TouchEventType.Dragged;
-                else
-                    ev.Type = TouchEventType.Moved;
-                _touchEvents.Add(ev);
+                    _touchEvents.Add(ev);
+                }
             }
 
             if (state.ScrollWheelValue != _oldMouseState.ScrollWheelValue) {
