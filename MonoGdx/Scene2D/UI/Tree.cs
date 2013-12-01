@@ -19,6 +19,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using MonoGdx.Graphics.G2D;
 using MonoGdx.Scene2D.Utils;
@@ -41,8 +42,6 @@ namespace MonoGdx.Scene2D.UI
         private float _prefHeight;
         private bool _sizeInvalid = true;
         private TreeNode _foundNode;
-        private TreeNode _overNode;
-        private ClickListener _clickListener;
 
         private readonly List<TreeNode> _selectEventAdd = new List<TreeNode>();
         private readonly List<TreeNode> _selectEventRemove = new List<TreeNode>();
@@ -67,112 +66,103 @@ namespace MonoGdx.Scene2D.UI
                 CanSelectMultiple = true,
                 SelectionChangeHandler = SelectionChangeHandler,
             };
-
-            Initialize();
         }
 
-        private void Initialize ()
+        protected override void OnMouseMove (MouseEventArgs e)
         {
-            AddListener(_clickListener = new LocalClickListener(this));
+            Vector2 position = e.GetPosition(this);
+            OverNode = NodeAt(position.Y);
+
+            base.OnMouseMove(e);
         }
 
-        private class LocalClickListener : ClickListener
+        protected override void OnTouchDown (TouchEventArgs e)
         {
-            private Tree _tree;
-            public LocalClickListener (Tree tree)
-            {
-                _tree = tree;
+            Vector2 position = e.GetPosition(this);
+
+            TreeNode node = NodeAt(position.Y);
+            if (node == null)
+                return;
+            if (node != NodeAt(position.Y))
+                return;
+
+            KeyboardState keystate = Keyboard.GetState();
+            bool shiftPressed = keystate.IsKeyDown(Keys.LeftShift) || keystate.IsKeyDown(Keys.RightShift);
+            bool ctrlPressed = keystate.IsKeyDown(Keys.LeftControl) || keystate.IsKeyDown(Keys.RightControl);
+
+            if (MultiSelect && _selectedNodes.Count > 0 && shiftPressed) {
+                float low = _selectedNodes.First().Actor.Y;
+                float high = node.Actor.Y;
+
+                _selectionChanger.Begin(_selectedNodes);
+
+                if (!ctrlPressed)
+                    _selectionChanger.UnselectAll();
+
+                if (low > high)
+                    SelectNodes(_rootNodes, high, low);
+                else
+                    SelectNodes(_rootNodes, low, high);
+
+                _selectionChanger.End();
+
+                return;
             }
 
-            public override void Clicked (InputEvent ev, float x, float y)
-            {
-                TreeNode node = _tree.NodeAt(y);
-                if (node == null)
-                    return;
-                if (node != _tree.NodeAt(TouchDownY))
-                    return;
+            if (!MultiSelect || !ctrlPressed) {
+                if (Children.Count > 0) {
+                    float rowX = node.Actor.X;
+                    if (node.Icon != null)
+                        rowX -= IconSpacing + node.Icon.MinWidth;
 
-                KeyboardState keystate = Keyboard.GetState();
-                bool shiftPressed = keystate.IsKeyDown(Keys.LeftShift) || keystate.IsKeyDown(Keys.RightShift);
-                bool ctrlPressed = keystate.IsKeyDown(Keys.LeftControl) || keystate.IsKeyDown(Keys.RightControl);
-
-                if (_tree.MultiSelect && _tree._selectedNodes.Count > 0 && shiftPressed) {
-                    float low = _tree._selectedNodes.First().Actor.Y;
-                    float high = node.Actor.Y;
-
-                    _tree._selectionChanger.Begin(_tree._selectedNodes);
-
-                    if (!ctrlPressed)
-                        _tree._selectionChanger.UnselectAll();
-
-                    if (low > high)
-                        _tree.SelectNodes(_tree._rootNodes, high, low);
-                    else
-                        _tree.SelectNodes(_tree._rootNodes, low, high);
-
-                    _tree._selectionChanger.End();
-
-                    return;
-                }
-
-                if (!_tree.MultiSelect || !ctrlPressed) {
-                    if (_tree.Children.Count > 0) {
-                        float rowX = node.Actor.X;
-                        if (node.Icon != null)
-                            rowX -= _tree.IconSpacing + node.Icon.MinWidth;
-
-                        float indent = 0;
-                        if (node.Children == null || node.Children.Count == 0)
-                            indent = rowX;
-                        else {
-                            TreeNode parent = node.Parent;
-                            while (parent != null) {
-                                indent += _tree._indentSpacing;
-                                parent = parent.Parent;
-                            }
-                        }
-
-                        if (x > indent && x < rowX) {
-                            node.IsExpanded = !node.IsExpanded;
-                            return;
+                    float indent = 0;
+                    if (node.Children == null || node.Children.Count == 0)
+                        indent = rowX;
+                    else {
+                        TreeNode parent = node.Parent;
+                        while (parent != null) {
+                            indent += _indentSpacing;
+                            parent = parent.Parent;
                         }
                     }
 
-                    if (!node.IsSelectable)
+                    if (position.X > indent && position.X < rowX) {
+                        node.IsExpanded = !node.IsExpanded;
                         return;
-
-                    bool unselect = _tree.ToggleSelect && _tree._selectedNodes.Count == 1 && _tree._selectedNodes.Contains(node);
-
-                    _tree._selectionChanger.Begin(_tree._selectedNodes);
-                    _tree._selectionChanger.UnselectAll();
-                    if (!unselect)
-                        _tree._selectionChanger.Select(node);
-                    _tree._selectionChanger.End();
-
-                    return;
+                    }
                 }
-                else if (!node.IsSelectable)
+
+                if (!node.IsSelectable)
                     return;
 
-                _tree._selectionChanger.Begin(_tree._selectedNodes);
-                _tree._selectionChanger.Select(node);
-                _tree._selectionChanger.End();
-            }
+                bool unselect = ToggleSelect && _selectedNodes.Count == 1 && _selectedNodes.Contains(node);
 
-            public override bool MouseMoved (InputEvent e, float x, float y)
-            {
-                _tree.OverNode = _tree.NodeAt(y);
-                return false;
-            }
+                _selectionChanger.Begin(_selectedNodes);
+                _selectionChanger.UnselectAll();
+                if (!unselect)
+                    _selectionChanger.Select(node);
+                _selectionChanger.End();
 
-            public override void Exit (InputEvent e, float x, float y, int pointer, Actor toActor)
-            {
-                base.Exit(e, x, y, pointer, toActor);
-                if (toActor == null || !toActor.IsDescendentOf(_tree))
-                    _tree.OverNode = null;
+                return;
             }
+            else if (!node.IsSelectable)
+                return;
+
+            _selectionChanger.Begin(_selectedNodes);
+            _selectionChanger.Select(node);
+            _selectionChanger.End();
+
+            base.OnTouchDown(e);
         }
 
+        protected override void OnTouchLeave (TouchEventArgs e)
+        {
+            if (e.RelatedActor == null || !e.RelatedActor.IsDescendentOf(this))
+                OverNode = null;
+
+            base.OnTouchLeave(e);
+        }
+        
         private void SelectionChangeHandler (List<TreeNode> addedItems, List<TreeNode> removedItems) 
         {
             OnSelectionChanged(removedItems, addedItems);
@@ -339,7 +329,7 @@ namespace MonoGdx.Scene2D.UI
                 bool selected = _selectedNodes.Contains(node);
                 if (selected && _style.Selection != null)
                     _style.Selection.Draw(spriteBatch, x, y + actor.Y - YSpacing / 2, Width, node.Height + YSpacing);
-                else if (node == _overNode && _style.Over != null)
+                else if (node == OverNode && _style.Over != null)
                     _style.Over.Draw(spriteBatch, x, y + actor.Y - YSpacing / 2, Width, node.Height + YSpacing);
 
                 if (node.Icon != null) {
@@ -544,11 +534,6 @@ namespace MonoGdx.Scene2D.UI
         {
             foreach (TreeNode node in nodes)
                 node.ExpandAll();
-        }
-
-        public ClickListener ClickListener
-        {
-            get { return _clickListener; }
         }
 
         public bool MultiSelect { get; set; }
