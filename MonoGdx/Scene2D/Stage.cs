@@ -854,6 +854,7 @@ namespace MonoGdx.Scene2D
 
             public void Reset ()
             {
+                Listener = null;
                 ListenerActor = null;
                 TargetActor = null;
             }
