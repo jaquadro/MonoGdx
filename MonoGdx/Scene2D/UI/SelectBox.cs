@@ -283,29 +283,34 @@ namespace MonoGdx.Scene2D.UI
                 Widget = _list;
 
                 _list.SelectionChanged += (s, e) => { e.Stopped = true; };
+                _list.MouseMove += (s, e) => {
+                    Vector2 position = e.GetPosition(s);
 
-                _list.AddListener(new DispatchInputListener() {
-                    OnMouseMoved = (ev, x, y) => {
-                        _list.SelectedIndex = Math.Min(_selectBox.Items.Length - 1, (int)((_list.Height - y) / _list.ItemHeight));
-                        return true;
-                    },
-                });
+                    _list.SelectedIndex = Math.Min(_selectBox.Items.Length - 1, (int)((_list.Height - position.Y) / _list.ItemHeight));
+                    e.Handled = true;
+                };
+            }
 
-                AddListener(new TouchListener() {
-                    Down = (ev, x, y, pointer, button) => {
-                        if (ev.TargetActor == _list && !_selectBox.IsDisabled)
-                            return true;
-                        _selectBox.HideList();
-                        return false;
-                    },
+            protected override void OnTouchDown (TouchEventArgs e)
+            {
+                if (e.Source == _list && !_selectBox.IsDisabled)
+                    e.Handled = true;
+                else
+                    _selectBox.HideList();
 
-                    Up = (ev, x, y, pointer, button) => {
-                        if (Hit(x, y, true) == _list) {
-                            _selectBox.SelectionIndex = _list.SelectedIndex;
-                            _selectBox.HideList();
-                        }
-                    },
-                });
+                base.OnTouchDown(e);
+            }
+
+            protected override void OnTouchUp (TouchEventArgs e)
+            {
+                Vector2 position = e.GetPosition(this);
+
+                if (Hit(position.X, position.Y, true) == _list) {
+                    _selectBox.SelectionIndex = _list.SelectedIndex;
+                    _selectBox.HideList();
+                }
+
+                base.OnTouchUp(e);
             }
 
             public void Show (Stage stage)

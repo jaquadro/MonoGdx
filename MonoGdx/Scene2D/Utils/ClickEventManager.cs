@@ -48,6 +48,7 @@ namespace MonoGdx.Scene2D.Utils
                 return;
 
             _pressed = true;
+            _actor.CaptureTouch(e.Pointer);
 
             PressedPointer = e.Pointer;
             PressedButton = e.Button;
@@ -92,6 +93,8 @@ namespace MonoGdx.Scene2D.Utils
                         if (ClickHandler != null)
                             ClickHandler(e);
                     }
+
+                    _actor.ReleaseTouchCapture(e.Pointer);
                 }
 
                 _pressed = false;
@@ -117,6 +120,8 @@ namespace MonoGdx.Scene2D.Utils
         {
             if (PressedPointer == -1)
                 return;
+
+            _actor.ReleaseTouchCapture(PressedPointer);
 
             _cancelled = true;
             _over = false;

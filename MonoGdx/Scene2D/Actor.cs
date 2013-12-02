@@ -667,6 +667,9 @@ namespace MonoGdx.Scene2D
             if (Stage == null)
                 throw new InvalidOperationException("Only an actor attached to a Stage can capture devices.");
 
+            if (Stage.GetTouchCapture(pointer) != this)
+                return;
+
             Stage.SetTouchCapture(null, pointer);
         }
 
