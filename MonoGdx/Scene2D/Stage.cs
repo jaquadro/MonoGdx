@@ -39,6 +39,10 @@ namespace MonoGdx.Scene2D
             EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(ScrollFocusChangedEventHandler), typeof(Stage));
         public static readonly RoutedEvent LostScrollFocusEvent =
             EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(ScrollFocusChangedEventHandler), typeof(Stage));
+        public static readonly RoutedEvent GotTouchCaptureEvent =
+            EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(TouchEventHandler), typeof(Stage));
+        public static readonly RoutedEvent LostTouchCaptureEvent =
+            EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(TouchEventHandler), typeof(Stage));
 
         public static readonly RoutedEvent PreviewKeyDownEvent =
             EventManager.RegisterRoutedEvent(RoutingStrategy.Tunnel, typeof(KeyEventHandler), typeof(Stage));
@@ -90,6 +94,7 @@ namespace MonoGdx.Scene2D
         private Actor _mouseOverActor;
         private Actor _keyboardFocus;
         private Actor _scrollFocus;
+        private readonly Actor[] _touchCapture = new Actor[20];
 
         private readonly SnapshotList<TouchFocus> _touchFocuses = new SnapshotList<TouchFocus>(4);
 
@@ -292,7 +297,7 @@ namespace MonoGdx.Scene2D
             ev.Pointer = pointer;
             ev.Button = button;
 
-            Actor target = Hit(stageCoords.X, stageCoords.Y, true);
+            Actor target = _touchCapture[pointer] ?? Hit(stageCoords.X, stageCoords.Y, true);
             if (target == null)
                 target = Root;
 
@@ -335,11 +340,21 @@ namespace MonoGdx.Scene2D
             Vector2 stageCoords = ScreenToStageCoordinates(new Vector2(screenX, screenY));
 
             TouchEventArgs ev = Pools<TouchEventArgs>.Obtain();
+            ev.RoutedEvent = PreviewTouchDragEvent;
             ev.Stage = this;
             ev.StagePosition = stageCoords;
             ev.Pointer = pointer;
 
-            IList<TouchFocus> focuses = _touchFocuses.Begin();
+            Actor target = _touchCapture[pointer] ?? Hit(stageCoords.X, stageCoords.Y, true);
+            if (target == null)
+                target = Root;
+
+            if (!target.RaiseEvent(ev)) {
+                ev.RoutedEvent = TouchDragEvent;
+                target.RaiseEvent(ev);
+            }
+
+            /*IList<TouchFocus> focuses = _touchFocuses.Begin();
             for (int i = 0, n = _touchFocuses.Count; i < n; i++) {
                 TouchFocus focus = focuses[i];
                 if (focus.Listener != null)
@@ -357,7 +372,7 @@ namespace MonoGdx.Scene2D
                     //ev.InvokeHandler(focus.Handler.Handler, focus.ListenerActor);
                 }
             }
-            _touchFocuses.End();
+            _touchFocuses.End();*/
 
             Pools<TouchEventArgs>.Release(ev);
 
@@ -372,7 +387,7 @@ namespace MonoGdx.Scene2D
             if (ev.Handled)
                 ev2.Handle();
 
-            focuses = _touchFocuses.Begin();
+            IList<TouchFocus> focuses = _touchFocuses.Begin();
             for (int i = 0, n = _touchFocuses.Count; i < n; i++) {
                 TouchFocus focus = focuses[i];
                 if (focus.Listener == null)
@@ -404,12 +419,22 @@ namespace MonoGdx.Scene2D
             Vector2 stageCoords = ScreenToStageCoordinates(new Vector2(screenX, screenY));
 
             TouchEventArgs ev = Pools<TouchEventArgs>.Obtain();
+            ev.RoutedEvent = PreviewTouchUpEvent;
             ev.Stage = this;
             ev.StagePosition = stageCoords;
             ev.Pointer = pointer;
             ev.Button = button;
 
-            IList<TouchFocus> focuses = _touchFocuses.Begin();
+            Actor target = _touchCapture[pointer] ?? Hit(stageCoords.X, stageCoords.Y, true);
+            if (target == null)
+                target = Root;
+
+            if (!target.RaiseEvent(ev)) {
+                ev.RoutedEvent = TouchUpEvent;
+                target.RaiseEvent(ev);
+            }
+
+            /*IList<TouchFocus> focuses = _touchFocuses.Begin();
             for (int i = 0, n = _touchFocuses.Count; i < n; i++) {
                 TouchFocus focus = focuses[i];
                 if (focus.Listener != null)
@@ -431,7 +456,7 @@ namespace MonoGdx.Scene2D
 
                 Pools<TouchFocus>.Release(focus);
             }
-            _touchFocuses.End();
+            _touchFocuses.End();*/
 
             Pools<TouchEventArgs>.Release(ev);
 
@@ -447,7 +472,7 @@ namespace MonoGdx.Scene2D
             if (ev.Handled)
                 ev2.Handle();
 
-            focuses = _touchFocuses.Begin();
+            IList<TouchFocus> focuses = _touchFocuses.Begin();
             for (int i = 0, n = _touchFocuses.Count; i < n; i++) {
                 TouchFocus focus = focuses[i];
                 if (focus.Listener == null)
@@ -768,6 +793,46 @@ namespace MonoGdx.Scene2D
                 _scrollFocus = null;
             if (_keyboardFocus != null && _keyboardFocus.IsDescendentOf(actor))
                 _keyboardFocus = null;
+        }
+
+        public Actor GetTouchCapture (int pointer)
+        {
+            if (pointer < 0 || pointer >= _touchCapture.Length)
+                throw new ArgumentOutOfRangeException("pointer");
+
+            return _touchCapture[pointer];
+        }
+
+        public void SetTouchCapture (Actor actor, int pointer)
+        {
+            if (pointer < 0 || pointer >= _touchCapture.Length)
+                throw new ArgumentOutOfRangeException("pointer");
+
+            Actor oldTouchCapture = _touchCapture[pointer];
+            _touchCapture[pointer] = actor;
+
+            if (oldTouchCapture != null) {
+                TouchEventArgs ev = Pools<TouchEventArgs>.Obtain();
+                ev.RoutedEvent = LostTouchCaptureEvent;
+                ev.Pointer = pointer;
+
+                bool cancel = oldTouchCapture.RaiseEvent(ev);
+                Pools<TouchEventArgs>.Release(ev);
+
+                if (cancel)
+                    return;
+            }
+
+            if (actor != null) {
+                TouchEventArgs ev = Pools<TouchEventArgs>.Obtain();
+                ev.RoutedEvent = GotTouchCaptureEvent;
+                ev.Pointer = pointer;
+
+                if (actor.RaiseEvent(ev))
+                    SetTouchCapture(oldTouchCapture, pointer);
+
+                Pools<TouchEventArgs>.Release(ev);
+            }
         }
 
         public void SetKeyboardFocus (Actor actor)

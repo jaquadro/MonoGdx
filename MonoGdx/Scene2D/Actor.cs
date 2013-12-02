@@ -51,6 +51,8 @@ namespace MonoGdx.Scene2D
             EventManager.RegisterClassHandler(typeof(Actor), Stage.LostKeyboardFocusEvent, new KeyboardFocusChangedEventHandler(LostKeyboardFocusClass));
             EventManager.RegisterClassHandler(typeof(Actor), Stage.GotScrollFocusEvent, new ScrollFocusChangedEventHandler(GotScrollFocusClass));
             EventManager.RegisterClassHandler(typeof(Actor), Stage.LostScrollFocusEvent, new ScrollFocusChangedEventHandler(LostScrollFocusClass));
+            EventManager.RegisterClassHandler(typeof(Actor), Stage.GotTouchCaptureEvent, new TouchEventHandler(GotTouchCaptureClass));
+            EventManager.RegisterClassHandler(typeof(Actor), Stage.LostTouchCaptureEvent, new TouchEventHandler(LostTouchCaptureClass));
 
             EventManager.RegisterClassHandler(typeof(Actor), Stage.PreviewKeyDownEvent, new KeyEventHandler(PreviewKeyDownClass));
             EventManager.RegisterClassHandler(typeof(Actor), Stage.KeyDownEvent, new KeyEventHandler(KeyDownClass));
@@ -647,6 +649,27 @@ namespace MonoGdx.Scene2D
             get { return Stage != null && Stage.GetKeyboardFocus() == this; }
         }
 
+        public bool IsScrollFocused
+        {
+            get { return Stage != null && Stage.GetScrollFocus() == this; }
+        }
+
+        public void CaptureTouch (int pointer)
+        {
+            if (Stage == null)
+                throw new InvalidOperationException("Only an actor attached to a Stage can capture devices.");
+
+            Stage.SetTouchCapture(this, pointer);
+        }
+
+        public void ReleaseTouchCapture (int pointer)
+        {
+            if (Stage == null)
+                throw new InvalidOperationException("Only an actor attached to a Stage can capture devices.");
+
+            Stage.SetTouchCapture(null, pointer);
+        }
+
         public event KeyboardFocusChangedEventHandler GotKeyboardFocus
         {
             add { AddHandler(Stage.GotKeyboardFocusEvent, value); }
@@ -657,29 +680,6 @@ namespace MonoGdx.Scene2D
         {
             add { AddHandler(Stage.LostKeyboardFocusEvent, value); }
             remove { RemoveHandler(Stage.LostKeyboardFocusEvent, value); }
-        }
-
-        private static void GotKeyboardFocusClass (Actor sender, KeyboardFocusChangedEventArgs e)
-        {
-            if (sender != null)
-                sender.OnGotKeyboardFocus(e);
-        }
-
-        private static void LostKeyboardFocusClass (Actor sender, KeyboardFocusChangedEventArgs e)
-        {
-            if (sender != null)
-                sender.OnLostKeyboardFocus(e);
-        }
-
-        protected virtual void OnGotKeyboardFocus (KeyboardFocusChangedEventArgs e)
-        { }
-
-        protected virtual void OnLostKeyboardFocus (KeyboardFocusChangedEventArgs e)
-        { }
-
-        public bool IsScrollFocused
-        {
-            get { return Stage != null && Stage.GetScrollFocus() == this; }
         }
 
         public event ScrollFocusChangedEventHandler GotScrollFocus
@@ -694,6 +694,30 @@ namespace MonoGdx.Scene2D
             remove { RemoveHandler(Stage.LostScrollFocusEvent, value); }
         }
 
+        public event TouchEventHandler GotTouchCapture
+        {
+            add { AddHandler(Stage.GotTouchCaptureEvent, value); }
+            remove { RemoveHandler(Stage.GotTouchCaptureEvent, value); }
+        }
+
+        public event TouchEventHandler LostTouchCapture
+        {
+            add { AddHandler(Stage.LostTouchCaptureEvent, value); }
+            remove { RemoveHandler(Stage.LostTouchCaptureEvent, value); }
+        }
+
+        private static void GotKeyboardFocusClass (Actor sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (sender != null)
+                sender.OnGotKeyboardFocus(e);
+        }
+
+        private static void LostKeyboardFocusClass (Actor sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (sender != null)
+                sender.OnLostKeyboardFocus(e);
+        }
+
         private static void GotScrollFocusClass (Actor sender, ScrollFocusChangedEventArgs e)
         {
             if (sender != null)
@@ -706,10 +730,34 @@ namespace MonoGdx.Scene2D
                 sender.OnLostScrollFocus(e);
         }
 
+        private static void GotTouchCaptureClass (Actor sender, TouchEventArgs e)
+        {
+            if (sender != null)
+                sender.OnGotTouchCapture(e);
+        }
+
+        private static void LostTouchCaptureClass (Actor sender, TouchEventArgs e)
+        {
+            if (sender != null)
+                sender.OnLostTouchCapture(e);
+        }
+
+        protected virtual void OnGotKeyboardFocus (KeyboardFocusChangedEventArgs e)
+        { }
+
+        protected virtual void OnLostKeyboardFocus (KeyboardFocusChangedEventArgs e)
+        { }
+
         protected virtual void OnGotScrollFocus (ScrollFocusChangedEventArgs e)
         { }
 
         protected virtual void OnLostScrollFocus (ScrollFocusChangedEventArgs e)
+        { }
+
+        protected virtual void OnGotTouchCapture (TouchEventArgs e)
+        { }
+
+        protected virtual void OnLostTouchCapture (TouchEventArgs e)
         { }
 
         public bool HasParent
