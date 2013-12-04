@@ -386,23 +386,6 @@ namespace MonoGdx.Scene2D.Actions
             return Action<ParallelAction>();
         }
 
-        public static RemoveListenerAction RemoveListener (EventListener listener, bool capture)
-        {
-            RemoveListenerAction action = Action<RemoveListenerAction>();
-            action.Listener = listener;
-            action.Capture = capture;
-            return action;
-        }
-
-        public static RemoveListenerAction RemoveListener (EventListener listener, bool capture, Actor targetActor)
-        {
-            RemoveListenerAction action = Action<RemoveListenerAction>();
-            action.Listener = listener;
-            action.Capture = capture;
-            action.TargetActor = targetActor;
-            return action;
-        }
-
         public static ImmediateAction Immediate (Action immediateTask)
         {
             ImmediateAction action = Action<ImmediateAction>();

@@ -72,7 +72,6 @@
     <Compile Include="Scene2D\Actions\AlphaAction.cs" />
     <Compile Include="Scene2D\Actions\ParallelAction.cs" />
     <Compile Include="Scene2D\Actions\RemoveActorAction.cs" />
-    <Compile Include="Scene2D\Actions\RemoveListenerAction.cs" />
     <Compile Include="Scene2D\Actions\SequenceAction.cs" />
     <Compile Include="Scene2D\Actions\TemporalAction.cs" />
     <Compile Include="Scene2D\UI\ButtonGroup.cs" />
@@ -118,8 +117,6 @@
     <Compile Include="Geometry\Vector3Ext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scene2D\Actor.cs" />
-    <Compile Include="Scene2D\Event.cs" />
-    <Compile Include="Scene2D\EventListener.cs" />
     <Compile Include="Scene2D\Group.cs" />
     <Compile Include="Scene2D\Stage.cs" />
     <Compile Include="Scene2D\UI\Button.cs" />

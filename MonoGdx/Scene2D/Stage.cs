@@ -100,8 +100,6 @@ namespace MonoGdx.Scene2D
         private Actor _scrollFocus;
         private readonly Actor[] _touchCapture = new Actor[20];
 
-        private readonly SnapshotList<TouchFocus> _touchFocuses = new SnapshotList<TouchFocus>(4);
-
         public Stage (GraphicsDevice graphicsDevice)
             : this(graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, false, graphicsDevice)
         { }
@@ -461,61 +459,6 @@ namespace MonoGdx.Scene2D
             return handled;
         }
 
-        public void AddTouchFocus (EventListener listener, Actor listenerActor, Actor target, int pointer, int button)
-        {
-            TouchFocus focus = Pools<TouchFocus>.Obtain();
-            focus.ListenerActor = listenerActor;
-            focus.TargetActor = target;
-            focus.Listener = listener;
-            focus.Pointer = pointer;
-            focus.Button = button;
-
-            _touchFocuses.Add(focus);
-        }
-
-        public void AddTouchFocus (RoutedEventHandlerInfo handler, Actor listenerActor, Actor target, int pointer, int button)
-        {
-            TouchFocus focus = Pools<TouchFocus>.Obtain();
-            focus.ListenerActor = listenerActor;
-            focus.TargetActor = target;
-            focus.Handler = handler;
-            focus.Pointer = pointer;
-            focus.Button = button;
-
-            _touchFocuses.Add(focus);
-        }
-
-        public void RemoveTouchFocus (EventListener listener, Actor listenerActor, Actor target, int pointer, int button)
-        {
-            for (int i = _touchFocuses.Count - 1; i >= 0; i--) {
-                TouchFocus focus = _touchFocuses[i];
-                if (focus.Listener == listener 
-                    && focus.ListenerActor == listenerActor 
-                    && focus.TargetActor == target 
-                    && focus.Pointer == pointer 
-                    && focus.Button == button) {
-                    _touchFocuses.RemoveAt(i);
-                    Pools<TouchFocus>.Release(focus);
-                }
-            }
-        }
-
-        public void RemoveTouchFocus (RoutedEventHandlerInfo handler, Actor listenerActor, Actor target, int pointer, int button)
-        {
-            for (int i = _touchFocuses.Count - 1; i >= 0; i--) {
-                TouchFocus focus = _touchFocuses[i];
-                if (focus.Handler.Handler == handler.Handler
-                    && focus.Handler.IsCapturingHandler == handler.IsCapturingHandler
-                    && focus.ListenerActor == listenerActor
-                    && focus.TargetActor == target
-                    && focus.Pointer == pointer
-                    && focus.Button == button) {
-                    _touchFocuses.RemoveAt(i);
-                    Pools<TouchFocus>.Release(focus);
-                }
-            }
-        }
-
         public void AddActor (Actor actor)
         {
             Root.AddActor(actor);
@@ -529,26 +472,6 @@ namespace MonoGdx.Scene2D
         public IList<Actor> Actors
         {
             get { return Root.Children; }
-        }
-
-        public bool AddListener (EventListener listener)
-        {
-            return Root.AddListener(listener);
-        }
-
-        public bool RemoveListener (EventListener listener)
-        {
-            return Root.RemoveListener(listener);
-        }
-
-        public bool AddCaptureListener (EventListener listener)
-        {
-            return Root.AddCaptureListener(listener);
-        }
-
-        public bool RemoveCaptureListener (EventListener listener)
-        {
-            return Root.RemoveCaptureListener(listener);
         }
 
         public void Clear ()
@@ -745,25 +668,6 @@ namespace MonoGdx.Scene2D
             Clear();
             if (_ownsSpriteBatch)
                 SpriteBatch.Dispose();
-        }
-
-        internal class TouchFocus : IPoolable
-        {
-            public EventListener Listener { get; set; }
-            public RoutedEventHandlerInfo Handler { get; set; }
-
-            public Actor ListenerActor { get; set; }
-            public Actor TargetActor { get; set; }
-
-            public int Pointer { get; set; }
-            public int Button { get; set; }
-
-            public void Reset ()
-            {
-                Listener = null;
-                ListenerActor = null;
-                TargetActor = null;
-            }
         }
     }
 }

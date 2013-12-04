@@ -39,8 +39,6 @@ namespace MonoGdx.Scene2D
         //public static readonly RoutedEvent GotKeyboardFocusEvent = Stage.GotKeyboardFocusEvent;
         //public static readonly RoutedEvent LostKeyboardFocusEvent = Stage.LostKeyboardFocusEvent;
 
-        private readonly DelayedRemovalList<EventListener> _listeners = new DelayedRemovalList<EventListener>(0);
-        private readonly DelayedRemovalList<EventListener> _captureListeners = new DelayedRemovalList<EventListener>(0);
         private readonly List<SceneAction> _actions = new List<SceneAction>(0);
 
         private Dictionary<int, DelayedRemovalList<RoutedEventHandlerInfo>> _handlers = new Dictionary<int, DelayedRemovalList<RoutedEventHandlerInfo>>(0);
@@ -93,56 +91,6 @@ namespace MonoGdx.Scene2D
                     action.Actor = null;
                     i--;
                 }
-            }
-        }
-
-        public bool Fire (Event ev)
-        {
-            if (ev.Stage == null)
-                ev.Stage = Stage;
-            ev.TargetActor = this;
-
-            // Collect ancestors so event propagation is unaffected by hierarchy changes.
-            List<Group> ancestors = Pools<List<Group>>.Obtain();
-            Group parent = Parent;
-            while (parent != null) {
-                ancestors.Add(parent);
-                parent = parent.Parent;
-            }
-
-            try {
-                // Notify all parent capture listeners, starting at the root. Ancestors may stop an event before children receive it.
-                for (int i = ancestors.Count - 1; i >= 0; i--) {
-                    Group currentTarget = ancestors[i];
-                    currentTarget.Notify(ev, true);
-                    if (ev.IsStopped)
-                        return ev.IsCancelled;
-                }
-
-                // Notify the target capture listeners.
-                Notify(ev, true);
-                if (ev.IsStopped)
-                    return ev.IsCancelled;
-
-                // Notify the target listeners.
-                Notify(ev, false);
-                if (!ev.Bubbles)
-                    return ev.IsCancelled;
-                if (ev.IsStopped)
-                    return ev.IsCancelled;
-
-                // Notify all parent listeners, starting at the target. Children may stop an event before ancestors receive it.
-                foreach (Group ancestor in ancestors) {
-                    ancestor.Notify(ev, false);
-                    if (ev.IsStopped)
-                        return ev.IsCancelled;
-                }
-
-                return ev.IsCancelled;
-            }
-            finally {
-                ancestors.Clear();
-                Pools<List<Group>>.Release(ancestors);
             }
         }
 
@@ -223,31 +171,6 @@ namespace MonoGdx.Scene2D
             return e;
         }
 
-        public bool Notify (Event ev, bool capture)
-        {
-            if (ev.TargetActor == null)
-                throw new ArgumentException("The event target cannot be null.");
-
-            DelayedRemovalList<EventListener> listeners = capture ? _captureListeners : _listeners;
-            if (listeners.Count == 0)
-                return ev.IsCancelled;
-
-            ev.ListenerActor = this;
-            ev.IsCapture = capture;
-            if (ev.Stage == null)
-                ev.Stage = Stage;
-
-            listeners.Begin();
-            foreach (EventListener listener in listeners) {
-                if (listener.Handle(ev)) {
-                    ev.Handle();
-                }
-            }
-            listeners.End();
-
-            return ev.IsCancelled;
-        }
-
         internal bool InvokeHandler (RoutedEventArgs args)
         {
             DelayedRemovalList<RoutedEventHandlerInfo> handlerList;
@@ -258,16 +181,8 @@ namespace MonoGdx.Scene2D
                 args.Stage = Stage;
 
             handlerList.Begin();
-            foreach (var handlerInfo in handlerList) {
+            foreach (var handlerInfo in handlerList)
                 handlerInfo.InvokeHandler(this, args);
-
-                // TouchDownEvent specialization
-                if (args is TouchEventArgs) {
-                    TouchEventArgs touchArgs = args as TouchEventArgs;
-                    if (args.RoutedEvent == Stage.PreviewTouchDownEvent || args.RoutedEvent == Stage.TouchDownEvent)
-                        args.Stage.AddTouchFocus(handlerInfo, this, args.Source, touchArgs.Pointer, touchArgs.Button);
-                }
-            }
             handlerList.End();
 
             return args.Cancelled;
@@ -324,46 +239,6 @@ namespace MonoGdx.Scene2D
             return false;
         }
 
-        public bool AddListener (EventListener listener)
-        {
-            if (!_listeners.Contains(listener)) {
-                _listeners.Add(listener);
-                return true;
-            }
-
-            return false;
-        }
-
-        public bool RemoveListener (EventListener listener)
-        {
-            return _listeners.Remove(listener);
-        }
-
-        public IList<EventListener> Listeners
-        {
-            get { return _listeners; }
-        }
-
-        public bool AddCaptureListener (EventListener listener)
-        {
-            if (!_captureListeners.Contains(listener)) {
-                _captureListeners.Add(listener);
-                return true;
-            }
-
-            return false;
-        }
-
-        public bool RemoveCaptureListener (EventListener listener)
-        {
-            return _captureListeners.Remove(listener);
-        }
-
-        public IList<EventListener> CaptureListeners
-        {
-            get { return _captureListeners; }
-        }
-
         public void AddAction (SceneAction action)
         {
             action.Actor = this;
@@ -388,16 +263,15 @@ namespace MonoGdx.Scene2D
             _actions.Clear();
         }
 
-        public void ClearListeners ()
+        public void ClearHandlers ()
         {
-            _listeners.Clear();
-            _captureListeners.Clear();
+            _handlers.Clear();
         }
 
         public virtual void Clear ()
         {
             ClearActions();
-            ClearListeners();
+            ClearHandlers();
         }
 
         public virtual Stage Stage { get; protected internal set; }
