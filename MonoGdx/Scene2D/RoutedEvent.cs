@@ -11,6 +11,7 @@ namespace MonoGdx.Scene2D
     public delegate void RoutedEventHandler (Actor sender, RoutedEventArgs e);
     public delegate void TouchEventHandler (Actor sender, TouchEventArgs e);
     public delegate void MouseEventHandler (Actor sender, MouseEventArgs e);
+    public delegate void ScrollEventHandler (Actor sender, ScrollEventArgs e);
     public delegate void KeyEventHandler (Actor sender, KeyEventArgs e);
     public delegate void KeyCharEventHandler (Actor sender, KeyCharEventArgs e);
     public delegate void SelectionChangedEventHandler (Actor sender, SelectionChangedEventArgs e);
@@ -106,6 +107,13 @@ namespace MonoGdx.Scene2D
             Handled = false;
             Cancelled = false;
             Stopped = false;
+        }
+
+        public void Cancel ()
+        {
+            Handled = true;
+            Cancelled = true;
+            Stopped = true;
         }
 
         protected virtual void InvokeEventHandler (Delegate handler, Actor target)
@@ -210,6 +218,17 @@ namespace MonoGdx.Scene2D
         protected override void InvokeEventHandler (Delegate handler, Actor target)
         {
             ((TouchEventHandler)handler)(target, this);
+        }
+    }
+
+    public class ScrollEventArgs : RoutedEventArgs
+    {
+        public int ScrollAmountV { get; internal set; }
+        public int ScrollAmountH { get; internal set; }
+
+        protected override void InvokeEventHandler (Delegate handler, Actor target)
+        {
+            ((ScrollEventHandler)handler)(target, this);
         }
     }
 

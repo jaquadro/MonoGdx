@@ -68,6 +68,8 @@ namespace MonoGdx.Scene2D
             EventManager.RegisterClassHandler(typeof(Actor), Stage.TouchUpEvent, new TouchEventHandler(TouchUpClass));
             EventManager.RegisterClassHandler(typeof(Actor), Stage.TouchEnterEvent, new TouchEventHandler(TouchEnterClass));
             EventManager.RegisterClassHandler(typeof(Actor), Stage.TouchLeaveEvent, new TouchEventHandler(TouchLeaveClass));
+            EventManager.RegisterClassHandler(typeof(Actor), Stage.PreviewScrollEvent, new ScrollEventHandler(PreviewScrollClass));
+            EventManager.RegisterClassHandler(typeof(Actor), Stage.ScrollEvent, new ScrollEventHandler(ScrollClass));
         }
 
         public Actor ()
@@ -518,6 +520,18 @@ namespace MonoGdx.Scene2D
             remove { AddHandler(Stage.TouchLeaveEvent, value); }
         }
 
+        public event ScrollEventHandler PreviewScroll
+        {
+            add { AddHandler(Stage.PreviewScrollEvent, value); }
+            remove { AddHandler(Stage.PreviewScrollEvent, value); }
+        }
+
+        public event ScrollEventHandler Scroll
+        {
+            add { AddHandler(Stage.ScrollEvent, value); }
+            remove { AddHandler(Stage.ScrollEvent, value); }
+        }
+
         private static void PreviewKeyDownClass (Actor sender, KeyEventArgs e)
         {
             if (sender != null)
@@ -602,6 +616,18 @@ namespace MonoGdx.Scene2D
                 sender.OnTouchLeave(e);
         }
 
+        private static void PreviewScrollClass (Actor sender, ScrollEventArgs e)
+        {
+            if (sender != null)
+                sender.OnPreviewScroll(e);
+        }
+
+        private static void ScrollClass (Actor sender, ScrollEventArgs e)
+        {
+            if (sender != null)
+                sender.OnScroll(e);
+        }
+
         protected virtual void OnPreviewKeyDown (KeyEventArgs e)
         { }
 
@@ -642,6 +668,12 @@ namespace MonoGdx.Scene2D
         { }
 
         protected virtual void OnTouchLeave (TouchEventArgs e)
+        { }
+
+        protected virtual void OnPreviewScroll (ScrollEventArgs e)
+        { }
+
+        protected virtual void OnScroll (ScrollEventArgs e)
         { }
 
         public bool IsKeyboardFocused

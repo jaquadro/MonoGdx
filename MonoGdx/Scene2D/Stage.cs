@@ -76,6 +76,10 @@ namespace MonoGdx.Scene2D
             EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(TouchEventHandler), typeof(Stage));
         public static readonly RoutedEvent TouchLeaveEvent =
             EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(TouchEventHandler), typeof(Stage));
+        public static readonly RoutedEvent PreviewScrollEvent =
+            EventManager.RegisterRoutedEvent(RoutingStrategy.Tunnel, typeof(ScrollEventHandler), typeof(Stage));
+        public static readonly RoutedEvent ScrollEvent =
+            EventManager.RegisterRoutedEvent(RoutingStrategy.Bubble, typeof(ScrollEventHandler), typeof(Stage));
 
         private bool _ownsSpriteBatch;
         private float _viewportX;
@@ -541,17 +545,30 @@ namespace MonoGdx.Scene2D
 
             Vector2 stageCoords = ScreenToStageCoordinates(new Vector2(_mouseScreenX, _mouseScreenY));
 
-            InputEvent ev = Pools<InputEvent>.Obtain();
+            ScrollEventArgs ev = Pools<ScrollEventArgs>.Obtain();
+            ev.RoutedEvent = PreviewScrollEvent;
             ev.Stage = this;
-            ev.Type = InputType.Scrolled;
-            ev.ScrollAmount = amount;
-            ev.StageX = stageCoords.X;
-            ev.StageY = stageCoords.Y;
+            ev.ScrollAmountV = amount;
+            ev.ScrollAmountH = 0;
 
-            target.Fire(ev);
-            bool handled = ev.IsHandled;
+            if (!target.RaiseEvent(ev)) {
+                ev.RoutedEvent = ScrollEvent;
+                target.RaiseEvent(ev);
+            }
 
-            Pools<InputEvent>.Release(ev);
+            Pools<ScrollEventArgs>.Release(ev);
+
+            InputEvent ev2 = Pools<InputEvent>.Obtain();
+            ev2.Stage = this;
+            ev2.Type = InputType.Scrolled;
+            ev2.ScrollAmount = amount;
+            ev2.StageX = stageCoords.X;
+            ev2.StageY = stageCoords.Y;
+
+            target.Fire(ev2);
+            bool handled = ev2.IsHandled;
+
+            Pools<InputEvent>.Release(ev2);
             return handled;
         }
 
