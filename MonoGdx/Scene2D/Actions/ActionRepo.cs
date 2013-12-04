@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+using System;
 using Microsoft.Xna.Framework;
 using MonoGdx.Geometry;
 using MonoGdx.Utils;
@@ -399,6 +400,13 @@ namespace MonoGdx.Scene2D.Actions
             action.Listener = listener;
             action.Capture = capture;
             action.TargetActor = targetActor;
+            return action;
+        }
+
+        public static ImmediateAction Immediate (Action immediateTask)
+        {
+            ImmediateAction action = Action<ImmediateAction>();
+            action.Action = immediateTask;
             return action;
         }
     }

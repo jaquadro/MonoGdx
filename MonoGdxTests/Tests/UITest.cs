@@ -128,10 +128,10 @@ namespace MonoGdxTests.Tests
 
             window.Pack();
 
-            textField.KeyTyped += (field, c) => {
+            /*textField.KeyUp += (field, c) => {
                 if (c == '\n')
                     field.OnscreenKeyboard.Show(false);
-            };
+            };*/
 
             _stage.AddActor(window);
 

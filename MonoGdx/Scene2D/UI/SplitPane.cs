@@ -63,64 +63,79 @@ namespace MonoGdx.Scene2D.UI
             SecondWidget = secondWidget;
             Width = PrefWidth;
             Height = PrefHeight;
-            Initialize();
         }
 
-        private void Initialize ()
+        protected override void OnTouchDown (TouchEventArgs e)
         {
-            AddListener(new TouchListener() {
-                Down = (ev, x, y, pointer, button) => {
-                    if (_draggingPointer != -1)
-                        return false;
-                    if (pointer == 0 && button != 0)
-                        return false;
+            try {
+                if (_draggingPointer != -1)
+                    return;
+                if (e.Pointer == 0 && e.Button != 0)
+                    return;
 
-                    if (_handleBounds.Contains(x, y)) {
-                        _draggingPointer = pointer;
-                        _lastPoint = new Vector2(x, y);
-                        _handlePosition = new Vector2(_handleBounds.X, _handleBounds.Y);
-                        return true;
-                    }
+                Vector2 position = e.GetPosition(this);
 
-                    return false;
-                },
+                if (_handleBounds.Contains(position.X, position.Y)) {
+                    _draggingPointer = e.Pointer;
+                    _lastPoint = position;
+                    _handlePosition = new Vector2(_handleBounds.X, _handleBounds.Y);
 
-                Up = (ev, x, y, pointer, button) => {
-                    if (pointer == _draggingPointer)
-                        _draggingPointer = -1;
-                },
+                    if (Stage != null)
+                        CaptureTouch(e.Pointer);
 
-                Dragged = (ev, x, y, pointer) => {
-                    if (pointer != _draggingPointer)
-                        return;
+                    e.Handled = true;
+                }
+            }
+            finally {
+                base.OnTouchDown(e);
+            }
+        }
 
-                    ISceneDrawable handle = _style.Handle;
-                    if (!IsVertical) {
-                        float delta = x - _lastPoint.X;
-                        float availWidth = Width - handle.MinWidth;
-                        float dragX = _handlePosition.X + delta;
-                        _handlePosition.X = dragX;
+        protected override void OnTouchUp (TouchEventArgs e)
+        {
+            base.OnTouchUp(e);
 
-                        dragX = MathHelper.Clamp(dragX, 0, availWidth);
-                        _splitAmount = dragX / availWidth;
-                        _splitAmount = MathHelper.Clamp(_splitAmount, _minAmount, _maxAmount);
-                        _lastPoint = new Vector2(x, y);
-                    }
-                    else {
-                        float delta = y - _lastPoint.Y;
-                        float availHeight = Height - handle.MinHeight;
-                        float dragY = _handlePosition.Y + delta;
-                        _handlePosition.Y = dragY;
+            if (Stage != null)
+                ReleaseTouchCapture(e.Pointer);
 
-                        dragY = MathHelper.Clamp(dragY, 0, availHeight);
-                        _splitAmount = 1 - (dragY / availHeight);
-                        _splitAmount = MathHelper.Clamp(_splitAmount, _minAmount, _maxAmount);
-                        _lastPoint = new Vector2(x, y);
-                    }
+            if (e.Pointer == _draggingPointer)
+                _draggingPointer = -1;
+        }
 
-                    Invalidate();
-                },
-            });
+        protected override void OnTouchDrag (TouchEventArgs e)
+        {
+            base.OnTouchDrag(e);
+
+            if (e.Pointer != _draggingPointer)
+                return;
+
+            Vector2 position = e.GetPosition(this);
+
+            ISceneDrawable handle = _style.Handle;
+            if (!IsVertical) {
+                float delta = position.X - _lastPoint.X;
+                float availWidth = Width - handle.MinWidth;
+                float dragX = _handlePosition.X + delta;
+                _handlePosition.X = dragX;
+
+                dragX = MathHelper.Clamp(dragX, 0, availWidth);
+                _splitAmount = dragX / availWidth;
+                _splitAmount = MathHelper.Clamp(_splitAmount, _minAmount, _maxAmount);
+                _lastPoint = position;
+            }
+            else {
+                float delta = position.Y - _lastPoint.Y;
+                float availHeight = Height - handle.MinHeight;
+                float dragY = _handlePosition.Y + delta;
+                _handlePosition.Y = dragY;
+
+                dragY = MathHelper.Clamp(dragY, 0, availHeight);
+                _splitAmount = 1 - (dragY / availHeight);
+                _splitAmount = MathHelper.Clamp(_splitAmount, _minAmount, _maxAmount);
+                _lastPoint = position;
+            }
+
+            Invalidate();
         }
 
         public SplitPaneStyle Style

@@ -67,37 +67,56 @@ namespace MonoGdx.Scene2D.UI
 
             Width = PrefWidth;
             Height = PrefHeight;
+        }
 
-            AddListener(new TouchListener() {
-                Down = (ev, x, y, pointer, button) => {
-                    if (IsDisabled)
-                        return false;
-                    if (_draggingPointer != -1)
-                        return false;
+        protected override void OnTouchDown (TouchEventArgs e)
+        {
+            try {
+                if (IsDisabled)
+                    return;
+                if (_draggingPointer != -1)
+                    return;
 
-                    _draggingPointer = pointer;
-                    CalculatePositionAndValue(x, y);
-                    return true;
-                },
+                Vector2 position = e.GetPosition(this);
 
-                Up = (ev, x, y, pointer, button) => {
-                    if (pointer != _draggingPointer)
-                        return;
-                    _draggingPointer = -1;
+                _draggingPointer = e.Pointer;
+                CalculatePositionAndValue(position.X, position.Y);
 
-                    if (!CalculatePositionAndValue(x, y)) {
-                        // TODO: Raise event for end of dragging control.
-                        
-                        //ChangeEvent changeEvent = Pools<ChangeEvent>.Obtain();
-                        //Fire(changeEvent);
-                        //Pools<ChangeEvent>.Release(changeEvent);
-                    }
-                },
+                CaptureTouch(e.Pointer);
+                e.Handled = true;
+            }
+            finally {
+                base.OnTouchDown(e);
+            }
+        }
 
-                Dragged = (ev, x, y, pointer) => {
-                    CalculatePositionAndValue(x, y);
-                },
-            });
+        protected override void OnTouchDrag (TouchEventArgs e)
+        {
+            base.OnTouchDrag(e);
+
+            Vector2 position = e.GetPosition(this);
+            CalculatePositionAndValue(position.X, position.Y);
+        }
+
+        protected override void OnTouchUp (TouchEventArgs e)
+        {
+            base.OnTouchUp(e);
+
+            if (e.Pointer != _draggingPointer)
+                return;
+
+            _draggingPointer = -1;
+            ReleaseTouchCapture(e.Pointer);
+
+            Vector2 position = e.GetPosition(this);
+
+            if (!CalculatePositionAndValue(position.X, position.Y)) {
+                // TODO: Raise event for end of dragging control.
+
+                //ChangeEvent changeEvent = Pools<ChangeEvent>.Obtain();
+                //Fire(changeEvent);
+                //Pools<ChangeEvent>.Release(changeEvent);
+            }
         }
 
         public SliderStyle Style

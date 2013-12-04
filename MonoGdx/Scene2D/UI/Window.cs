@@ -62,37 +62,70 @@ namespace MonoGdx.Scene2D.UI
             Width = 150;
             Height = 150;
             Title = title;
+        }
 
-            AddCaptureListener(new TouchListener() {
-                Down = (ev, x, y, pointer, button) => {
-                    ToFront();
-                    return false;
-                }
-            });
+        protected override void OnPreviewTouchDown (TouchEventArgs e)
+        {
+            ToFront();
+            base.OnPreviewTouchDown(e);
+        }
 
-            AddListener(new DispatchInputListener() {
-                OnTouchDown = (ev, x, y, pointer, button) => {
-                    if (button == 0) {
-                        _dragging = IsMovable && (Height - y) <= PadTop && y < Height && x > 0 && x < Width;
-                        _dragOffset = new Vector2(x, y);
-                    }
-                    return _dragging || IsModal;
-                },
-                OnTouchUp = (ev, x, y, pointer, button) => {
-                    if (_dragging)
-                        _dragging = false;
-                },
-                OnTouchDragged = (ev, x, y, pointer) => {
-                    if (!_dragging)
-                        return;
-                    Translate(x - _dragOffset.X, y - _dragOffset.Y);
-                },
-                OnMouseMoved = (ev, x, y) => IsModal,
-                OnScrolled = (ev, x, y, amount) => IsModal,
-                OnKeyDown = (ev, keycode) => IsModal,
-                OnKeyUp = (ev, keycode) => IsModal,
-                OnKeyTyped = (ev, character) => IsModal,
-            });
+        protected override void OnTouchDown (TouchEventArgs e)
+        {
+            if (e.Button == 0) {
+                Vector2 position = e.GetPosition(this);
+
+                _dragging = IsMovable && (Height - position.Y) <= PadTop && position.Y < Height && position.X > 0 && position.X < Width;
+                _dragOffset = position;
+            }
+
+            if (_dragging || IsModal)
+                e.Handled = true;
+
+            base.OnTouchDown(e);
+        }
+
+        protected override void OnTouchUp (TouchEventArgs e)
+        {
+            base.OnTouchUp(e);
+            if (_dragging)
+                _dragging = false;
+        }
+
+        protected override void OnTouchDrag (TouchEventArgs e)
+        {
+            base.OnTouchDrag(e);
+            Vector2 position = e.GetPosition(this);
+            if (_dragging)
+                Translate(position.X - _dragOffset.X, position.Y - _dragOffset.Y);
+        }
+
+        protected override void OnMouseMove (MouseEventArgs e)
+        {
+            if (IsModal)
+                e.Handled = true;
+            base.OnMouseMove(e);
+        }
+
+        protected override void OnScroll (ScrollEventArgs e)
+        {
+            if (IsModal)
+                e.Handled = true;
+            base.OnScroll(e);
+        }
+
+        protected override void OnKeyDown (KeyEventArgs e)
+        {
+            if (IsModal)
+                e.Handled = true;
+            base.OnKeyDown(e);
+        }
+
+        protected override void OnKeyUp (KeyEventArgs e)
+        {
+            if (IsModal)
+                e.Handled = true;
+            base.OnKeyUp(e);
         }
 
         public WindowStyle Style

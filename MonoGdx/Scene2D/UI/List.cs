@@ -62,23 +62,30 @@ namespace MonoGdx.Scene2D.UI
             SetItems(items);
             Width = PrefWidth;
             Height = PrefHeight;
+        }
 
-            AddListener(new TouchListener() {
-                Down = (ev, x, y, pointer, button) => {
-                    if (pointer == 0 && button != 0)
-                        return false;
-                    if (!IsSelectable)
-                        return false;
+        protected override void OnTouchDown (TouchEventArgs e)
+        {
+            try {
+                Vector2 position = e.GetPosition(this);
 
-                    TouchDown(y);
-                    return true;
-                },
-            });
+                if (e.Pointer == 0 && e.Button != 0)
+                    return;
+                if (!IsSelectable)
+                    return;
+
+                DoTouchDown(position.Y);
+
+                e.Handled = true;
+            }
+            finally {
+                base.OnTouchDown(e);
+            }
         }
 
         public bool IsSelectable { get; set; }
 
-        void TouchDown (float y)
+        void DoTouchDown (float y)
         {
             int oldIndex = _selectedIndex;
             _selectedIndex = (int)((Height - y) / _itemHeight);

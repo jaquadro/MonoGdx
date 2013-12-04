@@ -52,7 +52,6 @@ namespace MonoGdx.Scene2D.UI
 
         private char _passwordCharacter = CharBullet;
 
-        private InputListener _inputListener;
         private KeyRepeatTask _keyRepeatTask = new KeyRepeatTask();
         private float _keyRepeatInitialTime = .4f;
         private float _keyRepeatTime = .1f;

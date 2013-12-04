@@ -210,16 +210,15 @@ namespace MonoGdx.Scene2D
                         Vector2 stageCoords = ScreenToStageCoordinates(new Vector2(_pointerScreen[pointer].X, _pointerScreen[pointer].Y));
 
                         // Exit over last
-                        InputEvent ev = Pools<InputEvent>.Obtain();
-                        ev.Type = InputType.Exit;
+                        TouchEventArgs ev = Pools<TouchEventArgs>.Obtain();
+                        ev.RoutedEvent = TouchLeaveEvent;
                         ev.Stage = this;
-                        ev.StageX = stageCoords.X;
-                        ev.StageY = stageCoords.Y;
+                        ev.StagePosition = stageCoords;
                         ev.RelatedActor = overLast;
                         ev.Pointer = pointer;
 
-                        overLast.Fire(ev);
-                        Pools<InputEvent>.Release(ev);
+                        overLast.RaiseEvent(ev);
+                        Pools<TouchEventArgs>.Release(ev);
                     }
                     continue;
                 }
@@ -262,28 +261,6 @@ namespace MonoGdx.Scene2D
 
             Pools<TouchEventArgs>.Release(ev);
 
-            // TODO: Deprecated
-            InputEvent ev2 = Pools<InputEvent>.Obtain();
-            ev2.Stage = this;
-            ev2.StageX = stageCoords.X;
-            ev2.StageY = stageCoords.Y;
-            ev2.Pointer = pointer;
-
-            // Exit overLast
-            if (overLast != null) {
-                ev2.Type = InputType.Exit;
-                ev2.RelatedActor = over;
-                overLast.Fire(ev2);
-            }
-
-            // Enter over
-            if (over != null) {
-                ev2.Type = InputType.Enter;
-                ev2.RelatedActor = overLast;
-                over.Fire(ev2);
-            }
-
-            Pools<InputEvent>.Release(ev2);
             return over;
         }
 
@@ -313,24 +290,6 @@ namespace MonoGdx.Scene2D
             bool handled = ev.Handled;
             Pools<TouchEventArgs>.Release(ev);
 
-            //return handled;
-
-            // TODO: Deprecate old event model
-            InputEvent ev2 = Pools<InputEvent>.Obtain();
-            ev2.Type = InputType.TouchDown;
-            ev2.Stage = this;
-            ev2.StageX = stageCoords.X;
-            ev2.StageY = stageCoords.Y;
-            ev2.Pointer = pointer;
-            ev2.Button = button;
-
-            if (ev.Handled)
-                ev2.Handle();
-
-            target.Fire(ev2);
-            handled = ev2.IsHandled;
-
-            Pools<InputEvent>.Release(ev2);
             return handled;
         }
 
@@ -355,57 +314,9 @@ namespace MonoGdx.Scene2D
                 target.RaiseEvent(ev);
             }
 
-            /*IList<TouchFocus> focuses = _touchFocuses.Begin();
-            for (int i = 0, n = _touchFocuses.Count; i < n; i++) {
-                TouchFocus focus = focuses[i];
-                if (focus.Listener != null)
-                    continue;
-                if (focus.Pointer != pointer)
-                    continue;
-
-                ev.RoutedEvent = PreviewTouchDragEvent;
-                ev.Source = focus.TargetActor;
-                focus.ListenerActor.RaiseEvent(ev);
-                //ev.InvokeHandler(focus.Handler.Handler, focus.ListenerActor);
-                if (!ev.Cancelled) {
-                    ev.RoutedEvent = TouchDragEvent;
-                    focus.ListenerActor.RaiseEvent(ev);
-                    //ev.InvokeHandler(focus.Handler.Handler, focus.ListenerActor);
-                }
-            }
-            _touchFocuses.End();*/
-
+            bool handled = ev.Handled;
             Pools<TouchEventArgs>.Release(ev);
 
-            // TODO: Deprecate
-            InputEvent ev2 = Pools<InputEvent>.Obtain();
-            ev2.Type = InputType.TouchDragged;
-            ev2.Stage = this;
-            ev2.StageX = stageCoords.X;
-            ev2.StageY = stageCoords.Y;
-            ev2.Pointer = pointer;
-
-            if (ev.Handled)
-                ev2.Handle();
-
-            IList<TouchFocus> focuses = _touchFocuses.Begin();
-            for (int i = 0, n = _touchFocuses.Count; i < n; i++) {
-                TouchFocus focus = focuses[i];
-                if (focus.Listener == null)
-                    continue;
-                if (focus.Pointer != pointer)
-                    continue;
-
-                ev2.TargetActor = focus.TargetActor;
-                ev2.ListenerActor = focus.ListenerActor;
-                if (focus.Listener.Handle(ev2))
-                    ev2.Handle();
-            }
-            _touchFocuses.End();
-
-            bool handled = ev2.IsHandled;
-
-            Pools<InputEvent>.Release(ev2);
             return handled;
         }
 
@@ -432,66 +343,9 @@ namespace MonoGdx.Scene2D
                 target.RaiseEvent(ev);
             }
 
-            /*IList<TouchFocus> focuses = _touchFocuses.Begin();
-            for (int i = 0, n = _touchFocuses.Count; i < n; i++) {
-                TouchFocus focus = focuses[i];
-                if (focus.Listener != null)
-                    continue;
-                if (focus.Pointer != pointer || focus.Button != button)
-                    continue;
-                if (!_touchFocuses.Remove(focus))
-                    continue;
-
-                ev.RoutedEvent = PreviewTouchUpEvent;
-                ev.Source = focus.TargetActor;
-                focus.ListenerActor.RaiseEvent(ev);
-                //ev.InvokeHandler(focus.Handler.Handler, focus.ListenerActor);
-                if (!ev.Cancelled) {
-                    ev.RoutedEvent = TouchUpEvent;
-                    //ev.InvokeHandler(focus.Handler.Handler, focus.ListenerActor);
-                    focus.ListenerActor.RaiseEvent(ev);
-                }
-
-                Pools<TouchFocus>.Release(focus);
-            }
-            _touchFocuses.End();*/
-
+            bool handled = ev.Handled;
             Pools<TouchEventArgs>.Release(ev);
 
-            // TODO: Deprecated
-            InputEvent ev2 = Pools<InputEvent>.Obtain();
-            ev2.Type = InputType.TouchUp;
-            ev2.Stage = this;
-            ev2.StageX = stageCoords.X;
-            ev2.StageY = stageCoords.Y;
-            ev2.Pointer = pointer;
-            ev2.Button = button;
-
-            if (ev.Handled)
-                ev2.Handle();
-
-            IList<TouchFocus> focuses = _touchFocuses.Begin();
-            for (int i = 0, n = _touchFocuses.Count; i < n; i++) {
-                TouchFocus focus = focuses[i];
-                if (focus.Listener == null)
-                    continue;
-                if (focus.Pointer != pointer || focus.Button != button)
-                    continue;
-                if (!_touchFocuses.Remove(focus))
-                    continue;
-
-                ev2.TargetActor = focus.TargetActor;
-                ev2.ListenerActor = focus.ListenerActor;
-                if (focus.Listener.Handle(ev2))
-                    ev2.Handle();
-
-                Pools<TouchFocus>.Release(focus);
-            }
-            _touchFocuses.End();
-
-            bool handled = ev2.IsHandled;
-
-            Pools<InputEvent>.Release(ev2);
             return handled;
         }
 
@@ -516,26 +370,9 @@ namespace MonoGdx.Scene2D
                 target.RaiseEvent(ev);
             }
 
+            bool handled = ev.Handled;
             Pools<MouseEventArgs>.Release(ev);
 
-            // TODO: Deprecated
-            InputEvent ev2 = Pools<InputEvent>.Obtain();
-            ev2.Stage = this;
-            ev2.Type = InputType.MouseMoved;
-            ev2.StageX = stageCoords.X;
-            ev2.StageY = stageCoords.Y;
-
-            if (ev.Handled)
-                ev2.Handle();
-
-            //Actor target = Hit(stageCoords.X, stageCoords.Y, true);
-            //if (target == null)
-            //    target = Root;
-
-            target.Fire(ev2);
-            bool handled = ev2.IsHandled;
-
-            Pools<InputEvent>.Release(ev2);
             return handled;
         }
 
@@ -556,19 +393,9 @@ namespace MonoGdx.Scene2D
                 target.RaiseEvent(ev);
             }
 
+            bool handled = ev.Handled;
             Pools<ScrollEventArgs>.Release(ev);
 
-            InputEvent ev2 = Pools<InputEvent>.Obtain();
-            ev2.Stage = this;
-            ev2.Type = InputType.Scrolled;
-            ev2.ScrollAmount = amount;
-            ev2.StageX = stageCoords.X;
-            ev2.StageY = stageCoords.Y;
-
-            target.Fire(ev2);
-            bool handled = ev2.IsHandled;
-
-            Pools<InputEvent>.Release(ev2);
             return handled;
         }
 
@@ -587,18 +414,9 @@ namespace MonoGdx.Scene2D
                 target.RaiseEvent(ev);
             }
 
+            bool handled = ev.Handled;
             Pools<KeyEventArgs>.Release(ev);
 
-            // TODO: Deprecated
-            InputEvent ev2 = Pools<InputEvent>.Obtain();
-            ev2.Stage = this;
-            ev2.Type = InputType.KeyDown;
-            ev2.KeyCode = keycode;
-
-            target.Fire(ev2);
-            bool handled = ev2.IsHandled;
-
-            Pools<InputEvent>.Release(ev2);
             return handled;
         }
 
@@ -617,18 +435,9 @@ namespace MonoGdx.Scene2D
                 target.RaiseEvent(ev);
             }
 
+            bool handled = ev.Handled;
             Pools<KeyEventArgs>.Release(ev);
 
-            // TODO: Deprecated
-            InputEvent ev2 = Pools<InputEvent>.Obtain();
-            ev2.Stage = this;
-            ev2.Type = InputType.KeyUp;
-            ev2.KeyCode = keycode;
-
-            target.Fire(ev2);
-            bool handled = ev2.IsHandled;
-
-            Pools<InputEvent>.Release(ev2);
             return handled;
         }
 
@@ -646,18 +455,9 @@ namespace MonoGdx.Scene2D
                 target.RaiseEvent(ev);
             }
 
+            bool handled = ev.Handled;
             Pools<KeyCharEventArgs>.Release(ev);
 
-            // TODO: Deprecated
-            InputEvent ev2 = Pools<InputEvent>.Obtain();
-            ev2.Stage = this;
-            ev2.Type = InputType.KeyTyped;
-            ev2.Character = character;
-
-            target.Fire(ev2);
-            bool handled = ev2.IsHandled;
-
-            Pools<InputEvent>.Release(ev2);
             return handled;
         }
 
@@ -716,40 +516,6 @@ namespace MonoGdx.Scene2D
             }
         }
 
-        public void CancelTouchFocus ()
-        {
-            CancelTouchFocus(null, null);
-        }
-
-        public void CancelTouchFocus (EventListener listener, Actor actor)
-        {
-            InputEvent ev = Pools<InputEvent>.Obtain();
-            ev.Stage = this;
-            ev.Type = InputType.TouchUp;
-            ev.StageX = float.MinValue;
-            ev.StageY = float.MinValue;
-
-            // Cancel all current touch focuses except for the specified listener, allowing for concurrent modification, and never
-            // cancel the same focus twice.
-            IList<TouchFocus> items = _touchFocuses.Begin();
-            for (int i = 0, n = _touchFocuses.Count; i < n; i++) {
-                TouchFocus focus = items[i];
-                if (focus.Listener == listener && focus.ListenerActor == actor)
-                    continue;
-                if (!_touchFocuses.Remove(focus))
-                    continue;
-
-                ev.TargetActor = focus.TargetActor;
-                ev.ListenerActor = focus.ListenerActor;
-                ev.Pointer = focus.Pointer;
-                ev.Button = focus.Button;
-                focus.Listener.Handle(ev);
-            }
-            _touchFocuses.End();
-
-            Pools<InputEvent>.Release(ev);
-        }
-
         public void AddActor (Actor actor)
         {
             Root.AddActor(actor);
@@ -795,7 +561,7 @@ namespace MonoGdx.Scene2D
         {
             _scrollFocus = null;
             _keyboardFocus = null;
-            CancelTouchFocus();
+            ReleaseTouchCapture();
         }
 
         public void Unfocus (Actor actor)
@@ -844,6 +610,17 @@ namespace MonoGdx.Scene2D
 
                 Pools<TouchEventArgs>.Release(ev);
             }
+        }
+
+        public void ReleaseTouchCapture (int pointer)
+        {
+            SetTouchCapture(null, pointer);
+        }
+
+        public void ReleaseTouchCapture ()
+        {
+            for (int i = 0; i < _touchCapture.Length; i++)
+                ReleaseTouchCapture(i);
         }
 
         public void SetKeyboardFocus (Actor actor)

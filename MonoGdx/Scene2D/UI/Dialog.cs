@@ -31,18 +31,10 @@ namespace MonoGdx.Scene2D.UI
 
         private Table _contentTable;
         private Table _buttonTable;
-        private Skin _skin;
         private Dictionary<Actor, object> _values = new Dictionary<Actor, object>();
         private bool _cancelHide;
         private Actor _prevKeyboardFocus;
         private Actor _prevScrollFocus;
-
-        private InputListener _ignoreTouchDown = new TouchListener() {
-            Down = (ev, x, y, pointer, button) => {
-                ev.Cancel();
-                return false;
-            },
-        };
 
         public Dialog (string title, Skin skin)
             : base(title, skin.Get<WindowStyle>())
@@ -64,14 +56,19 @@ namespace MonoGdx.Scene2D.UI
             Initialize();
         }
 
+        private void CancelTouchDownHandler (Actor sender, TouchEventArgs e)
+        {
+            e.Cancel();
+        }
+
         private void Initialize ()
         {
             IsModal = true;
 
             Defaults().Configure.Space(6);
-            Add(_contentTable = new Table(_skin)).Configure.Expand().Fill();
+            Add(_contentTable = new Table(Skin)).Configure.Expand().Fill();
             Row();
-            Add(_buttonTable = new Table(_skin));
+            Add(_buttonTable = new Table(Skin));
 
             _contentTable.Defaults().Configure.Space(6);
             _buttonTable.Defaults().Configure.Space(6);
@@ -120,7 +117,7 @@ namespace MonoGdx.Scene2D.UI
 
         public void AddText (string text)
         {
-            if (_skin == null)
+            if (Skin == null)
                 throw new InvalidOperationException("This method may only be used if the dialog was constructed with a Skin");
             AddText(text, Skin.Get<LabelStyle>());
         }
@@ -142,9 +139,9 @@ namespace MonoGdx.Scene2D.UI
 
         public void AddButton (string text, object obj)
         {
-            if (_skin == null)
+            if (Skin == null)
                 throw new InvalidOperationException("This method may only be used if the dialog was constructed with a Skin");
-            AddButton(text, obj, _skin.Get<TextButtonStyle>());
+            AddButton(text, obj, Skin.Get<TextButtonStyle>());
         }
 
         public void AddButton (string text, object obj, TextButtonStyle buttonStyle)
@@ -166,7 +163,8 @@ namespace MonoGdx.Scene2D.UI
         public void Show (Stage stage)
         {
             ClearActions();
-            RemoveCaptureListener(_ignoreTouchDown);
+            //RemoveCaptureListener(_ignoreTouchDown);
+            PreviewTouchDown -= CancelTouchDownHandler;
 
             _prevKeyboardFocus = null;
             Actor actor = stage.GetKeyboardFocus();
@@ -194,10 +192,12 @@ namespace MonoGdx.Scene2D.UI
         public void Hide ()
         {
             if (FadeDuration > 0) {
-                AddCaptureListener(_ignoreTouchDown);
+                //AddCaptureListener(_ignoreTouchDown);
+                PreviewTouchDown += CancelTouchDownHandler;
                 AddAction(ActionRepo.Sequence(
                     ActionRepo.FadeOut(FadeDuration, Interpolation.Fade),
-                    ActionRepo.RemoveListener(_ignoreTouchDown, true),
+                    ActionRepo.Immediate(() => { PreviewTouchDown -= CancelTouchDownHandler; }),
+                    //ActionRepo.RemoveListener(_ignoreTouchDown, true),
                     ActionRepo.RemoveActor()
                     ));
             }
@@ -237,17 +237,14 @@ namespace MonoGdx.Scene2D.UI
 
         public void SetKey (int keycode, object obj)
         {
-            AddListener(new DispatchInputListener() {
-                OnKeyDown = (ev, keycode2) => {
-                    if (keycode == keycode2) {
-                        Result(obj);
-                        if (!_cancelHide)
-                            Hide();
-                        _cancelHide = false;
-                    }
-                    return false;
-                },
-            });
+            KeyDown += (s, e) => {
+                if (keycode == e.KeyCode) {
+                    Result(obj);
+                    if (!_cancelHide)
+                        Hide();
+                    _cancelHide = false;
+                }
+            };
         }
 
         protected virtual void Result (object obj)

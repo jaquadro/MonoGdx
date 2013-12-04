@@ -101,116 +101,136 @@ namespace MonoGdx.Scene2D.UI
             Widget = widget;
             Width = 150;
             Height = 150;
+        }
 
-            AddCaptureListener(new DispatchInputListener() {
-                OnTouchDown = (ev, x, y, pointer, button) => {
-                    if (_draggingPointer != -1)
-                        return false;
-                    if (pointer == 0 && button != 0)
-                        return false;
-                    Stage.SetScrollFocus(this);
+        protected override void OnPreviewTouchDown (TouchEventArgs e)
+        {
+            try {
+                if (_draggingPointer != -1)
+                    return;
+                if (e.Pointer == 0 && e.Button != 0)
+                    return;
+                Stage.SetScrollFocus(this);
 
-                    if (!_flickScroll)
-                        ResetFade();
-
-                    if (_fadeAlpha == 0)
-                        return false;
-
-                    if (IsScrollX && _hScrollBounds.Contains(x, y)) {
-                        ev.Stop();
-                        ResetFade();
-                        if (_hKnobBounds.Contains(x, y)) {
-                            _lastPoint = new Vector2(x, y);
-                            _handlePosition = _hKnobBounds.X;
-                            _touchScrollH = true;
-                            _draggingPointer = pointer;
-                            return true;
-                        }
-
-                        SetScrollX(ScrollX + Math.Max(_areaWidth * .9f, MaxX * .1f) * (x < _hKnobBounds.X ? -1 : 1));
-                        return true;
-                    }
-
-                    if (IsScrollY && _vScrollBounds.Contains(x, y)) {
-                        ev.Stop();
-                        ResetFade();
-                        if (_vKnobBounds.Contains(x, y)) {
-                            _lastPoint = new Vector2(x, y);
-                            _handlePosition = _vKnobBounds.Y;
-                            _touchScrollV = true;
-                            _draggingPointer = pointer;
-                            return true;
-                        }
-
-                        SetScrollY(ScrollY + Math.Max(_areaHeight * .9f, MaxY * .1f) * (y < _vKnobBounds.Y ? 1 : -1));
-                        return true;
-                    }
-
-                    return false;
-                },
-
-                OnTouchUp = (ev, x, y, pointer, button) => {
-                    if (pointer != _draggingPointer)
-                        return;
-
-                    _draggingPointer = -1;
-                    _touchScrollH = false;
-                    _touchScrollV = false;
-                },
-
-                OnTouchDragged = (ev, x, y, pointer) => {
-                    if (pointer != _draggingPointer)
-                        return;
-
-                    if (_touchScrollH) {
-                        float delta = x - _lastPoint.X;
-                        float scrollH = _handlePosition + delta;
-                        _handlePosition = scrollH;
-
-                        scrollH = Math.Max(_hScrollBounds.X, scrollH);
-                        scrollH = Math.Min(_hScrollBounds.X + _hScrollBounds.Width - _hKnobBounds.Width, scrollH);
-
-                        float total = _hScrollBounds.Width - _hKnobBounds.Width;
-                        if (total != 0)
-                            ScrollPercentX = (scrollH - _hScrollBounds.X) / total;
-
-                        _lastPoint = new Vector2(x, y);
-                    }
-                    else if (_touchScrollV) {
-                        float delta = y - _lastPoint.Y;
-                        float scrollV = _handlePosition + delta;
-                        _handlePosition = scrollV;
-
-                        scrollV = Math.Max(_vScrollBounds.Y, scrollV);
-                        scrollV = Math.Min(_vScrollBounds.Y + _vScrollBounds.Height - _vKnobBounds.Height, scrollV);
-
-                        float total = _vScrollBounds.Height - _vKnobBounds.Height;
-                        if (total != 0)
-                            ScrollPercentY = 1 - (scrollV - _vScrollBounds.Y) / total;
-
-                        _lastPoint = new Vector2(x, y);
-                    }
-                },
-
-                OnMouseMoved = (ev, x, y) => {
-                    if (!_flickScroll)
-                        ResetFade();
-                    return false;
-                },
-            });
-
-            // Flick Scroll Listener
-
-            AddListener(new DispatchInputListener() {
-                OnScrolled = (ev, x, y, amount) => {
+                if (!_flickScroll)
                     ResetFade();
-                    if (IsScrollY)
-                        SetScrollY(ScrollY + Math.Max(_areaHeight * .9f, MaxY * .1f) / 4 * amount);
-                    if (IsScrollX)
-                        SetScrollX(ScrollX + Math.Max(_areaWidth * .9f, MaxX * .1f) / 4 * amount);
-                    return true;
-                },
-            });
+
+                if (_fadeAlpha == 0)
+                    return;
+
+                Vector2 position = e.GetPosition(this);
+
+                if (IsScrollX && _hScrollBounds.Contains(position.X, position.Y)) {
+                    e.Stopped = true;
+                    ResetFade();
+                    if (_hKnobBounds.Contains(position.X, position.Y)) {
+                        _lastPoint = position;
+                        _handlePosition = _hKnobBounds.X;
+                        _touchScrollH = true;
+                        _draggingPointer = e.Pointer;
+
+                        e.Handled = true;
+                        return;
+                    }
+
+                    SetScrollX(ScrollX + Math.Max(_areaWidth * .9f, MaxX * .1f) * (position.X < _hKnobBounds.X ? -1 : 1));
+                    e.Handled = true;
+                    return;
+                }
+
+                if (IsScrollY && _vScrollBounds.Contains(position.X, position.Y)) {
+                    e.Stopped = true;
+                    ResetFade();
+                    if (_vKnobBounds.Contains(position.X, position.Y)) {
+                        _lastPoint = position;
+                        _handlePosition = _vKnobBounds.Y;
+                        _touchScrollV = true;
+                        _draggingPointer = e.Pointer;
+
+                        e.Handled = true;
+                        return;
+                    }
+
+                    SetScrollY(ScrollY + Math.Max(_areaHeight * .9f, MaxY * .1f) * (position.Y < _vKnobBounds.Y ? 1 : -1));
+                    e.Handled = true;
+                    return;
+                }
+            }
+            finally {
+                base.OnPreviewTouchDown(e);
+            }
+        }
+
+        protected override void OnPreviewTouchUp (TouchEventArgs e)
+        {
+            base.OnTouchUp(e);
+
+            if (e.Pointer != _draggingPointer)
+                return;
+
+            _draggingPointer = -1;
+            _touchScrollH = false;
+            _touchScrollV = false;
+        }
+
+        protected override void OnPreviewTouchDrag (TouchEventArgs e)
+        {
+            base.OnTouchDrag(e);
+
+            if (e.Pointer != _draggingPointer)
+                return;
+
+            Vector2 position = e.GetPosition(this);
+
+            if (_touchScrollH) {
+                float delta = position.X - _lastPoint.X;
+                float scrollH = _handlePosition + delta;
+                _handlePosition = scrollH;
+
+                scrollH = Math.Max(_hScrollBounds.X, scrollH);
+                scrollH = Math.Min(_hScrollBounds.X + _hScrollBounds.Width - _hKnobBounds.Width, scrollH);
+
+                float total = _hScrollBounds.Width - _hKnobBounds.Width;
+                if (total != 0)
+                    ScrollPercentX = (scrollH - _hScrollBounds.X) / total;
+
+                _lastPoint = position;
+            }
+            else if (_touchScrollV) {
+                float delta = position.Y - _lastPoint.Y;
+                float scrollV = _handlePosition + delta;
+                _handlePosition = scrollV;
+
+                scrollV = Math.Max(_vScrollBounds.Y, scrollV);
+                scrollV = Math.Min(_vScrollBounds.Y + _vScrollBounds.Height - _vKnobBounds.Height, scrollV);
+
+                float total = _vScrollBounds.Height - _vKnobBounds.Height;
+                if (total != 0)
+                    ScrollPercentY = 1 - (scrollV - _vScrollBounds.Y) / total;
+
+                _lastPoint = position;
+            }
+        }
+
+        protected override void OnPreviewMouseMove (MouseEventArgs e)
+        {
+            base.OnPreviewMouseMove(e);
+
+            if (!_flickScroll)
+                ResetFade();
+        }
+
+        protected override void OnScroll (ScrollEventArgs e)
+        {
+            ResetFade();
+            if (IsScrollY)
+                SetScrollY(ScrollY + Math.Max(_areaHeight * .9f, MaxY * .1f) / 4 * e.ScrollAmountV);
+            else if (IsScrollX)
+                SetScrollX(ScrollX + Math.Max(_areaWidth * .9f, MaxX * .1f) / 4 * e.ScrollAmountV);
+
+            e.Handled = true;
+
+            base.OnScroll(e);
         }
 
         void ResetFade ()
@@ -220,7 +240,7 @@ namespace MonoGdx.Scene2D.UI
         }
 
         [TODO]
-        void CancelTouchFocusedChild (InputEvent ev)
+        /*void CancelTouchFocusedChild (InputEvent ev)
         {
             if (!CancelTouchFocus)
                 return;
@@ -228,7 +248,7 @@ namespace MonoGdx.Scene2D.UI
             //Stage stage = Stage;
             //if (stage != null)
             //    stage.CancelTouchFocus(_flickScrollListener, this);
-        }
+        }*/
 
         void Clamp ()
         {

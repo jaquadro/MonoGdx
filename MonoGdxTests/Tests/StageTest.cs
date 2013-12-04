@@ -84,24 +84,32 @@ namespace MonoGdxTests.Tests
                 Align = Alignment.Center,
                 Scaling = Scaling.None,
             };
-            rotate.AddListener(new TouchListener() {
+            rotate.TouchDown += (s, e) => {
+                _rotateSprites = !_rotateSprites;
+                e.Handled = true;
+            };
+            /*rotate.AddListener(new TouchListener() {
                 Down = (e, x, y, pointer, button) => {
                     _rotateSprites = !_rotateSprites;
                     return true;
                 }
-            });
+            });*/
             rotate.SetPosition(64, blend.Y);
 
             Image scale = new Image(new TextureRegion(_uiTexture, 64, 32, 64, 32)) {
                 Align = Alignment.Center,
                 Scaling = Scaling.None,
             };
-            scale.AddListener(new TouchListener() {
+            scale.TouchDown += (s, e) => {
+                _scaleSprites = !_scaleSprites;
+                e.Handled = true;
+            };
+            /*scale.AddListener(new TouchListener() {
                 Down = (e, x, y, pointer, button) => {
                     _scaleSprites = !_scaleSprites;
                     return true;
                 }
-            });
+            });*/
             scale.SetPosition(128, blend.Y);
 
             _ui.AddActor(blend);

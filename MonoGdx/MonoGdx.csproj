@@ -56,6 +56,7 @@
     <Compile Include="Input\GestureDetector.cs" />
     <Compile Include="Scene2D\Actions\ColorAction.cs" />
     <Compile Include="Scene2D\Actions\DelegateAction.cs" />
+    <Compile Include="Scene2D\Actions\ImmediateAction.cs" />
     <Compile Include="Scene2D\Actions\MoveByAction.cs" />
     <Compile Include="Scene2D\Actions\MoveToAction.cs" />
     <Compile Include="Scene2D\Actions\RelativeTemporalAction.cs" />
@@ -120,8 +121,6 @@
     <Compile Include="Scene2D\Event.cs" />
     <Compile Include="Scene2D\EventListener.cs" />
     <Compile Include="Scene2D\Group.cs" />
-    <Compile Include="Scene2D\InputEvent.cs" />
-    <Compile Include="Scene2D\InputListener.cs" />
     <Compile Include="Scene2D\Stage.cs" />
     <Compile Include="Scene2D\UI\Button.cs" />
     <Compile Include="Scene2D\UI\Label.cs" />

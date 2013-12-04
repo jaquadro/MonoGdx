@@ -241,11 +241,6 @@ namespace MonoGdx.Scene2D
             foreach (EventListener listener in listeners) {
                 if (listener.Handle(ev)) {
                     ev.Handle();
-                    if (ev is InputEvent) {
-                        InputEvent inputEvent = ev as InputEvent;
-                        if (inputEvent.Type == InputType.TouchDown)
-                            ev.Stage.AddTouchFocus(listener, this, inputEvent.TargetActor, inputEvent.Pointer, inputEvent.Button);
-                    }
                 }
             }
             listeners.End();

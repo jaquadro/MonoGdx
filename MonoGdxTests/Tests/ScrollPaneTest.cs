@@ -42,12 +42,12 @@ namespace MonoGdxTests.Tests
 
             ScrollPane scroll = new ScrollPane(table, skin);
 
-            InputListener stopTouchDown = new DispatchInputListener() {
+            /*InputListener stopTouchDown = new DispatchInputListener() {
                 OnTouchDown = (ev, x, y, pointer, button) => {
                     ev.Stop();
                     return false;
                 },
-            };
+            };*/
 
             table.Pad(10);
             table.Defaults().Configure.ExpandX().Space(4);
@@ -60,14 +60,12 @@ namespace MonoGdxTests.Tests
 
                 TextButton button = new TextButton(i + "dos", skin);
                 table.Add(button);
-                button.AddListener(new DispatchClickListener() {
-                    OnClicked = (ev, x, y) => {
-                        Console.WriteLine("click " + x + ", " + y);
-                    },
-                });
+                button.Clicked += (a, e) => {
+                    Console.WriteLine("Clicked");
+                };
 
                 Slider slider = new Slider(0, 100, 1, false, skin);
-                slider.AddListener(stopTouchDown);
+                slider.TouchDown += (s, e) => { e.Stopped = true; };
                 table.Add(slider);
 
                 table.Add(new Label(i + "tres long0 long1 long2 long3 long4 long5 long6 long7 long8 long9 long10 long11 long12", skin));
