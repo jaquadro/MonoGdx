@@ -442,7 +442,7 @@ namespace MonoGdx.Scene2D
             remove { AddHandler(Stage.PreviewKeyDownEvent, value); }
         }
 
-        public event MouseEventHandler KeyDown
+        public event KeyEventHandler KeyDown
         {
             add { AddHandler(Stage.KeyDownEvent, value); }
             remove { AddHandler(Stage.KeyDownEvent, value); }
