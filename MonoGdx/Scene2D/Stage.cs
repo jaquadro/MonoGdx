@@ -334,9 +334,6 @@ namespace MonoGdx.Scene2D
         {
             _pointerScreen[pointer] = new Point(screenX, screenY);
 
-            if (_touchFocuses.Count == 0)
-                return false;
-
             Vector2 stageCoords = ScreenToStageCoordinates(new Vector2(screenX, screenY));
 
             TouchEventArgs ev = Pools<TouchEventArgs>.Obtain();
@@ -412,9 +409,6 @@ namespace MonoGdx.Scene2D
         {
             _pointerTouched[pointer] = false;
             _pointerScreen[pointer] = new Point(screenX, screenY);
-
-            if (_touchFocuses.Count == 0)
-                return false;
 
             Vector2 stageCoords = ScreenToStageCoordinates(new Vector2(screenX, screenY));
 
