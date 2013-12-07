@@ -100,8 +100,13 @@ namespace MonoGdx
 
         public void Update (GameTime gameTime)
         {
+            Update(gameTime.ElapsedGameTime);
+        }
+
+        public void Update (TimeSpan elapsedTime)
+        {
             UpdateMouse();
-            UpdateKeyboard((float)gameTime.ElapsedGameTime.TotalSeconds);
+            UpdateKeyboard((float)elapsedTime.TotalSeconds);
         }
 
         private void UpdateMouse ()
