@@ -24,14 +24,18 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGdx.Graphics.G2D;
 using MonoGdx.Scene2D.Utils;
 using MonoGdx.TableLayout;
+using MonoGdx.Utils;
 
 namespace MonoGdx.Scene2D.UI
 {
     public class Label : Widget
     {
+        private static readonly CharSequence _emptyString = new StringSequence("");
+
         private LabelStyle _style;
         private BitmapFontCache _cache;
-        private string _text = "";
+        //private string _text = "";
+        private CharSequence _text = _emptyString;
         private bool _sizeInvalid = true;
         private Alignment _labelAlign = Alignment.Left;
         private HAlignment _lineAlign = HAlignment.Left;
@@ -42,25 +46,45 @@ namespace MonoGdx.Scene2D.UI
         private TextBounds _bounds;
 
         public Label (string text, Skin skin)
-            : this(text, skin.Get<LabelStyle>())
+            : this(new StringSequence(text ?? ""), skin.Get<LabelStyle>())
         { }
 
         public Label (string text, Skin skin, string styleName)
-            : this(text, skin.Get<LabelStyle>(styleName))
+            : this(new StringSequence(text ?? ""), skin.Get<LabelStyle>(styleName))
         { }
 
         public Label (string text, Skin skin, string fontName, Color color)
-            : this(text, new LabelStyle(skin.GetFont(fontName), color))
+            : this(new StringSequence(text ?? ""), new LabelStyle(skin.GetFont(fontName), color))
         { }
 
         public Label (string text, Skin skin, string fontName, string colorName)
-            : this(text, new LabelStyle(skin.GetFont(fontName), skin.GetColor(colorName)))
+            : this(new StringSequence(text ?? ""), new LabelStyle(skin.GetFont(fontName), skin.GetColor(colorName)))
         { }
 
         public Label (string text, LabelStyle style)
+            : this(new StringSequence(text ?? ""), style)
+        { }
+
+        public Label (CharSequence text, Skin skin)
+            : this(text, skin.Get<LabelStyle>())
+        { }
+
+        public Label (CharSequence text, Skin skin, string styleName)
+            : this(text, skin.Get<LabelStyle>(styleName))
+        { }
+
+        public Label (CharSequence text, Skin skin, string fontName, Color color)
+            : this(text, new LabelStyle(skin.GetFont(fontName), color))
+        { }
+
+        public Label (CharSequence text, Skin skin, string fontName, string colorName)
+            : this(text, new LabelStyle(skin.GetFont(fontName), skin.GetColor(colorName)))
+        { }
+
+        public Label (CharSequence text, LabelStyle style)
         {
             if (text != null)
-                Text = Text + text;
+                TextSequence = text;
 
             Style = style;
             Width = PrefWidth;
@@ -83,9 +107,15 @@ namespace MonoGdx.Scene2D.UI
             }
         }
 
+        public bool TextEquals (CharSequence other)
+        {
+            return _text.Equals(other);
+        }
+
         public bool TextEquals (string other)
         {
-            return _text == other;
+            return _text.Equals(other);
+            //return _text == other;
             /*int length = _text.Length;
             if (length != other.Length)
                 return false;
@@ -99,11 +129,17 @@ namespace MonoGdx.Scene2D.UI
 
         public string Text
         {
-            get { return _text.ToString(); }
+            get { return _text != null ? _text.ToString() : null; }
+            set { TextSequence = new StringSequence(value ?? ""); }
+        }
+
+        public CharSequence TextSequence
+        {
+            get { return _text; }
             set
             {
                 if (value == null)
-                    value = "";
+                    value = _emptyString;
                 if (TextEquals(value))
                     return;
                 _text = value;

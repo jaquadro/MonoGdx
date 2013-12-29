@@ -22,11 +22,14 @@ using Microsoft.Xna.Framework;
 using MonoGdx.Graphics.G2D;
 using MonoGdx.Scene2D.Utils;
 using MonoGdx.TableLayout;
+using MonoGdx.Utils;
 
 namespace MonoGdx.Scene2D.UI
 {
     public class Window : Table
     {
+        private static StringSequence _workingSequence;
+
         private WindowStyle _style;
         private string _title;
         private BitmapFontCache _titleCache;
@@ -218,7 +221,8 @@ namespace MonoGdx.Scene2D.UI
             set
             {
                 _title = value;
-                _titleCache.SetMultiLineText(value, 0, 0);
+                _workingSequence.Value = value;
+                _titleCache.SetMultiLineText(_workingSequence, 0, 0);
             }
         }
 

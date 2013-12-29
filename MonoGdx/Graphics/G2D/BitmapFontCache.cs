@@ -26,6 +26,8 @@ namespace MonoGdx.Graphics.G2D
 {
     public class BitmapFontCache
     {
+        private static readonly StringSequence _workingSequence = new StringSequence("");
+
         private Color _color = Color.White;
         private int _vertexCount;
 
@@ -132,7 +134,7 @@ namespace MonoGdx.Graphics.G2D
             }
         }
 
-        private float AddToCache (string str, float x, float y, int start, int end)
+        private float AddToCache (CharSequence str, float x, float y, int start, int end)
         {
             float startX = x;
             BitmapFont font = Font;
@@ -248,6 +250,29 @@ namespace MonoGdx.Graphics.G2D
 
         public TextBounds AddText (string str, float x, float y, int start, int end)
         {
+            _workingSequence.Value = str;
+            return AddText(_workingSequence, x, y, start, end);
+        }
+
+        public TextBounds SetText (CharSequence str, float x, float y)
+        {
+            Clear();
+            return AddText(str, x, y, 0, str.Length);
+        }
+
+        public TextBounds SetText (CharSequence str, float x, float y, int start, int end)
+        {
+            Clear();
+            return AddText(str, x, y, start, end);
+        }
+
+        public TextBounds AddText (CharSequence str, float x, float y)
+        {
+            return AddText(str, x, y, 0, str.Length);
+        }
+
+        public TextBounds AddText (CharSequence str, float x, float y, int start, int end)
+        {
             Require(end - start);
             y += Font.Data.Ascent;
 
@@ -275,6 +300,29 @@ namespace MonoGdx.Graphics.G2D
         }
 
         public TextBounds AddMultiLineText (string str, float x, float y, float alignmentWidth, HAlignment alignment)
+        {
+            _workingSequence.Value = str;
+            return AddMultiLineText(_workingSequence, x, y, alignmentWidth, alignment);
+        }
+
+        public TextBounds SetMultiLineText (CharSequence str, float x, float y)
+        {
+            Clear();
+            return AddMultiLineText(str, x, y, 0, HAlignment.Left);
+        }
+
+        public TextBounds SetMultiLineText (CharSequence str, float x, float y, float alignmentWidth, HAlignment alignment)
+        {
+            Clear();
+            return AddMultiLineText(str, x, y, alignmentWidth, alignment);
+        }
+
+        public TextBounds AddMultiLineText (CharSequence str, float x, float y)
+        {
+            return AddMultiLineText(str, x, y, 0, HAlignment.Left);
+        }
+
+        public TextBounds AddMultiLineText (CharSequence str, float x, float y, float alignmentWidth, HAlignment alignment)
         {
             BitmapFont font = Font;
 
@@ -333,6 +381,29 @@ namespace MonoGdx.Graphics.G2D
         }
 
         public TextBounds AddWrappedText (string str, float x, float y, float wrapWidth, HAlignment alignment)
+        {
+            _workingSequence.Value = str;
+            return AddWrappedText(_workingSequence, x, y, wrapWidth, alignment);
+        }
+
+        public TextBounds SetWrappedText (CharSequence str, float x, float y, float wrapWidth)
+        {
+            Clear();
+            return AddWrappedText(str, x, y, wrapWidth, HAlignment.Left);
+        }
+
+        public TextBounds SetWrappedText (CharSequence str, float x, float y, float wrapWidth, HAlignment alignment)
+        {
+            Clear();
+            return AddWrappedText(str, x, y, wrapWidth, alignment);
+        }
+
+        public TextBounds AddWrappedText (CharSequence str, float x, float y, float wrapWidth)
+        {
+            return AddWrappedText(str, x, y, wrapWidth, HAlignment.Left);
+        }
+
+        public TextBounds AddWrappedText (CharSequence str, float x, float y, float wrapWidth, HAlignment alignment)
         {
             BitmapFont font = Font;
 

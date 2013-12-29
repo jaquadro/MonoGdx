@@ -21,6 +21,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGdx.Utils;
 
 namespace MonoGdx.Graphics.G2D
 {
@@ -29,6 +30,8 @@ namespace MonoGdx.Graphics.G2D
         internal const int Log2PageSize = 9;
         internal const int PageSize = 1 << Log2PageSize;
         internal const int Pages = 0x10000 / PageSize;
+
+        private static readonly StringSequence _workingSequence = new StringSequence("");
 
         public static readonly char[] XChars = { 'x', 'e', 'a', 'o', 'n', 's', 'r', 'c', 'u', 'm', 'v', 'w', 'z' };
         public static readonly char[] CapChars = {'M', 'N', 'B', 'D', 'C', 'E', 'F', 'K', 'A', 'G', 'H', 'I', 'J', 
@@ -185,13 +188,25 @@ namespace MonoGdx.Graphics.G2D
 
         public TextBounds Draw (GdxSpriteBatch spriteBatch, string str, float x, float y)
         {
+            _workingSequence.Value = str;
+            return Draw(spriteBatch, _workingSequence, x, y);
+        }
+
+        public TextBounds Draw (GdxSpriteBatch spriteBatch, string str, float x, float y, int start, int end)
+        {
+            _workingSequence.Value = str;
+            return Draw(spriteBatch, _workingSequence, x, y, start, end);
+        }
+
+        public TextBounds Draw (GdxSpriteBatch spriteBatch, CharSequence str, float x, float y)
+        {
             _cache.Clear();
             TextBounds bounds = _cache.AddText(str, x, y, 0, str.Length);
             _cache.Draw(spriteBatch);
             return bounds;
         }
 
-        public TextBounds Draw (GdxSpriteBatch spriteBatch, string str, float x, float y, int start, int end)
+        public TextBounds Draw (GdxSpriteBatch spriteBatch, CharSequence str, float x, float y, int start, int end)
         {
             _cache.Clear();
             TextBounds bounds = _cache.AddText(str, x, y, start, end);
@@ -201,13 +216,25 @@ namespace MonoGdx.Graphics.G2D
 
         public TextBounds DrawMultiLine (GdxSpriteBatch spriteBatch, string str, float x, float y)
         {
+            _workingSequence.Value = str;
+            return DrawMultiLine(spriteBatch, _workingSequence, x, y);
+        }
+
+        public TextBounds DrawMultiLine (GdxSpriteBatch spriteBatch, string str, float x, float y, float alignmentWidth, HAlignment alignment)
+        {
+            _workingSequence.Value = str;
+            return DrawMultiLine(spriteBatch, _workingSequence, x, y, alignmentWidth, alignment);
+        }
+
+        public TextBounds DrawMultiLine (GdxSpriteBatch spriteBatch, CharSequence str, float x, float y)
+        {
             _cache.Clear();
             TextBounds bounds = _cache.AddMultiLineText(str, x, y, 0, HAlignment.Left);
             _cache.Draw(spriteBatch);
             return bounds;
         }
 
-        public TextBounds DrawMultiLine (GdxSpriteBatch spriteBatch, string str, float x, float y, float alignmentWidth, HAlignment alignment)
+        public TextBounds DrawMultiLine (GdxSpriteBatch spriteBatch, CharSequence str, float x, float y, float alignmentWidth, HAlignment alignment)
         {
             _cache.Clear();
             TextBounds bounds = _cache.AddMultiLineText(str, x, y, alignmentWidth, alignment);
@@ -217,13 +244,25 @@ namespace MonoGdx.Graphics.G2D
 
         public TextBounds DrawWrapped (GdxSpriteBatch spriteBatch, string str, float x, float y, float wrapWidth)
         {
+            _workingSequence.Value = str;
+            return DrawWrapped(spriteBatch, _workingSequence, x, y, wrapWidth);
+        }
+
+        public TextBounds DrawWrapped (GdxSpriteBatch spriteBatch, string str, float x, float y, float wrapWidth, HAlignment alignment)
+        {
+            _workingSequence.Value = str;
+            return DrawWrapped(spriteBatch, _workingSequence, x, y, wrapWidth, alignment);
+        }
+
+        public TextBounds DrawWrapped (GdxSpriteBatch spriteBatch, CharSequence str, float x, float y, float wrapWidth)
+        {
             _cache.Clear();
             TextBounds bounds = _cache.AddWrappedText(str, x, y, wrapWidth, HAlignment.Left);
             _cache.Draw(spriteBatch);
             return bounds;
         }
 
-        public TextBounds DrawWrapped (GdxSpriteBatch spriteBatch, string str, float x, float y, float wrapWidth, HAlignment alignment)
+        public TextBounds DrawWrapped (GdxSpriteBatch spriteBatch, CharSequence str, float x, float y, float wrapWidth, HAlignment alignment)
         {
             _cache.Clear();
             TextBounds bounds = _cache.AddWrappedText(str, x, y, wrapWidth, alignment);
@@ -233,10 +272,22 @@ namespace MonoGdx.Graphics.G2D
 
         public TextBounds GetBounds (string str)
         {
-            return GetBounds(str, 0, str.Length);
+            _workingSequence.Value = str;
+            return GetBounds(_workingSequence, 0, str.Length);
         }
 
         public TextBounds GetBounds (string str, int start, int end)
+        {
+            _workingSequence.Value = str;
+            return GetBounds(_workingSequence, start, end);
+        }
+
+        public TextBounds GetBounds (CharSequence str)
+        {
+            return GetBounds(str, 0, str.Length);
+        }
+
+        public TextBounds GetBounds (CharSequence str, int start, int end)
         {
             BitmapFontData data = Data;
             int width = 0;
@@ -266,7 +317,7 @@ namespace MonoGdx.Graphics.G2D
             };
         }
 
-        public TextBounds GetMultiLineBounds (string str)
+        public TextBounds GetMultiLineBounds (CharSequence str)
         {
             int start = 0;
             float maxWidth = 0;
@@ -287,7 +338,7 @@ namespace MonoGdx.Graphics.G2D
             };
         }
 
-        public TextBounds GetWrappedBounds (string str, float wrapWidth)
+        public TextBounds GetWrappedBounds (CharSequence str, float wrapWidth)
         {
             if (wrapWidth <= 0)
                 wrapWidth = int.MaxValue;
@@ -348,6 +399,12 @@ namespace MonoGdx.Graphics.G2D
 
         public void ComputeGlyphAdvancesAndPositions (string str, IList<float> glyphAdvances, IList<float> glyphPositions)
         {
+            _workingSequence.Value = str;
+            ComputeGlyphAdvancesAndPositions(_workingSequence, glyphAdvances, glyphPositions);
+        }
+
+        public void ComputeGlyphAdvancesAndPositions (CharSequence str, IList<float> glyphAdvances, IList<float> glyphPositions)
+        {
             glyphAdvances.Clear();
             glyphPositions.Clear();
 
@@ -400,6 +457,12 @@ namespace MonoGdx.Graphics.G2D
         }
 
         public int ComputeVisibleGlyphs (string str, int start, int end, float availableWidth)
+        {
+            _workingSequence.Value = str;
+            return ComputeVisibleGlyphs(_workingSequence, start, end, availableWidth);
+        }
+
+        public int ComputeVisibleGlyphs (CharSequence str, int start, int end, float availableWidth)
         {
             BitmapFontData data = Data;
             int index = start;
@@ -559,7 +622,7 @@ namespace MonoGdx.Graphics.G2D
 
         public bool OwnsTexture { get; set; }
 
-        internal static int IndexOf (string text, char ch, int start)
+        internal static int IndexOf (CharSequence text, char ch, int start)
         {
             int n = text.Length;
             for (; start < n; start++) {
