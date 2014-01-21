@@ -21,6 +21,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Input.Touch;
 using MonoGdx.Utils;
 
 namespace MonoGdx
@@ -34,6 +35,7 @@ namespace MonoGdx
         private List<KeyEvent> _keyEvents = new List<KeyEvent>(10);
         private MouseState _oldMouseState;
         private KeyboardState _oldKeyboardState;
+        private TouchLocation _oldTouchLocation;
 
         private Pool<TouchEvent> _usedTouchEvents = new Pool<TouchEvent>(16, 512);
         private Pool<KeyEvent> _usedKeyEvents = new Pool<KeyEvent>(16, 512);
@@ -142,6 +144,32 @@ namespace MonoGdx
             }
 
             _oldMouseState = state;
+
+            TouchCollection touchState = TouchPanel.GetState();
+            TouchLocation touchLocation = (touchState.Count > 0) ? touchState[0] : new TouchLocation(0, TouchLocationState.Invalid, Vector2.Zero);
+
+            if ((touchLocation.State & (TouchLocationState.Pressed | TouchLocationState.Moved)) != 0 && 
+                (_oldTouchLocation.State & (TouchLocationState.Pressed | TouchLocationState.Moved)) == 0)
+                PushTouchEvent(ref touchLocation, 0, ButtonState.Pressed);
+            if ((touchLocation.State & (TouchLocationState.Pressed | TouchLocationState.Moved)) == 0 &&
+                (_oldTouchLocation.State & (TouchLocationState.Pressed | TouchLocationState.Moved)) != 0) {
+                if (touchLocation.State != TouchLocationState.Invalid)
+                    PushTouchEvent(ref touchLocation, 0, ButtonState.Released);
+                else
+                    PushTouchEvent(ref _oldTouchLocation, 0, ButtonState.Released);
+            }
+
+            if (touchLocation.State == TouchLocationState.Moved) {
+                TouchEvent ev = ObtainTouchEvent(ref touchLocation);
+                ev.Type = TouchEventType.Moved;
+                _touchEvents.Add(ev);
+
+                ev = ObtainTouchEvent(ref touchLocation);
+                ev.Type = TouchEventType.Dragged;
+                _touchEvents.Add(ev);
+            }
+
+            _oldTouchLocation = touchLocation;
         }
 
         private void UpdateKeyboard (float elapsedTime)
@@ -234,7 +262,35 @@ namespace MonoGdx
             return ev;
         }
 
+        private TouchEvent ObtainTouchEvent (ref TouchLocation state)
+        {
+            TouchEvent ev = _usedTouchEvents.Obtain();
+            ev.X = (int)state.Position.X;
+            ev.Y = (int)state.Position.Y;
+            ev.Pointer = 0;
+            ev.Timestamp = DateTime.Now.Ticks * 100;
+
+            return ev;
+        }
+
         private void PushTouchEvent (ref MouseState state, int button, ButtonState buttonState)
+        {
+            TouchEvent ev = ObtainTouchEvent(ref state);
+            ev.Button = button;
+
+            switch (buttonState) {
+                case ButtonState.Pressed:
+                    ev.Type = TouchEventType.Down;
+                    break;
+                case ButtonState.Released:
+                    ev.Type = TouchEventType.Up;
+                    break;
+            }
+
+            _touchEvents.Add(ev);
+        }
+
+        private void PushTouchEvent (ref TouchLocation state, int button, ButtonState buttonState)
         {
             TouchEvent ev = ObtainTouchEvent(ref state);
             ev.Button = button;

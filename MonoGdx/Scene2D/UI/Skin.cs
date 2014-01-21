@@ -23,6 +23,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 //using Microsoft.Xna.Framework;
 using MonoGdx.Graphics.G2D;
@@ -38,6 +39,19 @@ namespace MonoGdx.Scene2D.UI
 
         public Skin ()
         { }
+
+        public Skin (GraphicsDevice graphicsDevice, ContentManager contentManager, string skinFile)
+        {
+            string atlasFile = Path.Combine(Path.GetDirectoryName(skinFile), Path.GetFileNameWithoutExtension(skinFile) + ".atlas");
+            if (File.Exists(Path.Combine(contentManager.RootDirectory, atlasFile))) {
+                Atlas = new TextureAtlas(contentManager, atlasFile);
+                AddRegions(Atlas);
+            }
+
+            skinFile = Path.Combine(contentManager.RootDirectory, skinFile);
+
+            Load(graphicsDevice, skinFile);
+        }
 
         public Skin (GraphicsDevice graphicsDevice, string skinFile)
         {

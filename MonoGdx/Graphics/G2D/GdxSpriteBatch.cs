@@ -83,14 +83,14 @@ namespace MonoGdx.Graphics.G2D
 
             _transformMatrix = Matrix.Identity;
             //_projectionMatrix = Matrix.CreateOrthographicOffCenter(0, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, 0, 0, 1);
-            _projectionMatrix = XnaExt.Matrix.CreateOrthographic2D(0, 0, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height);
+            _projectionMatrix = XnaExt.Matrix.CreateOrthographic2D(0, 0, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, -1, 0);
 
             Color = Color.White;
 
             CalculateIndexBuffer();
 
             _rasterizerScissorState = new RasterizerState() {
-                CullMode = CullMode.CullCounterClockwiseFace,
+                CullMode = CullMode.None,
                 ScissorTestEnable = true,
             };
 
@@ -146,7 +146,7 @@ namespace MonoGdx.Graphics.G2D
             _blendState = BlendState.AlphaBlend;
             _samplerState = SamplerState.LinearClamp;
             _depthStencilState = DepthStencilState.None;
-            _rasterizerState = RasterizerState.CullCounterClockwise;
+            _rasterizerState = RasterizerState.CullNone;
 
             _projectionMatrix = projectionMatrix;
             _transformMatrix = transformMatrix;

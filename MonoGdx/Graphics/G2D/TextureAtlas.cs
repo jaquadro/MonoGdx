@@ -21,6 +21,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace MonoGdx.Graphics.G2D
@@ -232,7 +233,7 @@ namespace MonoGdx.Graphics.G2D
             }
         }
 
-        public TextureAtlas (GraphicsDevice graphicsDevice)
+        public TextureAtlas ()
         { }
 
         public TextureAtlas (GraphicsDevice graphicsDevice, string packFile)
@@ -260,6 +261,50 @@ namespace MonoGdx.Graphics.G2D
                 Load(graphicsDevice, data);
         }
 
+        public TextureAtlas (ContentManager contentManager, string packFile)
+            : this(contentManager, packFile, Path.GetDirectoryName(packFile))
+        { }
+
+        public TextureAtlas (ContentManager contentManager, string packFile, bool flip)
+            : this(contentManager, packFile, Path.GetDirectoryName(packFile), flip)
+        { }
+
+        public TextureAtlas (ContentManager contentManager, string packFile, string imagesDir)
+            : this(contentManager, packFile, imagesDir, false)
+        { }
+
+        public TextureAtlas (ContentManager contentManager, string packFile, string imagesDir, bool flip)
+            : this(contentManager, new TextureAtlasData(Path.Combine(contentManager.RootDirectory, packFile), imagesDir, flip))
+        { }
+
+        public TextureAtlas (ContentManager contentManager, TextureAtlasData data)
+        {
+            Textures = new HashSet<TextureContext>();
+            Regions = new List<AtlasRegion>();
+
+            if (data != null)
+                Load(contentManager, data);
+        }
+
+        [TODO]
+        private void Load (ContentManager contentManager, TextureAtlasData data)
+        {
+            Dictionary<TextureAtlasData.Page, TextureContext> pageToTexture = new Dictionary<TextureAtlasData.Page, TextureContext>();
+
+            foreach (var page in data.Pages) {
+                TextureContext texture = page.Texture ?? new TextureContext(contentManager, page.TextureFile, false);
+
+                texture.Filter = page.Filter;
+                texture.WrapU = page.UWrap;
+                texture.WrapV = page.VWrap;
+
+                Textures.Add(texture);
+                pageToTexture[page] = texture;
+            }
+
+            LoadRegions(data, pageToTexture);
+        }
+
         [TODO]
         private void Load (GraphicsDevice graphicsDevice, TextureAtlasData data)
         {
@@ -276,22 +321,27 @@ namespace MonoGdx.Graphics.G2D
                 pageToTexture[page] = texture;
             }
 
+            LoadRegions(data, pageToTexture);
+        }
+
+        private void LoadRegions (TextureAtlasData data, Dictionary<TextureAtlasData.Page, TextureContext> pageToTexture)
+        {
             foreach (var region in data.Regions) {
                 int width = region.Width;
                 int height = region.Height;
 
                 AtlasRegion atlasRegion = new AtlasRegion(pageToTexture[region.Page], region.Left, region.Top,
                     region.Rotate ? height : width, region.Rotate ? width : height) {
-                    Index = region.Index,
-                    Name = region.Name,
-                    OffsetX = region.OffsetX,
-                    OffsetY = region.OffsetY,
-                    OriginalWidth = region.OriginalWidth,
-                    OriginalHeight = region.OriginalHeight,
-                    Rotate = region.Rotate,
-                    Splits = region.Splits,
-                    Pads = region.Pads,
-                };
+                        Index = region.Index,
+                        Name = region.Name,
+                        OffsetX = region.OffsetX,
+                        OffsetY = region.OffsetY,
+                        OriginalWidth = region.OriginalWidth,
+                        OriginalHeight = region.OriginalHeight,
+                        Rotate = region.Rotate,
+                        Splits = region.Splits,
+                        Pads = region.Pads,
+                    };
 
                 if (region.Flip)
                     atlasRegion.Flip(false, true);

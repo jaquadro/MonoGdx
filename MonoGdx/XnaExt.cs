@@ -86,11 +86,11 @@ namespace MonoGdx
             {
                 float xOrth = 2 / (right - left);
                 float yOrth = 2 / (top - bottom);
-                float zOrth = -2 / (far - near);
+                float zOrth = 1 / (near - far);
 
-                float tx = -(right + left) / (right - left);
-                float ty = -(top + bottom) / (top - bottom);
-                float tz = -(far + near) / (far - near);
+                float tx = (left + right) / (left - right);
+                float ty = (top + bottom) / (bottom - top);
+                float tz = (near) / (near - far);
 
                 return new XFramework.Matrix(
                     xOrth, 0, 0, 0,

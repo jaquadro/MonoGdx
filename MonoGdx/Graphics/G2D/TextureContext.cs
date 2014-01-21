@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace MonoGdx.Graphics.G2D
@@ -51,6 +52,14 @@ namespace MonoGdx.Graphics.G2D
             using (FileStream fs = File.OpenRead(file)) {
                 _texture = Texture2D.FromStream(graphicsDevice, fs);
             }
+
+            if (premultiplyAlpha)
+                PremultiplyTexture(_texture);
+        }
+
+        public TextureContext (ContentManager contentManager, string assetName, bool premultiplyAlpha)
+        {
+            _texture = contentManager.Load<Texture2D>(assetName);
 
             if (premultiplyAlpha)
                 PremultiplyTexture(_texture);

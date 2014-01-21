@@ -3,3 +3,4 @@ MonoGdx/obj/
 MonoGdxTests/bin/Debug/
 MonoGdxTests/obj/Debug/
 *.suo
+*.user
