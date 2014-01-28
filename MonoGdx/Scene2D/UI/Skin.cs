@@ -508,10 +508,10 @@ namespace MonoGdx.Scene2D.UI
         private Color? LoadColor (Dictionary<string, object> data)
         {
             try {
-                float a = (float)data["a"];
-                float r = (float)data["r"];
-                float g = (float)data["g"];
-                float b = (float)data["b"];
+                float a = float.Parse(data["a"].ToString());
+                float r = float.Parse(data["r"].ToString());
+                float g = float.Parse(data["g"].ToString());
+                float b = float.Parse(data["b"].ToString());
                 
                 return new Color(r, g, b, a);
             }
